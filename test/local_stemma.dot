@@ -1,0 +1,29 @@
+digraph local_stemma {
+    graph [fontname = "helvetica", fontsize=15];
+    node [fontname = "helvetica", fontsize=15];
+    edge [fontname = "helvetica", fontsize=15];
+	node [shape=plaintext];
+	label [shape=box, label="Acts 1:13/30-38"];
+	0 [label="a1"];
+	1 [label="a2"];
+	2 [label="b"];
+	3 [label="c"];
+	4 [label="d"];
+	5 [label="e"];
+	6 [label="f1"];
+	7 [label="f2"];
+	8 [label="g"];
+	9 [label="h"];
+	10 [label="i"];
+	11 [label="?"];
+	0 -> 3;
+	11 -> 1;
+	1 -> 2;
+	11 -> 4;
+	11 -> 5;
+	11 -> 7;
+	11 -> 9;
+	9 -> 6;
+	6 -> 8;
+	6 -> 10;
+}

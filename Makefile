@@ -24,17 +24,24 @@ ${objects} : src/%.o : src/%.cpp ${includes}
 
 #executable files
 programs = \
+	compare_witnesses \
+	
+tests = \
 	test/local_stemma_test \
 	test/variation_unit_test \
 	test/apparatus_test \
 	test/witness_test \
 
 #compile all executables from their implementation files, all linked objects, and external libraries:
-${programs} : % : %.cpp ${objects} src/roaring.o
-	g++ ${CXXFLAGS} -o $@ $< ${objects} src/roaring.o ${LIBS}
+${programs} : % : src/%.cpp ${objects} src/roaring.o
+	g++ ${CXXFLAGS} -o $@ $< ${objects} src/roaring.o
+	
+${tests} : % : %.cpp ${objects} src/roaring.o
+	g++ ${CXXFLAGS} -o $@ $< ${objects} src/roaring.o
 
-all: ${programs} ${objects}
+all: ${programs} ${tests} ${objects}
 
 clean:
 	rm -f ${objects}
+	rm -f ${tests}
 	rm -f ${programs}

@@ -60,8 +60,9 @@ public:
 	vector<string> get_readings();
 	unordered_map<string, list<int>> get_reading_support();
 	int get_connectivity();
-	local_stemma get_stemma();
+	local_stemma get_local_stemma();
 	textual_flow_graph get_textual_flow_diagram();
+	void calculate_textual_flow_for_witness(witness &w);
 	void calculate_textual_flow(unordered_map<string, witness> & witnesses_by_id);
 	void textual_flow_diagram_to_dot(ostream & out);
 	void textual_flow_diagram_for_reading_to_dot(int i, ostream & out);

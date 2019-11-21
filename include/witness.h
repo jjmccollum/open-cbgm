@@ -27,6 +27,7 @@ private:
 public:
 	witness();
 	witness(string witness_id, apparatus app);
+	witness(string witness_id, string relative_witness_id, apparatus app);
 	virtual ~witness();
 	string get_id();
 	unordered_map<string, Roaring> get_agreements_by_witness();
@@ -35,7 +36,7 @@ public:
 	unordered_set<string> get_textual_flow_ancestor_ids();
 	Roaring get_agreements_for_witness(string other_id);
 	Roaring get_explained_readings_for_witness(string other_id);
-	bool pregenealogical_comp(witness w1, witness w2);
+	bool pregenealogical_comp(witness & w1, witness & w2);
 	void set_potential_ancestor_ids(list<witness> wits);
 	void add_textual_flow_ancestor_id(string ancestor_id);
 	unordered_set<string> get_global_stemma_ancestors();

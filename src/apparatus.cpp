@@ -8,6 +8,7 @@
 #include <string>
 #include <list>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "pugixml.h"
 #include "apparatus.h"
@@ -65,3 +66,19 @@ unordered_set<string> apparatus::get_list_wit() {
 list<variation_unit> apparatus::get_variation_units() {
 	return variation_units;
 }
+
+/**
+ * Returns the number of variation units at which the witness with the given ID is extant.
+ */
+/*
+int apparatus::get_extant_readings_count_for_witness_id(string wit_id) {
+	int extant_readings_count = 0;
+	for (variation_unit vu : variation_units) {
+		unordered_map<string, list<int>> reading_support = vu.get_reading_support();
+		if (reading_support.find(wit_id) != reading_support.end()) {
+			extant_readings_count++;
+		}
+	}
+	return extant_readings_count;
+}
+*/

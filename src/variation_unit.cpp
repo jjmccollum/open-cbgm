@@ -140,7 +140,7 @@ int variation_unit::get_connectivity() {
 /**
  * Returns the local stemma of this variation_unit.
  */
-local_stemma variation_unit::get_stemma() {
+local_stemma variation_unit::get_local_stemma() {
 	return stemma;
 }
 
@@ -152,6 +152,90 @@ textual_flow_graph variation_unit::get_textual_flow_diagram() {
 }
 
 /**
+ * Given a witness, adds a vertex representing it and an edge representing its relationship to its ancestor to the textual flow diagram graph
+ * and adds the IDs of its textual flow parents to its set of textual flow ancestors.
+ */
+void variation_unit::calculate_textual_flow_for_witness(witness &w) {
+	string wit_id = w.get_id();
+	//Check if this witness is lacunose:
+	bool extant = (reading_support.find(wit_id) != reading_support.end());
+	//Add a vertex for this witness to the graph:
+	textual_flow_vertex v;
+	v.id = wit_id;
+	v.extant = extant;
+	graph.vertices.push_back(v);
+	//If this witness has no potential ancestors (i.e., if it is the Ausgangstext), then we're done:
+	if (w.get_potential_ancestor_ids().size() == 0) {
+		return;
+	}
+	//Otherwise, identify this witness's textual flow ancestor for this variation unit:
+	string textual_flow_ancestor_id;
+	int con;
+	flow_type type = flow_type::NONE;
+	//If the witness is extant, then attempt to find an ancestor within the connectivity limit that agrees with it:
+	if (extant) {
+		con = 0;
+		for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
+			//If we reach the connectivity limit, then exit the loop early:
+			if (con == connectivity) {
+				break;
+			}
+			//If this potential ancestor agrees with the current witness here, then we're done:
+			if (w.get_agreements_for_witness(potential_ancestor_id).contains(index)) {
+				textual_flow_ancestor_id = potential_ancestor_id;
+				type = flow_type::EQUAL;
+				//Add the textual flow ancestor to this witness's set of textual flow ancestors:
+				w.add_textual_flow_ancestor_id(textual_flow_ancestor_id);
+				break;
+			}
+			//Otherwise, continue through the loop:
+			con++;
+		}
+	}
+	//If no textual flow ancestor has been found (either because the witness is lacunose or it does not have a close ancestor that agrees with it),
+	//then its first extant potential ancestor is its textual flow ancestor:
+	if (textual_flow_ancestor_id.empty()) {
+		con = 0;
+		for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
+			if (reading_support.find(textual_flow_ancestor_id) != reading_support.end()) {
+				textual_flow_ancestor_id = potential_ancestor_id;
+				break;
+			}
+			con++;
+		}
+		//Set the type based on whether or not this witness is extant:
+		type = extant ? flow_type::CHANGE : flow_type::LOSS;
+		//Add the textual flow ancestor to this witness's set of textual flow ancestors:
+		w.add_textual_flow_ancestor_id(textual_flow_ancestor_id);
+		//If this witness is extant, then find the closest ancestor with a reading that explains its reading here,
+		//and add it to this witness's set of textual flow ancestors, as well:
+		if (extant) {
+			bool reading_explained = false;
+			for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
+				if (w.get_explained_readings_for_witness(potential_ancestor_id).contains(index)) {
+					w.add_textual_flow_ancestor_id(potential_ancestor_id);
+					reading_explained = true;
+					break;
+				}
+			}
+			if (!reading_explained) {
+				//If no such ancestor can be found, then the global stemma will not be constructible;
+				//report a warning to the user:
+				cout << "Warning: witness " << wit_id << " has no potential ancestors that can explain its reading at variation unit " << label << "; consider modifying the local stemma for this variation unit." << endl;
+			}
+		}
+	}
+	//Add an edge to the graph connecting the current witness to its textual flow ancestor:
+	textual_flow_edge e;
+	e.descendant = wit_id;
+	e.ancestor = textual_flow_ancestor_id;
+	e.connectivity = con;
+	e.type = type;
+	graph.edges.push_back(e);
+	return;
+}
+
+/**
  * Given a map of witness IDs to witnesses, constructs the textual flow diagram for this variation_unit
  * and modifies each witness's set of textual flow ancestors.
  */
@@ -160,83 +244,8 @@ void variation_unit::calculate_textual_flow(unordered_map<string, witness> &witn
 	graph.edges = list<textual_flow_edge>();
 	//Add a node for each witness:
 	for (pair<string, witness> kv : witnesses_by_id) {
-		string wit_id = kv.first;
 		witness w = kv.second;
-		//Check if this witness is lacunose:
-		bool extant = (reading_support.find(wit_id) != reading_support.end());
-		//Add a vertex for this witness to the graph:
-		textual_flow_vertex v;
-		v.id = wit_id;
-		v.extant = extant;
-		graph.vertices.push_back(v);
-		//If this witness has no potential ancestors (i.e., if it is the Ausgangstext), then move on to the next witness:
-		if (w.get_potential_ancestor_ids().size() == 0) {
-			continue;
-		}
-		//Now identify this witness's textual flow ancestor:
-		string textual_flow_ancestor_id;
-		int con;
-		flow_type type = flow_type::NONE;
-		//If the witness is extant, then attempt to find an ancestor within the connectivity limit that agrees with it:
-		if (extant) {
-			con = 0;
-			for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
-				//If we reach the connectivity limit, then exit the loop early:
-				if (con == connectivity) {
-					break;
-				}
-				//If this potential ancestor agrees with the current witness here, then we're done:
-				if (w.get_agreements_for_witness(potential_ancestor_id).contains(index)) {
-					textual_flow_ancestor_id = potential_ancestor_id;
-					type = flow_type::EQUAL;
-					//Add the textual flow ancestor to this witness's set of textual flow ancestors:
-					w.add_textual_flow_ancestor_id(textual_flow_ancestor_id);
-					break;
-				}
-				//Otherwise, continue through the loop:
-				con++;
-			}
-		}
-		//If no textual flow ancestor has been found (either because the witness is lacunose or it does not have a close ancestor that agrees with it),
-		//then its first extant potential ancestor is its textual flow ancestor:
-		if (textual_flow_ancestor_id.empty()) {
-			con = 0;
-			for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
-				if (reading_support.find(textual_flow_ancestor_id) != reading_support.end()) {
-					textual_flow_ancestor_id = potential_ancestor_id;
-					break;
-				}
-				con++;
-			}
-			//Set the type based on whether or not this witness is extant:
-			type = extant ? flow_type::CHANGE : flow_type::LOSS;
-			//Add the textual flow ancestor to this witness's set of textual flow ancestors:
-			w.add_textual_flow_ancestor_id(textual_flow_ancestor_id);
-			//If this witness is extant, then find the closest ancestor with a reading that explains its reading here,
-			//and add it to this witness's set of textual flow ancestors, as well:
-			if (extant) {
-				bool reading_explained = false;
-				for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
-					if (w.get_explained_readings_for_witness(potential_ancestor_id).contains(index)) {
-						w.add_textual_flow_ancestor_id(potential_ancestor_id);
-						reading_explained = true;
-						break;
-					}
-				}
-				if (!reading_explained) {
-					//If no such ancestor can be found, then the global stemma will not be constructible;
-					//report a warning to the user:
-					cout << "Warning: witness " << wit_id << " has no potential ancestors that can explain its reading at variation unit " << label << "; consider modifying the local stemma for this variation unit." << endl;
-				}
-			}
-		}
-		//Add an edge to the graph connecting the current witness to its textual flow ancestor:
-		textual_flow_edge e;
-		e.descendant = wit_id;
-		e.ancestor = textual_flow_ancestor_id;
-		e.connectivity = con;
-		e.type = type;
-		graph.edges.push_back(e);
+		calculate_textual_flow_for_witness(w);
 	}
 	return;
 }

@@ -27,6 +27,7 @@ public:
 	int size();
 	unordered_set<string> get_list_wit();
 	list<variation_unit> get_variation_units();
+	/*int get_extant_readings_count_for_witness_id(string witness_id);*/
 };
 
 #endif /* APPARATUS_H */

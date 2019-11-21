@@ -31,12 +31,13 @@ witness::witness() {
  * Constructs a witness using its ID and a textual apparatus.
  */
 witness::witness(string witness_id, apparatus app) {
+	//Set its ID:
 	id = witness_id;
 	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:
 	agreements_by_witness = unordered_map<string, Roaring>();
 	explained_readings_by_witness = unordered_map<string, Roaring>();
-	unordered_set<string> list_wits = app.get_list_wit();
-	for (string other_id : list_wits) {
+	unordered_set<string> list_wit = app.get_list_wit();
+	for (string other_id : list_wit) {
 		Roaring equal_readings = Roaring(); //readings in the other witness equal to this witness's readings
 		Roaring equal_or_prior_readings = Roaring(); //readings in the other witness equal or prior to this witness's readings
 		int variation_unit_index = 0;
@@ -53,19 +54,64 @@ witness::witness(string witness_id, apparatus app) {
 				continue;
 			}
 			//Otherwise, loop through all pairs of readings:
-			local_stemma ls = vu.get_stemma();
+			local_stemma ls = vu.get_local_stemma();
 			bool is_equal = false;
 			bool is_equal_or_prior = false;
 			for (int reading_for_this : readings_for_this) {
 				for (int reading_for_other : readings_for_other) {
 					is_equal |= (reading_for_this == reading_for_other);
 					is_equal_or_prior |= ls.is_equal_or_prior(reading_for_other, reading_for_this);
-					if (is_equal || is_equal_or_prior) {
-						break;
-					}
 				}
-				if (is_equal || is_equal_or_prior) {
-					break;
+			}
+			if (is_equal) {
+				equal_readings.add(variation_unit_index);
+				equal_or_prior_readings.add(variation_unit_index);
+			}
+			else if (is_equal_or_prior) {
+				equal_or_prior_readings.add(variation_unit_index);
+			}
+			variation_unit_index++;
+		}
+		agreements_by_witness[other_id] = equal_readings;
+		explained_readings_by_witness[other_id] = equal_or_prior_readings;
+	}
+}
+
+/**
+ * Alternative constructor for a "partial witness" relative to a primary witness.
+ * This constructor only populates the witness's agreements and explained readings bitmaps relative to itself and the primary witness.
+ */
+witness::witness(string witness_id, string relative_witness_id, apparatus app) {
+	//Set its ID:
+	id = witness_id;
+	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:
+	agreements_by_witness = unordered_map<string, Roaring>();
+	explained_readings_by_witness = unordered_map<string, Roaring>();
+	unordered_set<string> list_wit = unordered_set<string>({witness_id, relative_witness_id});
+	for (string other_id : list_wit) {
+		Roaring equal_readings = Roaring(); //readings in the other witness equal to this witness's readings
+		Roaring equal_or_prior_readings = Roaring(); //readings in the other witness equal or prior to this witness's readings
+		int variation_unit_index = 0;
+		for (variation_unit vu : app.get_variation_units()) {
+			//Get the indices of all readings supported by each of these witnesses at this variation unit
+			//(the Ausgangstext A may support more than one reading):
+			unordered_map<string, list<int>> reading_support = vu.get_reading_support();
+			list<int> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support[witness_id] : list<int>();
+			list<int> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support[other_id] : list<int>();
+			//If either witness's list is empty, then it is lacunose here,
+			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
+			if (readings_for_this.size() == 0 || readings_for_other.size() == 0) {
+				variation_unit_index++;
+				continue;
+			}
+			//Otherwise, loop through all pairs of readings:
+			local_stemma ls = vu.get_local_stemma();
+			bool is_equal = false;
+			bool is_equal_or_prior = false;
+			for (int reading_for_this : readings_for_this) {
+				for (int reading_for_other : readings_for_other) {
+					is_equal |= (reading_for_this == reading_for_other);
+					is_equal_or_prior |= ls.is_equal_or_prior(reading_for_other, reading_for_this);
 				}
 			}
 			if (is_equal) {
@@ -142,13 +188,12 @@ Roaring witness::get_explained_readings_for_witness(string other_id) {
  * Computes the pregenealogical similarity of the two given witnesses to this witness
  * and returns a boolean value indicating whether the similarity to the first is greater than the similarity to the second.
  */
-bool witness::pregenealogical_comp(witness w1, witness w2) {
+bool witness::pregenealogical_comp(witness & w1, witness & w2) {
 	Roaring agreements_with_w1 = agreements_by_witness[w1.get_id()];
-	Roaring extant_with_w1 = explained_readings_by_witness[id] & w1.get_explained_readings_for_witness(w1.get_id());
 	Roaring agreements_with_w2 = agreements_by_witness[w2.get_id()];
-	Roaring extant_with_w2 = explained_readings_by_witness[id] & w2.get_explained_readings_for_witness(w2.get_id());
-	float pregenealogical_similarity_to_w1 = float(agreements_with_w1.cardinality()) / float(extant_with_w1.cardinality());
-	float pregenealogical_similarity_to_w2 = float(agreements_with_w2.cardinality()) / float(extant_with_w2.cardinality());
+	Roaring extant = explained_readings_by_witness[id];
+	float pregenealogical_similarity_to_w1 = float(agreements_with_w1.cardinality()) / float(extant.cardinality());
+	float pregenealogical_similarity_to_w2 = float(agreements_with_w2.cardinality()) / float(extant.cardinality());
 	return pregenealogical_similarity_to_w1 > pregenealogical_similarity_to_w2;
 }
 
@@ -160,7 +205,9 @@ bool witness::pregenealogical_comp(witness w1, witness w2) {
 void witness::set_potential_ancestor_ids(list<witness> wits) {
 	potential_ancestor_ids = list<string>();
 	//Sort the input list by pregenealogical similarity to this witness:
-	wits.sort([this](witness w1, witness w2) { return pregenealogical_comp(w1, w2); });
+	wits.sort([this](witness & w1, witness & w2) {
+		return pregenealogical_comp(w1, w2);
+	});
 	//Now iterate through the sorted list,
 	//copying over only the IDs of the witnesses that are genealogically equal or prior to this witness
 	//and are not the same as this witness:

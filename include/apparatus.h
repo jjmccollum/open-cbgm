@@ -22,7 +22,7 @@ private:
 	list<variation_unit> variation_units;
 public:
 	apparatus();
-	apparatus(const pugi::xml_node xml);
+	apparatus(const pugi::xml_node xml, unordered_set<string> substantive_reading_types);
 	virtual ~apparatus();
 	int size();
 	unordered_set<string> get_list_wit();

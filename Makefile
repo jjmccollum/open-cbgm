@@ -42,7 +42,6 @@ ${tests} : % : %.cpp ${objects} src/roaring.o
 all: ${programs} ${tests} ${objects}
 
 clean:
-    rm -f src/roaring.o
 	rm -f ${objects}
 	rm -f ${tests}
 	rm -f ${programs}

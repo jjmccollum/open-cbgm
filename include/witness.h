@@ -27,7 +27,7 @@ private:
 public:
 	witness();
 	witness(string witness_id, apparatus app);
-	witness(string witness_id, string relative_witness_id, apparatus app);
+	witness(string witness_id, unordered_set<string> list_wit, apparatus app);
 	virtual ~witness();
 	string get_id();
 	unordered_map<string, Roaring> get_agreements_by_witness();

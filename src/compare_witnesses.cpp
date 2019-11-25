@@ -65,15 +65,30 @@ void help() {
  */
 int main(int argc, char* argv[]) {
 	//Parse the command-line options:
+	int split = 0;
+	int orth = 0;
+	int def = 0;
 	unsigned int threshold = 0;
+	const char* const short_opts = "ht:";
+	const option long_opts[] = {
+		{"split", no_argument, & split, 1},
+		{"orth", no_argument, & orth, 1},
+		{"def", no_argument, & def, 1},
+		{"threshold", required_argument, nullptr, 't'},
+		{"help", no_argument, nullptr, 'h'},
+		{nullptr, no_argument, nullptr, 0}
+	};
 	int opt;
-	while ((opt = getopt(argc,argv,"ht:")) != -1) {
+	while ((opt = getopt_long(argc, argv, short_opts, long_opts, NULL)) != -1) {
 		switch (opt) {
 			case 'h':
 				help();
 				return 0;
 			case 't':
 				threshold = atoi(optarg);
+				break;
+			case 0:
+				//This will happen if a long option is being parsed; just move on:
 				break;
 			default:
 				printf("Error: invalid argument.\n");
@@ -105,13 +120,27 @@ int main(int argc, char* argv[]) {
 		cout << " and all other witnesses...";
 	}
 	else {
-		cout << " and witnesses";
+		cout << " and witness(es)";
 		for (string secondary_wit_id : secondary_wit_ids) {
 			cout << " " << secondary_wit_id;
 		}
 		cout << "...";
 	}
 	cout << endl;
+	//Using the input flags, populate a set of reading types to be treated as distinct:
+	unordered_set<string> distinct_reading_types = unordered_set<string>({"substantive"});
+	if (split) {
+		//Treat split readings as distinct:
+		distinct_reading_types.insert("split");
+	}
+	if (orth) {
+		//Treat orthographic variants as distinct:
+		distinct_reading_types.insert("orthographic");
+	}
+	if (def) {
+		//Treat defective variants as distinct:
+		distinct_reading_types.insert("defective");
+	}
 	//Attempt to parse the input XML file as an apparatus:
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml);
@@ -124,19 +153,21 @@ int main(int argc, char* argv[]) {
 		printf("Error: The XML file %s does not have a <TEI> element as its root element.\n", input_xml);
 		exit(1);
 	}
-	apparatus app = apparatus(tei_node);
+	apparatus app = apparatus(tei_node, distinct_reading_types);
 	//Ensure that the primary witness is included in the apparatus's <listWit> element:
 	unordered_set<string> list_wit = app.get_list_wit();
 	if (list_wit.find(primary_wit_id) == list_wit.end()) {
 		printf("Error: The XML file's <listWit> element has no child <witness> element with ID %s.\n", primary_wit_id.c_str());
 		exit(1);
 	}
-	//Initialize the primary witness using the apparatus:
-	witness primary_wit = witness(primary_wit_id, app);
 	//If the user has not specified a set of secondary witness IDs, then set this to the apparatus's set of witness IDs:
 	if (secondary_wit_ids.size() == 0) {
 		secondary_wit_ids = unordered_set<string>(list_wit);
 	}
+	//Add the primary witness's ID to this set:
+	secondary_wit_ids.insert(primary_wit_id);
+	//Initialize the primary witness using the apparatus:
+	witness primary_wit = witness(primary_wit_id, secondary_wit_ids, app);
 	//Initialize the secondary witnesses according to the input parameters:
 	unordered_map<string, witness> secondary_witnesses_by_id = unordered_map<string, witness>();
 	for (string secondary_wit_id : list_wit) {
@@ -149,7 +180,8 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 		//Initialize a witness relative to the primary witness:
-		witness secondary_wit = witness(secondary_wit_id, primary_wit_id, app);
+		unordered_set<string> wit_ids = unordered_set<string>({primary_wit_id, secondary_wit_id});
+		witness secondary_wit = witness(secondary_wit_id, wit_ids, app);
 		//If it too lacunose, then ignore it:
 		if (secondary_wit.get_explained_readings_for_witness(secondary_wit_id).cardinality() < threshold) {
 			continue;
@@ -186,8 +218,8 @@ int main(int argc, char* argv[]) {
 		return wc1.perc > wc2.perc;
 	});
 	//Now print the output to the command-line:
-	cout << "Genealogical comparisons relative to " << primary_wit_id << ":\n\n";
-	cout << "ID\t" << "DIR\t" << "PASS\t" << "PERC\t" << "EQ\t" << "W1>W2\t" << "W1<W2\t" << "UNCL\t" << "NOREL\n";
+	cout << "Genealogical comparisons for W1 = " << primary_wit_id << ":\n\n";
+	cout << "W2\t" << "DIR\t" << "PASS\t" << "PERC\t" << "EQ\t" << "W1>W2\t" << "W1<W2\t" << "UNCL\t" << "NOREL\n";
 	for (witness_comparison comparison : comparisons) {
 		cout << comparison.id << "\t";
 		cout << (comparison.dir == -1 ? ">" : (comparison.dir == 1 ? "<" : "=")) << "\t";

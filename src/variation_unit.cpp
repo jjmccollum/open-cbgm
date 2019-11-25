@@ -9,6 +9,7 @@
 #include <cstring>
 #include <string>
 #include <list>
+#include <unordered_set>
 #include <unordered_map>
 
 #include "pugixml.h"
@@ -28,50 +29,296 @@ variation_unit::variation_unit() {
 
 /**
  * Constructs a variation unit from an <app/> XML element and its numerical index.
+ * A set of strings indicating reading types that should be treated as substantive is also expected.
  */
-variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xml_node xml) {
+variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xml_node xml, unordered_set<string> distinct_reading_types) {
 	//Populate the index:
 	index = variation_unit_index;
 	//Populate the label:
 	label = (xml.child("label") && xml.child("label").text()) ? xml.child("label").text().get() : "";
-	//Populate the witness-to-readings map:
-	reading_support = unordered_map<string, list<int>>();
-	int reading_ind = -1;
+	//Populate the witness-to-readings map, and for the local stemma, maintain a map of trivial subvariants to their nearest nontrivial parent readings:
+	reading_support = unordered_map<string, list<string>>();
+	unordered_map<string, string> trivial_to_significant = unordered_map<string, string>();
+	unordered_map<string, string> text_to_substantive_reading = unordered_map<string, string>();
+	string last_substantive_rdg = "";
+	string last_split_rdg = "";
+	string last_orthographic_rdg = "";
+	string last_defective_rdg = "";
+	string current_rdg = "";
+	//Proceed for each <rdg/> element:
 	for (pugi::xml_node rdg : xml.children("rdg")) {
-		//Each <rdg/> element contains the content of the variant reading itself,
-		//a required attribute containing the supporting witnesses' IDs,
-		//an optional "n" attribute containing the reading's ID,
-		//and an optional attribute indicating the variant type (e.g., "substantive", "orthographic", or "defective"):
-		string type = rdg.attribute("type") ? rdg.attribute("type").value() : "substantive";
-		if (type != "orthographic" && type != "defective") {
-			//If the reading is neither an orthographic nor a defective sub-variant,
-			//then increment the index for the current reading
-			//(sub-variants are assumed to follow their parent reading in the XML tree):
-			reading_ind++;
+		//Get the reading's ID:
+		string rdg_id = rdg.attribute("n").value();
+		string rdg_text = rdg.text() ? rdg.text().get() : "";
+		//The reading can have 2^3 = 8 possible type combinations encode these in an integer:
+		int rdg_type_code = 0;
+		const string type_string = rdg.attribute("type") ? rdg.attribute("type").value() : "";
+		char * type_chars = new char[type_string.length() + 1];
+		strcpy(type_chars, type_string.c_str());
+		const char delim[] = " ";
+		char * type_token = strtok(type_chars, delim);
+		while (type_token) {
+			//Strip each reference of the "#" character and add the resulting ID to the witnesses set:
+			string rdg_type = string(type_token);
+			if (rdg_type == "defective") {
+				rdg_type_code += 1;
+			}
+			else if (rdg_type == "orthographic") {
+				rdg_type_code += 2;
+			}
+			else if (rdg_type == "split") {
+				rdg_type_code += 4;
+			}
+			type_token = strtok(NULL, delim); //iterate to the next token
 		}
-		//If the reading has no "n" attribute, then use its index as a default:
-		string rdg_id = rdg.attribute("n") ? rdg.attribute("n").value() : to_string(reading_ind);
+		//Proceed based on the reading type:
+		switch (rdg_type_code) {
+			case 0: //substantive
+				current_rdg = rdg_id;
+				//Reset the counters for all sub-variants:
+				last_substantive_rdg = rdg_id;
+				last_split_rdg = "";
+				last_orthographic_rdg = "";
+				last_defective_rdg = "";
+				//Reset the text to substantive reading map:
+				text_to_substantive_reading = unordered_map<string, string>();
+				//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+				text_to_substantive_reading[rdg_text] = rdg_id;
+				break;
+			case 1: //defective form
+				if (distinct_reading_types.find("defective") != distinct_reading_types.end()) {
+					current_rdg = rdg_id;
+					//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+					text_to_substantive_reading[rdg_text] = rdg_id;
+				}
+				else {
+					current_rdg = last_substantive_rdg;
+					//Map this reading's ID to the last substantive reading's ID:
+					trivial_to_significant[rdg_id] = last_substantive_rdg;
+					//Map this reading's content to the last substantive reading's ID (for resolving split readings to their parent substantive readings):
+					text_to_substantive_reading[rdg_text] = last_substantive_rdg;
+				}
+				//Update the counter for only defective variants:
+				last_defective_rdg = rdg_id;
+				break;
+			case 2: //orthographic subvariant
+				if (distinct_reading_types.find("orthographic") != distinct_reading_types.end()) {
+					current_rdg = rdg_id;
+					//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+					text_to_substantive_reading[rdg_text] = rdg_id;
+				}
+				else {
+					current_rdg = last_substantive_rdg;
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = last_substantive_rdg;
+					//Map this reading's content to the last distinct reading's ID (for resolving split readings to their parent substantive readings):
+					text_to_substantive_reading[rdg_text] = last_substantive_rdg;
+				}
+				//Update the counter for orthographic variants, and reset the counter for defective variants:
+				last_orthographic_rdg = rdg_id;
+				last_defective_rdg = "";
+				break;
+			case 3: //defective form of an orthographic subvariant
+				if (distinct_reading_types.find("defective") != distinct_reading_types.end()) {
+					current_rdg = rdg_id;
+					//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+					text_to_substantive_reading[rdg_text] = rdg_id;
+				}
+				else if (distinct_reading_types.find("orthographic") != distinct_reading_types.end()) {
+					current_rdg = last_orthographic_rdg;
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = last_orthographic_rdg;
+					//Map this reading's content to the last distinct reading's ID (for resolving split readings to their parent substantive readings):
+					text_to_substantive_reading[rdg_text] = last_orthographic_rdg;
+				}
+				else {
+					current_rdg = last_substantive_rdg;
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = last_substantive_rdg;
+					//Map this reading's content to the last distinct reading's ID (for resolving split readings to their parent substantive readings):
+					text_to_substantive_reading[rdg_text] = last_substantive_rdg;
+				}
+				//Update the counter for only defective variants:
+				last_defective_rdg = rdg_id;
+				break;
+			case 4: //split attestation of a substantive reading
+				if (distinct_reading_types.find("split") != distinct_reading_types.end()) {
+					current_rdg = rdg_id;
+				}
+				else {
+					//Get the non-split reading with the same text:
+					current_rdg = text_to_substantive_reading[rdg_text];
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = text_to_substantive_reading[rdg_text];
+				}
+				//Update the counter for split variants, and reset the counter for orthographic and defective variants:
+				last_split_rdg = rdg_id;
+				last_orthographic_rdg = "";
+				last_defective_rdg = "";
+				break;
+			case 5: //defective form of a split attestation
+				if (distinct_reading_types.find("split") != distinct_reading_types.end() && distinct_reading_types.find("defective") != distinct_reading_types.end()) {
+					current_rdg = rdg_id;
+				}
+				else if (distinct_reading_types.find("split") != distinct_reading_types.end()) {
+					current_rdg = last_split_rdg;
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = last_split_rdg;
+				}
+				else if (distinct_reading_types.find("defective") != distinct_reading_types.end()) {
+					//Check if there is a non-split reading with the same text:
+					if (text_to_substantive_reading.find(rdg_text) != text_to_substantive_reading.end()) {
+						//If there is, then get the non-split reading with the same text:
+						current_rdg = text_to_substantive_reading[rdg_text];
+						//Map this reading's ID to the existing reading's ID:
+						trivial_to_significant[rdg_id] = text_to_substantive_reading[rdg_text];
+					}
+					else {
+						//Otherwise, this reading should be treated as distinct:
+						current_rdg = rdg_id;
+						//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+						text_to_substantive_reading[rdg_text] = rdg_id;
+					}
+				}
+				else {
+					//Get the non-split reading with the same text as the last split reading:
+					current_rdg = trivial_to_significant[last_split_rdg];
+					//Map this reading's ID to that reading's ID:
+					trivial_to_significant[rdg_id] = trivial_to_significant[last_split_rdg];
+				}
+				//Update the counter for only defective variants:
+				last_defective_rdg = rdg_id;
+				break;
+			case 6: //orthographic subvariant of a split attestation
+				if (distinct_reading_types.find("split") != distinct_reading_types.end() && distinct_reading_types.find("orthographic") != distinct_reading_types.end()) {
+					current_rdg = rdg_id;
+				}
+				else if (distinct_reading_types.find("split") != distinct_reading_types.end()) {
+					current_rdg = last_split_rdg;
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = last_split_rdg;
+				}
+				else if (distinct_reading_types.find("orthographic") != distinct_reading_types.end()) {
+					//Check if there is a non-split reading with the same text:
+					if (text_to_substantive_reading.find(rdg_text) != text_to_substantive_reading.end()) {
+						//If there is, then get the non-split reading with the same text:
+						current_rdg = text_to_substantive_reading[rdg_text];
+						//Map this reading's ID to the existing reading's ID:
+						trivial_to_significant[rdg_id] = text_to_substantive_reading[rdg_text];
+					}
+					else {
+						//Otherwise, this reading should be treated as distinct:
+						current_rdg = rdg_id;
+						//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+						text_to_substantive_reading[rdg_text] = rdg_id;
+					}
+				}
+				else {
+					//Get the non-split reading with the same text as the last split reading:
+					current_rdg = trivial_to_significant[last_split_rdg];
+					//Map this reading's ID to that reading's ID:
+					trivial_to_significant[rdg_id] = trivial_to_significant[last_split_rdg];
+				}
+				//Update the counter for orthographic variants, and reset the counter for defective variants:
+				last_orthographic_rdg = rdg_id;
+				last_defective_rdg = "";
+				break;
+			case 7: //defective form of an orthographic subvariant of a split attestation
+				if (distinct_reading_types.find("split") != distinct_reading_types.end() && distinct_reading_types.find("orthographic") != distinct_reading_types.end() && distinct_reading_types.find("defective") != distinct_reading_types.end()) {
+					current_rdg = rdg_id;
+				}
+				else if (distinct_reading_types.find("split") != distinct_reading_types.end() && distinct_reading_types.find("orthographic") != distinct_reading_types.end()) {
+					current_rdg = last_orthographic_rdg;
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = last_orthographic_rdg;
+				}
+				else if (distinct_reading_types.find("split") != distinct_reading_types.end() && distinct_reading_types.find("defective") != distinct_reading_types.end()) {
+					current_rdg = last_split_rdg;
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = last_split_rdg;
+				}
+				else if (distinct_reading_types.find("orthographic") != distinct_reading_types.end() && distinct_reading_types.find("defective") != distinct_reading_types.end()) {
+					//Check if there is a non-split reading with the same text:
+					if (text_to_substantive_reading.find(rdg_text) != text_to_substantive_reading.end()) {
+						//If there is, then get the non-split reading with the same text:
+						current_rdg = text_to_substantive_reading[rdg_text];
+						//Map this reading's ID to the existing reading's ID:
+						trivial_to_significant[rdg_id] = text_to_substantive_reading[rdg_text];
+					}
+					else {
+						//Otherwise, this reading should be treated as distinct:
+						current_rdg = rdg_id;
+						//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+						text_to_substantive_reading[rdg_text] = rdg_id;
+					}
+				}
+				else if (distinct_reading_types.find("split") != distinct_reading_types.end()) {
+					current_rdg = last_split_rdg;
+					//Map this reading's ID to the last distinct reading's ID:
+					trivial_to_significant[rdg_id] = last_split_rdg;
+				}
+				else if (distinct_reading_types.find("orthographic") != distinct_reading_types.end()) {
+					//Check if there is a non-split reading with the same text as the last orthographic reading:
+					if (trivial_to_significant.find(last_orthographic_rdg) != trivial_to_significant.end()) {
+						//If there is, then get the non-split reading with its text:
+						current_rdg = trivial_to_significant[last_orthographic_rdg];
+						//Map this reading's ID to that reading's ID:
+						trivial_to_significant[rdg_id] = trivial_to_significant[last_orthographic_rdg];
+					}
+					else {
+						//Otherwise, this reading should be treated as distinct:
+						current_rdg = rdg_id;
+						//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+						text_to_substantive_reading[rdg_text] = rdg_id;
+					}
+				}
+				else if (distinct_reading_types.find("defective") != distinct_reading_types.end()) {
+					//Check if there is a non-split reading with the same text:
+					if (text_to_substantive_reading.find(rdg_text) != text_to_substantive_reading.end()) {
+						//If there is, then get the non-split reading with the same text:
+						current_rdg = text_to_substantive_reading[rdg_text];
+						//Map this reading's ID to the existing reading's ID:
+						trivial_to_significant[rdg_id] = text_to_substantive_reading[rdg_text];
+					}
+					else {
+						//Otherwise, this reading should be treated as distinct:
+						current_rdg = rdg_id;
+						//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
+						text_to_substantive_reading[rdg_text] = rdg_id;
+					}
+				}
+				else {
+					//Get the non-split reading corresponding to the last split reading:
+					current_rdg = trivial_to_significant[last_split_rdg];
+					//Map this reading's ID to the existing reading's ID:
+					trivial_to_significant[rdg_id] = trivial_to_significant[last_split_rdg];
+				}
+				//Update the counter for only defective variants:
+				last_defective_rdg = rdg_id;
+				break;
+			default: //unknown code (this should never happen)
+				break;
+		}
 		//Now split the witness support attribute into a list of witness strings:
 		list<string> wits = list<string>();
 		const string wit_string = rdg.attribute("wit").value();
 		char * wit_chars = new char[wit_string.length() + 1];
 		strcpy(wit_chars, wit_string.c_str());
-		const char delim[] = " ";
-		char * token = strtok(wit_chars, delim);
-		while (token) {
+		char * wit_token = strtok(wit_chars, delim); //reuse the space delimiter from before
+		while (wit_token) {
 			//Strip each reference of the "#" character and add the resulting ID to the witnesses set:
-			string wit = string(token);
-			wit = wit.erase(0, 1);
+			string wit = string(wit_token);
+			wit = wit.rfind("#", 0) == 0 ? wit.erase(0, 1) : wit;
 			wits.push_back(wit);
-			token = strtok(NULL, delim); //iterate to the next token
+			wit_token = strtok(NULL, delim); //iterate to the next token
 		}
 		//Then process each witness with this reading:
 		for (string wit : wits) {
 			//Add an empty list for each reading we haven't encountered yet:
 			if (reading_support.find(wit) == reading_support.end()) {
-				reading_support[wit] = list<int>();
+				reading_support[wit] = list<string>();
 			}
-			reading_support[wit].push_back(reading_ind);
+			reading_support[wit].push_back(current_rdg);
 		}
 	}
 	//Set the connectivity value:
@@ -84,7 +331,7 @@ variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xm
 	pugi::xml_node stemma_node = xml.child("graph");
 	if (stemma_node) {
 		//The <graph/> element should contain the local stemma for this variation unit:
-		stemma = local_stemma(label, stemma_node);
+		stemma = local_stemma(label, stemma_node, trivial_to_significant);
 	}
 	//Initialize the textual flow graph as empty:
 	graph.vertices = list<textual_flow_vertex>();
@@ -117,16 +364,9 @@ int variation_unit::size() {
 }
 
 /**
- * Returns a vector of reading IDs.
- */
-vector<string> variation_unit::get_readings() {
-	return readings;
-}
-
-/**
  * Returns the reading support set of this variation_unit.
  */
-unordered_map<string, list<int>> variation_unit::get_reading_support() {
+unordered_map<string, list<string>> variation_unit::get_reading_support() {
 	return reading_support;
 }
 
@@ -155,7 +395,7 @@ textual_flow_graph variation_unit::get_textual_flow_diagram() {
  * Given a witness, adds a vertex representing it and an edge representing its relationship to its ancestor to the textual flow diagram graph
  * and adds the IDs of its textual flow parents to its set of textual flow ancestors.
  */
-void variation_unit::calculate_textual_flow_for_witness(witness &w) {
+void variation_unit::calculate_textual_flow_for_witness(witness & w) {
 	string wit_id = w.get_id();
 	//Check if this witness is lacunose:
 	bool extant = (reading_support.find(wit_id) != reading_support.end());
@@ -239,7 +479,7 @@ void variation_unit::calculate_textual_flow_for_witness(witness &w) {
  * Given a map of witness IDs to witnesses, constructs the textual flow diagram for this variation_unit
  * and modifies each witness's set of textual flow ancestors.
  */
-void variation_unit::calculate_textual_flow(unordered_map<string, witness> &witnesses_by_id) {
+void variation_unit::calculate_textual_flow(unordered_map<string, witness> & witnesses_by_id) {
 	graph.vertices = list<textual_flow_vertex>();
 	graph.edges = list<textual_flow_edge>();
 	//Add a node for each witness:
@@ -312,11 +552,9 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 }
 
 /**
- * Given a reading index and an output stream, writes this variation_unit's textual flow diagram graph for that reading to output in .dot format.
+ * Given a reading ID and an output stream, writes this variation_unit's textual flow diagram graph for that reading to output in .dot format.
  */
-void variation_unit::textual_flow_diagram_for_reading_to_dot(int i, ostream & out) {
-	//Get the ID of the reading:
-	string reading = readings[i];
+void variation_unit::textual_flow_diagram_for_reading_to_dot(string rdg_id, ostream & out) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
 	//Add lines specifying the font and font size:
@@ -326,7 +564,7 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(int i, ostream & ou
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit and the selected reading:
-	out << "\tlabel [shape=box, label=\"" << label << reading << "\\nCon=" << connectivity << "\"];\n";
+	out << "\tlabel [shape=box, label=\"" << label << rdg_id << "\\nCon=" << connectivity << "\"];\n";
 	//Add all of the graph nodes for witnesses with the specified reading, keeping track of their numerical indices:
 	unordered_map<string, int> primary_id_to_index = unordered_map<string, int>();
 	for (textual_flow_vertex v : graph.vertices) {
@@ -336,9 +574,9 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(int i, ostream & ou
 			continue;
 		}
 		bool wit_has_reading = false;
-		list<int> readings_for_wit = reading_support[wit_id];
-		for (int reading : readings_for_wit) {
-			if (reading == i) {
+		list<string> readings_for_wit = reading_support[wit_id];
+		for (string reading : readings_for_wit) {
+			if (reading == rdg_id) {
 				wit_has_reading = true;
 				break;
 			}
@@ -368,14 +606,13 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(int i, ostream & ou
 			continue;
 		}
 		//If it's new, then get its (first) reading:
-		list<int> ancestor_readings = reading_support[ancestor_id];
-		int ancestor_reading = ancestor_readings.front();
-		string ancestor_reading_id = readings[ancestor_reading];
+		list<string> ancestor_readings = reading_support[ancestor_id];
+		string ancestor_reading = ancestor_readings.front();
 		//Then add a vertex for it to the secondary vertex set:
 		secondary_id_to_index[ancestor_id] = primary_id_to_index.size() + secondary_id_to_index.size();
 		int wit_index = secondary_id_to_index[ancestor_id];
 		out << "\t" << wit_index;
-		out << " [shape=circle, label=\"" << ancestor_reading_id << ": " << ancestor_id << "\"]";
+		out << " [shape=circle, label=\"" << ancestor_reading << ": " << ancestor_id << "\"]";
 		out << ";\n";
 	}
 	//Add all of the graph edges:
@@ -429,12 +666,16 @@ void variation_unit::textual_flow_diagram_for_changes_to_dot(ostream & out) {
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit:
 	out << "\tlabel [shape=box, label=\"" << label << "\\nCon=" << connectivity << "\"];\n";
-	//Maintain a vector of support lists for each reading:
-	vector<list<string>> clusters = vector<list<string>>(readings.size());
-	for (pair<string, list<int>> kv : reading_support) {
+	//Maintain a map of support lists for each reading:
+	unordered_map<string, list<string>> clusters = unordered_map<string, list<string>>();
+	for (pair<string, list<string>> kv : reading_support) {
 		string wit_id = kv.first;
-		list<int> wit_readings = kv.second;
-		for (int wit_reading : wit_readings) {
+		list<string> wit_readings = kv.second;
+		for (string wit_reading : wit_readings) {
+			//Add an empty list of witness IDs for this reading, if it hasn't been encountered yet:
+			if (clusters.find(wit_reading) == clusters.end()) {
+				clusters[wit_reading] = list<string>();
+			}
 			clusters[wit_reading].push_back(wit_id);
 		}
 	}
@@ -455,12 +696,12 @@ void variation_unit::textual_flow_diagram_for_changes_to_dot(ostream & out) {
 		}
 	}
 	//Add a cluster for each reading, including all of the nodes it contains:
-	for (unsigned int i = 0; i < clusters.size(); i++) {
-		string reading_id = readings[i];
-		list<string> cluster = clusters[i];
-		out << "\tsubgraph cluster" << i << " {\n";
+	for (pair<string, list<string>> kv : clusters) {
+		string rdg_id = kv.first;
+		list<string> cluster = kv.second;
+		out << "\tsubgraph cluster_" << rdg_id << " {\n";
 		out << "\t\tlabeljust=\"c\";\n";
-		out << "\t\tlabel=\"" << reading_id << "\";\n";
+		out << "\t\tlabel=\"" << rdg_id << "\";\n";
 		for (string wit_id : cluster) {
 			//If this witness's ID is not found in the numerical index map, then skip it:
 			if (id_to_index.find(wit_id) == id_to_index.end()) {

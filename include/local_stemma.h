@@ -9,22 +9,21 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <list>
-#include <vector>
+#include <set>
 
 #include "pugixml.h"
-#include "roaring.hh"
 
 using namespace std;
 
 //Define graph types for the stemma:
 struct local_stemma_vertex {
-	int index;
 	string id;
 };
 struct local_stemma_edge {
-	int from;
-	int to;
+	string prior;
+	string posterior;
 };
 struct local_stemma_graph {
 	list<local_stemma_vertex> vertices;
@@ -35,15 +34,15 @@ class local_stemma {
 private:
 	string label;
 	local_stemma_graph graph;
-	vector<Roaring> closure_matrix;
+	set<pair<string, string>> closure_set;
 public:
 	local_stemma();
-	local_stemma(string label, const pugi::xml_node xml);
+	local_stemma(string label, const pugi::xml_node xml, unordered_map<string, string> trivial_to_significant);
 	virtual ~local_stemma();
 	string get_label();
 	local_stemma_graph get_graph();
-	vector<Roaring> get_closure_matrix();
-	bool is_equal_or_prior(int i, int j);
+	set<pair<string, string>> get_closure_set();
+	bool is_equal_or_prior(string r1, string r2);
 	void to_dot(std::ostream & out);
 };
 

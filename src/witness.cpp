@@ -44,9 +44,9 @@ witness::witness(string witness_id, apparatus app) {
 		for (variation_unit vu : app.get_variation_units()) {
 			//Get the indices of all readings supported by each of these witnesses at this variation unit
 			//(the Ausgangstext A may support more than one reading):
-			unordered_map<string, list<int>> reading_support = vu.get_reading_support();
-			list<int> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support[witness_id] : list<int>();
-			list<int> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support[other_id] : list<int>();
+			unordered_map<string, list<string>> reading_support = vu.get_reading_support();
+			list<string> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support[witness_id] : list<string>();
+			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support[other_id] : list<string>();
 			//If either witness's list is empty, then it is lacunose here,
 			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
 			if (readings_for_this.size() == 0 || readings_for_other.size() == 0) {
@@ -57,8 +57,8 @@ witness::witness(string witness_id, apparatus app) {
 			local_stemma ls = vu.get_local_stemma();
 			bool is_equal = false;
 			bool is_equal_or_prior = false;
-			for (int reading_for_this : readings_for_this) {
-				for (int reading_for_other : readings_for_other) {
+			for (string reading_for_this : readings_for_this) {
+				for (string reading_for_other : readings_for_other) {
 					is_equal |= (reading_for_this == reading_for_other);
 					is_equal_or_prior |= ls.is_equal_or_prior(reading_for_other, reading_for_this);
 				}
@@ -78,16 +78,15 @@ witness::witness(string witness_id, apparatus app) {
 }
 
 /**
- * Alternative constructor for a "partial witness" relative to a primary witness.
- * This constructor only populates the witness's agreements and explained readings bitmaps relative to itself and the primary witness.
+ * Alternative constructor for a "partial witness" relative to a set of other witnesses.
+ * This constructor only populates the witness's agreements and explained readings bitmaps relative to itself and the specified witnesses.
  */
-witness::witness(string witness_id, string relative_witness_id, apparatus app) {
+witness::witness(string witness_id, unordered_set<string> list_wit, apparatus app) {
 	//Set its ID:
 	id = witness_id;
 	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:
 	agreements_by_witness = unordered_map<string, Roaring>();
 	explained_readings_by_witness = unordered_map<string, Roaring>();
-	unordered_set<string> list_wit = unordered_set<string>({witness_id, relative_witness_id});
 	for (string other_id : list_wit) {
 		Roaring equal_readings = Roaring(); //readings in the other witness equal to this witness's readings
 		Roaring equal_or_prior_readings = Roaring(); //readings in the other witness equal or prior to this witness's readings
@@ -95,9 +94,9 @@ witness::witness(string witness_id, string relative_witness_id, apparatus app) {
 		for (variation_unit vu : app.get_variation_units()) {
 			//Get the indices of all readings supported by each of these witnesses at this variation unit
 			//(the Ausgangstext A may support more than one reading):
-			unordered_map<string, list<int>> reading_support = vu.get_reading_support();
-			list<int> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support[witness_id] : list<int>();
-			list<int> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support[other_id] : list<int>();
+			unordered_map<string, list<string>> reading_support = vu.get_reading_support();
+			list<string> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support[witness_id] : list<string>();
+			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support[other_id] : list<string>();
 			//If either witness's list is empty, then it is lacunose here,
 			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
 			if (readings_for_this.size() == 0 || readings_for_other.size() == 0) {
@@ -108,8 +107,8 @@ witness::witness(string witness_id, string relative_witness_id, apparatus app) {
 			local_stemma ls = vu.get_local_stemma();
 			bool is_equal = false;
 			bool is_equal_or_prior = false;
-			for (int reading_for_this : readings_for_this) {
-				for (int reading_for_other : readings_for_other) {
+			for (string reading_for_this : readings_for_this) {
+				for (string reading_for_other : readings_for_other) {
 					is_equal |= (reading_for_this == reading_for_other);
 					is_equal_or_prior |= ls.is_equal_or_prior(reading_for_other, reading_for_this);
 				}

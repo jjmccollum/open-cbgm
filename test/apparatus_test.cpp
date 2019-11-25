@@ -20,7 +20,8 @@ void test_apparatus() {
 	pugi::xml_parse_result result = doc.load_file("test/acts_1_collation.xml");
 	cout << "XML file load result: " << result.description() << endl;
 	pugi::xml_node tei_node = doc.child("TEI");
-	apparatus app = apparatus(tei_node);
+	unordered_set<string> distinct_reading_types = unordered_set<string>({"substantive", "split"});
+	apparatus app = apparatus(tei_node, distinct_reading_types);
 	cout << "list_wit: " << endl;
 	for (string wit : app.get_list_wit()) {
 		cout << wit << " ";

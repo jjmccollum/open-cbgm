@@ -16,16 +16,18 @@
 
 using namespace std;
 
+/**
+ * Default constructor.
+ */
 apparatus::apparatus() {
-	/**
-	 * Default constructor.
-	 */
+
 }
 
-apparatus::apparatus(const pugi::xml_node xml) {
-	/**
-	 * Constructs an apparatus from a <TEI/> XML element.
-	 */
+/**
+ * Constructs an apparatus from a <TEI/> XML element.
+ * A set of strings indicating reading types that should be treated as substantive is also expected.
+ */
+apparatus::apparatus(const pugi::xml_node xml, unordered_set<string> substantive_reading_types) {
 	//Populate the set of witness IDs first:
 	list_wit = unordered_set<string>();
 	for (pugi::xpath_node wit_path : xml.select_nodes("teiHeader/sourceDesc/listWit/witness")) {
@@ -37,7 +39,7 @@ apparatus::apparatus(const pugi::xml_node xml) {
 	variation_units = list<variation_unit>();
 	for (pugi::xpath_node app_path : xml.select_nodes("descendant::app")) {
 		pugi::xml_node app = app_path.node();
-		variation_unit vu = variation_unit(variation_units.size(), app);
+		variation_unit vu = variation_unit(variation_units.size(), app, substantive_reading_types);
 		variation_units.push_back(vu);
 	}
 }

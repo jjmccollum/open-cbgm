@@ -399,10 +399,17 @@ void variation_unit::calculate_textual_flow_for_witness(witness & w) {
 	string wit_id = w.get_id();
 	//Check if this witness is lacunose:
 	bool extant = (reading_support.find(wit_id) != reading_support.end());
+	//Check if it attests to more than one reading:
+	bool ambiguous = false;
+	if (extant) {
+		list<string> readings_for_witness = reading_support[wit_id];
+		ambiguous = readings_for_witness.size() > 1;
+	}
 	//Add a vertex for this witness to the graph:
 	textual_flow_vertex v;
 	v.id = wit_id;
 	v.extant = extant;
+	v.ambiguous = ambiguous;
 	graph.vertices.push_back(v);
 	//If this witness has no potential ancestors (i.e., if it is the Ausgangstext), then we're done:
 	if (w.get_potential_ancestor_ids().size() == 0) {
@@ -423,7 +430,7 @@ void variation_unit::calculate_textual_flow_for_witness(witness & w) {
 			//If this potential ancestor agrees with the current witness here, then we're done:
 			if (w.get_agreements_for_witness(potential_ancestor_id).contains(index)) {
 				textual_flow_ancestor_id = potential_ancestor_id;
-				type = flow_type::EQUAL;
+				type = ambiguous ? flow_type::AMBIGUOUS : flow_type::EQUAL;
 				//Add the textual flow ancestor to this witness's set of textual flow ancestors:
 				w.add_textual_flow_ancestor_id(textual_flow_ancestor_id);
 				break;
@@ -512,9 +519,12 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 		id_to_index[wit_id] = id_to_index.size();
 		int wit_index = id_to_index[wit_id];
 		out << "\t" << wit_index;
-		//Format the node based on whether the witness is extant here:
-		if (v.extant) {
-			out << " [label=\"" << wit_id << "\"]";
+		//Format the node based on whether the witness is extant or ambiguous here:
+		if (v.extant && !v.ambiguous) {
+			out << " [label=\"" << wit_id << "\", shape=circle]";
+		}
+		else if (v.extant && v.ambiguous) {
+			out << " [label=\"" << wit_id << "\", shape=circle, peripheries=2]";
 		}
 		else {
 			out << " [label=\"" << wit_id << "\", color=gray, shape=circle, style=dashed]";
@@ -527,7 +537,14 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 		int ancestor_index = id_to_index[e.ancestor];
 		int descendant_index = id_to_index[e.descendant];
 		out << "\t";
-		out << ancestor_index << " -> " << descendant_index;
+		if (e.type == flow_type::AMBIGUOUS) {
+			//Ambiguous changes are indicated by double-lined arrows:
+			out << ancestor_index << " => " << descendant_index;
+		}
+		else {
+			//All other changes are indicated by single-lined arrows:
+			out << ancestor_index << " -> " << descendant_index;
+		}
 		//Conditionally format the edge:
 		out << " [";
 		if (e.connectivity > 0) {
@@ -541,8 +558,9 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 		else if (e.type == flow_type::LOSS) {
 			//Highlight losses with dashed gray arrows:
 			out << "color=gray, style=dashed";
-		} else {
-			//Textual flow involving no change is indicated by a black arrow:
+		}
+		else {
+			//Equal and ambiguous textual flows are indicated by solid black arrows:
 			out << "color=black";
 		}
 		out << "];\n";
@@ -587,8 +605,14 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(string rdg_id, ostr
 		//Otherwise, map its ID to its numerical index:
 		primary_id_to_index[wit_id] = primary_id_to_index.size();
 		int wit_index = primary_id_to_index[wit_id];
+		//Then draw its vertex:
 		out << "\t" << wit_index;
-		out << " [label=\"" << wit_id << "\"]";
+		if (v.ambiguous) {
+			out << " [label=\"" << wit_id << "\", shape=circle, peripheries=2]";
+		}
+		else {
+			out << " [label=\"" << wit_id << "\", shape=circle]";
+		}
 		out << ";\n";
 	}
 	//Add all of the graph nodes for ancestors of these witnesses with a different reading, keeping track of their numerical indices:
@@ -605,14 +629,26 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(string rdg_id, ostr
 		if (secondary_id_to_index.find(ancestor_id) != secondary_id_to_index.end()) {
 			continue;
 		}
-		//If it's new, then get its (first) reading:
+		//If it's new, then get its reading ID(s):
 		list<string> ancestor_readings = reading_support[ancestor_id];
-		string ancestor_reading = ancestor_readings.front();
+		string ancestor_reading = "";
+		for (string rdg : ancestor_readings) {
+			ancestor_reading += rdg;
+			if (rdg != ancestor_readings.back()) {
+				ancestor_reading + " ";
+			}
+		}
 		//Then add a vertex for it to the secondary vertex set:
 		secondary_id_to_index[ancestor_id] = primary_id_to_index.size() + secondary_id_to_index.size();
 		int wit_index = secondary_id_to_index[ancestor_id];
 		out << "\t" << wit_index;
-		out << " [shape=circle, label=\"" << ancestor_reading << ": " << ancestor_id << "\"]";
+		if (ancestor_readings.size() > 1) {
+			//The nearest extant ancestor has an ambiguous reading:
+			out << " [label=\"" << ancestor_reading << "\", color=blue, shape=circle, peripheries=2]";
+		}
+		else {
+			out << " [label=\"" << ancestor_reading << ": " << ancestor_id << "\", color=blue, shape=circle]";
+		}
 		out << ";\n";
 	}
 	//Add all of the graph edges:
@@ -628,7 +664,14 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(string rdg_id, ostr
 		int ancestor_index = primary_id_to_index.find(ancestor_id) != primary_id_to_index.end() ? primary_id_to_index[ancestor_id] : secondary_id_to_index[ancestor_id];
 		int descendant_index = primary_id_to_index[descendant_id];
 		out << "\t";
-		out << ancestor_index << " -> " << descendant_index;
+		if (e.type == flow_type::AMBIGUOUS) {
+			//Ambiguous changes are indicated by double-lined arrows:
+			out << ancestor_index << " => " << descendant_index;
+		}
+		else {
+			//All other changes are indicated by single-lined arrows:
+			out << ancestor_index << " -> " << descendant_index;
+		}
 		//Conditionally format the edge:
 		out << " [";
 		if (e.connectivity > 0) {
@@ -710,7 +753,13 @@ void variation_unit::textual_flow_diagram_for_changes_to_dot(ostream & out) {
 			//Otherwise, get the numerical index for this witness's vertex:
 			int wit_index = id_to_index[wit_id];
 			out << "\t\t" << wit_index;
-			out << " [label=\"" << wit_id << "\"]";
+			if (reading_support[wit_id].size() > 1) {
+				//The witness is ambiguous:
+				out << " [label=\"" << wit_id << "\", shape=circle, peripheries=2]";
+			}
+			else {
+				out << " [label=\"" << wit_id << "\", shape=circle]";
+			}
 			out << ";\n";
 		}
 	}

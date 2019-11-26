@@ -1,7 +1,7 @@
 /*
- * compare_witnesses.cpp
+ * find_relatives.cpp
  *
- *  Created on: Nov 20, 2019
+ *  Created on: Nov 26, 2019
  *      Author: jjmccollum
  */
 
@@ -27,6 +27,8 @@ using namespace std;
 struct witness_comparison {
 	string id; //ID of the secondary witness
 	int dir; //-1 if primary witness is prior; 1 if posterior; 0 otherwise
+	int nr; //rank of the secondary witness as a potential ancestor of the primary witness
+	string rdg; //reading(s) of the secondary witness at the given variation unit
 	int pass; //number of variation units where the primary witness is extant
 	float perc; //percentage of agreement in variation units where the primary witness is extant
 	int eq; //number of agreements in variation units where the primary witness is extant
@@ -40,7 +42,7 @@ struct witness_comparison {
  * Prints the short usage message.
  */
 void usage() {
-	printf("usage: compare_witnesses [-h] [-t threshold] [--split] [--orth] [--def] input_xml witness_1 [witness_2 ... witness_n]\n\n");
+	printf("usage: find_relatives [-h] [-t threshold] [--split] [--orth] [--def] input_xml witness passage\n\n");
 	return;
 }
 
@@ -58,8 +60,8 @@ void help() {
 	printf("\t--def: treat defective forms as distinct readings");
 	printf("positional arguments:\n");
 	printf("\tinput_xml: collation file in TEI XML format\n");
-	printf("\twitness_1: ID of the primary witness to be compared, as found in its <witness> element in the XML file\n");
-	printf("\twitness_2 ... witness_n: IDs of secondary witness to be compared to the primary witness (if not specified, then the primary witness will be compared to all other witnesses)\n\n");
+	printf("\twitness: ID of the witness whose relatives are desired, as found in its <witness> element in the XML file\n");
+	printf("\tpassage: Label of the variation unit at which relatives' readings are desired\n");
 	return;
 }
 
@@ -101,8 +103,8 @@ int main(int argc, char* argv[]) {
 	}
 	//Parse the positional arguments:
 	int index = optind;
-	if (argc <= index + 1) {
-		printf("Error: At least 2 positional arguments (input_xml and witness_1) are required.\n");
+	if (argc <= index + 2) {
+		printf("Error: 3 positional arguments (input_xml, witness, and passage) are required.\n");
 		exit(1);
 	}
 	//The first positional argument is the XML file:
@@ -111,25 +113,16 @@ int main(int argc, char* argv[]) {
 	//The next argument is the primary witness ID:
 	string primary_wit_id = string(argv[index]);
 	index++;
-	//The remaining arguments are IDs of specific secondary witnesses to consider;
-	//if they are not specified, then we will include all witnesses:
-	unordered_set<string> secondary_wit_ids = unordered_set<string>();
-	for (int i = index; i < argc; i++) {
-		string secondary_wit_id = string(argv[i]);
-		secondary_wit_ids.insert(secondary_wit_id);
-	}
-	cout << "Calculating genealogical relationships between witness " << primary_wit_id;
-	if (secondary_wit_ids.size() == 0) {
-		cout << " and all other witnesses...";
-	}
-	else {
-		cout << " and witness(es)";
-		for (string secondary_wit_id : secondary_wit_ids) {
-			cout << " " << secondary_wit_id;
+	//The remaining arguments are the tokens in the variation unit label:
+	string vu_label = "";
+	while (index < argc) {
+		vu_label += argv[index];
+		if (index + 1 < argc) {
+			vu_label += " ";
 		}
-		cout << "...";
+		index++;
 	}
-	cout << endl;
+	cout << "Calculating genealogical relationships between witness " << primary_wit_id << " and all other witnesses..." << endl;
 	//Using the input flags, populate a set of reading types to be treated as distinct:
 	unordered_set<string> distinct_reading_types = unordered_set<string>();
 	if (split) {
@@ -157,43 +150,52 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 	apparatus app = apparatus(tei_node, distinct_reading_types);
+	//Attempt to retrieve the input variation unit:
+	variation_unit vu;
+	bool variation_unit_exists = false;
+	for (variation_unit curr_vu : app.get_variation_units()) {
+		if (curr_vu.get_label() == vu_label) {
+			vu = curr_vu;
+			variation_unit_exists = true;
+			break;
+		}
+	}
+	if (!variation_unit_exists) {
+		printf("Error: The XML file has no <app> element with a <label> value of %s.\n", vu_label.c_str());
+		exit(1);
+	}
 	//Ensure that the primary witness is included in the apparatus's <listWit> element:
 	unordered_set<string> list_wit = app.get_list_wit();
 	if (list_wit.find(primary_wit_id) == list_wit.end()) {
 		printf("Error: The XML file's <listWit> element has no child <witness> element with ID %s.\n", primary_wit_id.c_str());
 		exit(1);
 	}
-	//If the user has not specified a set of secondary witness IDs, then set this to the apparatus's set of witness IDs:
-	if (secondary_wit_ids.size() == 0) {
-		secondary_wit_ids = unordered_set<string>(list_wit);
-	}
-	//Add the primary witness's ID to this set:
-	secondary_wit_ids.insert(primary_wit_id);
-	//Initialize the primary witness using the apparatus:
-	witness primary_wit = witness(primary_wit_id, secondary_wit_ids, app);
-	//Initialize the secondary witnesses according to the input parameters:
+	//Populate a set of IDs for all other witnesses that match the input parameters
+	//and a map of the witnesses themselves, keyed by ID:
+	unordered_set<string> secondary_wit_ids = unordered_set<string>();
 	unordered_map<string, witness> secondary_witnesses_by_id = unordered_map<string, witness>();
 	for (string secondary_wit_id : list_wit) {
 		//Skip the primary witness:
 		if (secondary_wit_id == primary_wit_id) {
 			continue;
 		}
-		//Skip any witnesses not in the input set:
-		if (secondary_wit_ids.find(secondary_wit_id) == secondary_wit_ids.end()) {
-			continue;
-		}
-		//Initialize a witness relative to the primary witness:
+		//Initialize a secondary witness relative to the primary witness:
 		unordered_set<string> wit_ids = unordered_set<string>({primary_wit_id, secondary_wit_id});
 		witness secondary_wit = witness(secondary_wit_id, wit_ids, app);
 		//If it is too lacunose, then ignore it:
 		if (secondary_wit.get_explained_readings_for_witness(secondary_wit_id).cardinality() < threshold) {
 			continue;
 		}
-		//Otherwise, add it to the map:
+		//Otherwise, add it:
+		secondary_wit_ids.insert(secondary_wit_id);
 		secondary_witnesses_by_id[secondary_wit_id] = secondary_wit;
 	}
+	//Initialize the primary witness relative to all of the secondary witnesses in this map:
+	secondary_wit_ids.insert(primary_wit_id);
+	witness primary_wit = witness(primary_wit_id, secondary_wit_ids, app);
 	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
 	list<witness_comparison> comparisons = list<witness_comparison>();
+	unordered_map<string, list<string>> reading_support = vu.get_reading_support();
 	Roaring primary_extant = primary_wit.get_explained_readings_for_witness(primary_wit_id);
 	for (pair<string, witness> kv : secondary_witnesses_by_id) {
 		string secondary_wit_id = kv.first;
@@ -206,6 +208,21 @@ int main(int argc, char* argv[]) {
 		Roaring mutually_explained = primary_explained_by_secondary & secondary_explained_by_primary;
 		witness_comparison comparison;
 		comparison.id = secondary_wit_id;
+		comparison.rdg = "";
+		if (reading_support.find(secondary_wit_id) == reading_support.end()) {
+			//The secondary witness is lacunose:
+			comparison.rdg = "–";
+		}
+		else {
+			list<string> rdg_ids = reading_support[secondary_wit_id];
+			//Serialize all of the secondary witness's readings:
+			for (string rdg_id : rdg_ids) {
+				comparison.rdg += rdg_id;
+				if (rdg_id != rdg_ids.back()) {
+					comparison.rdg += " ";
+				}
+			}
+		}
 		comparison.pass = mutually_extant.cardinality();
 		comparison.eq = agreements.cardinality();
 		comparison.prior = (secondary_explained_by_primary ^ mutually_explained).cardinality();
@@ -220,11 +237,27 @@ int main(int argc, char* argv[]) {
 	comparisons.sort([](const witness_comparison & wc1, const witness_comparison & wc2) {
 		return wc1.perc > wc2.perc;
 	});
-	cout << "Genealogical comparisons for W1 = " << primary_wit_id << ":\n\n";
-	cout << "W2\t" << "DIR\t" << "PASS\t" << "PERC\t\t" << "EQ\t" << "W1>W2\t" << "W1<W2\t" << "UNCL\t" << "NOREL\n\n";
+	//Pass through the sorted list of comparison to assign ancestral ranks:
+	int nr = 1;
+	for (witness_comparison & comparison : comparisons) {
+		if (comparison.dir == 1) {
+			comparison.nr = nr;
+			nr++;
+		}
+		else if (comparison.dir == 0) {
+			comparison.nr = 0;
+		}
+		else {
+			comparison.nr = -1;
+		}
+	}
+	cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << ":\n\n";
+	cout << "W2\t" << "NR\t" << "DIR\t" << "RDG\t" << "PASS\t" << "PERC\t\t" << "EQ\t" << "W1>W2\t" << "W1<W2\t" << "UNCL\t" << "NOREL\n\n";
 	for (witness_comparison comparison : comparisons) {
 		cout << comparison.id << "\t";
 		cout << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "=")) << "\t";
+		cout << (comparison.nr > 0 ? to_string(comparison.nr) : "") << "\t";
+		cout << comparison.rdg << "\t";
 		cout << comparison.pass << "\t";
 		cout << fixed << std::setprecision(3) << comparison.perc << "%\t\t";
 		cout << comparison.eq << "\t";

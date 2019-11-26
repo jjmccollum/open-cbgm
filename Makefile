@@ -25,6 +25,7 @@ ${objects} : src/%.o : src/%.cpp ${includes}
 #executable files
 programs = \
 	compare_witnesses \
+	find_relatives \
 	
 tests = \
 	test/local_stemma_test \

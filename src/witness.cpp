@@ -208,11 +208,10 @@ void witness::set_potential_ancestor_ids(list<witness> wits) {
 		return pregenealogical_comp(w1, w2);
 	});
 	//Now iterate through the sorted list,
-	//copying over only the IDs of the witnesses that are genealogically equal or prior to this witness
-	//and are not the same as this witness:
+	//copying over only the IDs of the witnesses that are genealogically prior to this witness:
 	for (witness wit : wits) {
 		string other_id = wit.get_id();
-		if (get_explained_readings_for_witness(other_id).cardinality() >= wit.get_explained_readings_for_witness(id).cardinality() && other_id != id) {
+		if (get_explained_readings_for_witness(other_id).cardinality() > wit.get_explained_readings_for_witness(id).cardinality()) {
 			potential_ancestor_ids.push_back(other_id);
 		}
 	}

@@ -154,9 +154,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -171,11 +171,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -192,9 +192,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -209,11 +209,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -228,11 +228,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -246,9 +246,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -264,15 +264,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="aof1"></node>
-							<node n="aof2"></node>
-							<node n="b"></node>
-							<arc from="a" to="ao"></arc>
-							<arc from="ao" to="aof1"></arc>
-							<arc from="ao" to="aof2"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="aof1"/>
+							<node n="aof2"/>
+							<node n="b"/>
+							<arc from="a" to="ao"/>
+							<arc from="ao" to="aof1"/>
+							<arc from="ao" to="aof2"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -286,9 +286,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -303,11 +303,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -321,9 +321,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -339,11 +339,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -357,9 +357,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -378,19 +378,19 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="e"></node>
-							<node n="f"></node>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
-							<arc from="a" to="e"></arc>
-							<arc from="a" to="f"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="f"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
+							<arc from="a" to="f"/>
 						</graph>
 					</app>
 					<app>
@@ -405,11 +405,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -423,9 +423,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -442,16 +442,16 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="?" to="c"></arc>
-							<arc from="?" to="d"></arc>
-							<arc from="c" to="d"></arc>
-							<arc from="d" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="c"/>
+							<arc from="?" to="d"/>
+							<arc from="c" to="d"/>
+							<arc from="d" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -465,9 +465,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -484,17 +484,17 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="bf1"></node>
-							<node n="bf2"></node>
-							<node n="bf3"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="b" to="bf1"></arc>
-							<arc from="b" to="bf2"></arc>
-							<arc from="b" to="bf3"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="bf1"/>
+							<node n="bf2"/>
+							<node n="bf3"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="b" to="bf1"/>
+							<arc from="b" to="bf2"/>
+							<arc from="b" to="bf3"/>
 						</graph>
 					</app>
 					<app>
@@ -508,9 +508,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -524,9 +524,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -541,11 +541,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -560,11 +560,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -581,17 +581,17 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<node n="bo"></node>
-							<node n="c"></node>
-							<node n="?"></node>
-							<arc from="?" to="a"></arc>
-							<arc from="?" to="b"></arc>
-							<arc from="a" to="ao"></arc>
-							<arc from="b" to="bo"></arc>
-							<arc from="b" to="c"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<node n="bo"/>
+							<node n="c"/>
+							<node n="?"/>
+							<arc from="?" to="a"/>
+							<arc from="?" to="b"/>
+							<arc from="a" to="ao"/>
+							<arc from="b" to="bo"/>
+							<arc from="b" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -605,9 +605,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -621,9 +621,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -640,17 +640,17 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="e"></node>
-							<node n="f"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
-							<arc from="a" to="e"></arc>
-							<arc from="a" to="f"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="f"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
+							<arc from="a" to="f"/>
 						</graph>
 					</app>
 					<app>
@@ -665,11 +665,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -683,9 +683,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -701,13 +701,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -721,9 +721,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -737,9 +737,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -753,9 +753,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -772,13 +772,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="?"></node>
-							<arc from="?" to="a"></arc>
-							<arc from="?" to="b"></arc>
-							<arc from="b" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="?"/>
+							<arc from="?" to="a"/>
+							<arc from="?" to="b"/>
+							<arc from="b" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -792,9 +792,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -810,11 +810,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -828,9 +828,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -849,19 +849,19 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="e"></node>
-							<node n="f"></node>
-							<node n="g"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
-							<arc from="a" to="e"></arc>
-							<arc from="a" to="f"></arc>
-							<arc from="a" to="g"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="f"/>
+							<node n="g"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
+							<arc from="a" to="f"/>
+							<arc from="a" to="g"/>
 						</graph>
 					</app>
 					<app>
@@ -875,9 +875,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -891,9 +891,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -907,9 +907,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -924,11 +924,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -942,9 +942,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -958,9 +958,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -974,9 +974,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -993,13 +993,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1013,9 +1013,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1032,13 +1032,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<node n="bf"></node>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="b" to="bf"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<node n="bf"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="bf"/>
 						</graph>
 					</app>
 					<app>
@@ -1060,15 +1060,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="e"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
-							<arc from="a" to="e"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
 						</graph>
 					</app>
 					<app>
@@ -1082,9 +1082,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1098,9 +1098,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1116,11 +1116,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1136,11 +1136,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1155,9 +1155,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1172,11 +1172,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1192,13 +1192,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="bf"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="b" to="bf"></arc>
-							<arc from="b" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="bf"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="bf"/>
+							<arc from="b" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1212,9 +1212,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1234,19 +1234,19 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="e"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
-							<arc from="a" to="e"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
 						</graph>
 					</app>
 					<app>
@@ -1260,9 +1260,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1277,11 +1277,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1296,9 +1296,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1315,11 +1315,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1336,15 +1336,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
 						</graph>
 					</app>
 					<app>
@@ -1358,9 +1358,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1377,15 +1377,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="bf1"></node>
-							<node n="bf2"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="b" to="bf1"></arc>
-							<arc from="b" to="bf2"></arc>
-							<arc from="b" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="bf1"/>
+							<node n="bf2"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="bf1"/>
+							<arc from="b" to="bf2"/>
+							<arc from="b" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1400,11 +1400,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1418,9 +1418,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1434,9 +1434,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1463,50 +1463,50 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="e"></node>
-							<node n="f"></node>
-							<node n="f2"></node>
-							<node n="g"></node>
-							<node n="h"></node>
-							<node n="i"></node>
-							<node n="?"></node>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="?" to="a2"></arc>
-							<arc from="a2" to="b"></arc>
-							<arc from="a2" to="d"></arc>
-							<arc from="a2" to="e"></arc>
-							<arc from="a2" to="f2"></arc>
-							<arc from="a2" to="h"></arc>
-							<arc from="?" to="d"></arc>
-							<arc from="d" to="a2"></arc>
-							<arc from="d" to="e"></arc>
-							<arc from="d" to="f2"></arc>
-							<arc from="d" to="h"></arc>
-							<arc from="?" to="e"></arc>
-							<arc from="e" to="a2"></arc>
-							<arc from="e" to="d"></arc>
-							<arc from="e" to="f2"></arc>
-							<arc from="e" to="h"></arc>
-							<arc from="?" to="f2"></arc>
-							<arc from="f2" to="a2"></arc>
-							<arc from="f2" to="d"></arc>
-							<arc from="f2" to="e"></arc>
-							<arc from="f2" to="h"></arc>
-							<arc from="?" to="h"></arc>
-							<arc from="h" to="a2"></arc>
-							<arc from="h" to="d"></arc>
-							<arc from="h" to="e"></arc>
-							<arc from="h" to="f2"></arc>
-							<arc from="h" to="f"></arc>
-							<arc from="f" to="g"></arc>
-							<arc from="f" to="i"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="f"/>
+							<node n="f2"/>
+							<node n="g"/>
+							<node n="h"/>
+							<node n="i"/>
+							<node n="?"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="c"/>
+							<arc from="?" to="a2"/>
+							<arc from="a2" to="b"/>
+							<arc from="a2" to="d"/>
+							<arc from="a2" to="e"/>
+							<arc from="a2" to="f2"/>
+							<arc from="a2" to="h"/>
+							<arc from="?" to="d"/>
+							<arc from="d" to="a2"/>
+							<arc from="d" to="e"/>
+							<arc from="d" to="f2"/>
+							<arc from="d" to="h"/>
+							<arc from="?" to="e"/>
+							<arc from="e" to="a2"/>
+							<arc from="e" to="d"/>
+							<arc from="e" to="f2"/>
+							<arc from="e" to="h"/>
+							<arc from="?" to="f2"/>
+							<arc from="f2" to="a2"/>
+							<arc from="f2" to="d"/>
+							<arc from="f2" to="e"/>
+							<arc from="f2" to="h"/>
+							<arc from="?" to="h"/>
+							<arc from="h" to="a2"/>
+							<arc from="h" to="d"/>
+							<arc from="h" to="e"/>
+							<arc from="h" to="f2"/>
+							<arc from="h" to="f"/>
+							<arc from="f" to="g"/>
+							<arc from="f" to="i"/>
 						</graph>
 					</app>
 					<app>
@@ -1521,9 +1521,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1537,9 +1537,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1554,11 +1554,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1572,9 +1572,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1589,14 +1589,14 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="ao" to="b"></arc>
-							<arc from="ao" to="c"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="c"/>
+							<arc from="ao" to="b"/>
+							<arc from="ao" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1610,9 +1610,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1626,9 +1626,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1642,9 +1642,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1658,9 +1658,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1694,33 +1694,33 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="af3"></node>
-							<node n="af4"></node>
-							<node n="b"></node>
-							<node n="bf"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="e"></node>
-							<node n="f"></node>
-							<node n="g"></node>
-							<node n="h"></node>
-							<node n="i"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="af3"></arc>
-							<arc from="a" to="af4"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
-							<arc from="a" to="e"></arc>
-							<arc from="a" to="f"></arc>
-							<arc from="a" to="g"></arc>
-							<arc from="a" to="h"></arc>
-							<arc from="a" to="i"></arc>
-							<arc from="b" to="bf"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="af3"/>
+							<node n="af4"/>
+							<node n="b"/>
+							<node n="bf"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="f"/>
+							<node n="g"/>
+							<node n="h"/>
+							<node n="i"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="af3"/>
+							<arc from="a" to="af4"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
+							<arc from="a" to="f"/>
+							<arc from="a" to="g"/>
+							<arc from="a" to="h"/>
+							<arc from="a" to="i"/>
+							<arc from="b" to="bf"/>
 						</graph>
 					</app>
 					<app>
@@ -1739,16 +1739,16 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="b" to="c"></arc>
-							<arc from="b" to="d"></arc>
-							<arc from="?" to="a2"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="c"/>
+							<arc from="b" to="d"/>
+							<arc from="?" to="a2"/>
 						</graph>
 					</app>
 					<app>
@@ -1762,9 +1762,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1778,9 +1778,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1795,11 +1795,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1813,9 +1813,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1829,9 +1829,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1846,9 +1846,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1862,9 +1862,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1881,15 +1881,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
 						</graph>
 					</app>
 					<app>
@@ -1904,11 +1904,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -1922,9 +1922,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1938,9 +1938,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -1959,14 +1959,14 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="?" to="a2"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="?" to="a2"/>
 						</graph>
 					</app>
 					<app>
@@ -1983,13 +1983,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="e"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="e"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="e"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="e"/>
 						</graph>
 					</app>
 					<app>
@@ -2005,13 +2005,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="b"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2026,9 +2026,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2044,11 +2044,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -2062,9 +2062,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2082,14 +2082,14 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="bf"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="b" to="bf"></arc>
-							<arc from="?" to="a2"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="bf"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="bf"/>
+							<arc from="?" to="a2"/>
 						</graph>
 					</app>
 					<app>
@@ -2104,11 +2104,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -2124,12 +2124,12 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="?" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -2144,11 +2144,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2164,13 +2164,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="bf1"></node>
-							<node n="bf2"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="b" to="bf1"></arc>
-							<arc from="b" to="bf2"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="bf1"/>
+							<node n="bf2"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="bf1"/>
+							<arc from="b" to="bf2"/>
 						</graph>
 					</app>
 					<app>
@@ -2184,9 +2184,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2202,13 +2202,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="b"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2222,9 +2222,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2241,12 +2241,12 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="?" to="a2"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="a2"/>
 						</graph>
 					</app>
 					<app>
@@ -2263,15 +2263,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -2285,9 +2285,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2303,13 +2303,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="b"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2323,9 +2323,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2339,9 +2339,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2355,9 +2355,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2371,9 +2371,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2388,9 +2388,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2404,9 +2404,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2420,9 +2420,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2436,9 +2436,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2455,15 +2455,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2477,9 +2477,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2493,9 +2493,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2510,11 +2510,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -2534,16 +2534,16 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="b2"></node>
-							<node n="c"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="?" to="a2"></arc>
-							<arc from="a2" to="b2"></arc>
-							<arc from="a2" to="c"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="b2"/>
+							<node n="c"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="a2"/>
+							<arc from="a2" to="b2"/>
+							<arc from="a2" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -2558,11 +2558,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -2576,9 +2576,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2593,9 +2593,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2610,11 +2610,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="bo"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="b" to="bo"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="bo"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="bo"/>
 						</graph>
 					</app>
 					<app>
@@ -2628,9 +2628,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2644,9 +2644,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2660,9 +2660,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2678,12 +2678,12 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="?" to="a2"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="a2"/>
 						</graph>
 					</app>
 					<app>
@@ -2697,9 +2697,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2717,17 +2717,17 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
 						</graph>
 					</app>
 					<app>
@@ -2741,9 +2741,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2762,16 +2762,16 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="c2"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c2"></arc>
-							<arc from="b" to="c"></arc>
-							<arc from="?" to="a2"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="c2"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c2"/>
+							<arc from="b" to="c"/>
+							<arc from="?" to="a2"/>
 						</graph>
 					</app>
 					<app>
@@ -2785,9 +2785,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2801,9 +2801,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2817,9 +2817,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2835,13 +2835,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
 						</graph>
 					</app>
 					<app>
@@ -2858,15 +2858,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2883,12 +2883,12 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="?" to="a2"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="a2"/>
 						</graph>
 					</app>
 					<app>
@@ -2902,9 +2902,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2918,9 +2918,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2934,9 +2934,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2950,9 +2950,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -2975,24 +2975,24 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="a2"></node>
-							<node n="b"></node>
-							<node n="bf1"></node>
-							<node n="bf2"></node>
-							<node n="b2"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<node n="d2"></node>
-							<node n="?"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="d"></arc>
-							<arc from="b" to="bf1"></arc>
-							<arc from="b" to="bf2"></arc>
-							<arc from="b" to="c"></arc>
-							<arc from="b" to="d2"></arc>
-							<arc from="d" to="b2"></arc>
-							<arc from="?" to="a2"></arc>
+							<node n="a"/>
+							<node n="a2"/>
+							<node n="b"/>
+							<node n="bf1"/>
+							<node n="bf2"/>
+							<node n="b2"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="d2"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="d"/>
+							<arc from="b" to="bf1"/>
+							<arc from="b" to="bf2"/>
+							<arc from="b" to="c"/>
+							<arc from="b" to="d2"/>
+							<arc from="d" to="b2"/>
+							<arc from="?" to="a2"/>
 						</graph>
 					</app>
 					<app>
@@ -3007,11 +3007,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3025,9 +3025,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3041,9 +3041,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3057,9 +3057,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3074,11 +3074,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3095,13 +3095,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="bo"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="b" to="bo"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="bo"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="b" to="bo"/>
 						</graph>
 					</app>
 					<app>
@@ -3116,11 +3116,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3137,15 +3137,15 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="ao"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="ao"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -3163,17 +3163,17 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af1"></node>
-							<node n="af2"></node>
-							<node n="af3"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="af1"></arc>
-							<arc from="a" to="af2"></arc>
-							<arc from="a" to="af3"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="af3"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="af3"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -3187,9 +3187,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3203,9 +3203,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3220,11 +3220,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
 						</graph>
 					</app>
 					<app>
@@ -3238,9 +3238,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3254,9 +3254,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3272,13 +3272,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
 						</graph>
 					</app>
 					<app>
@@ -3294,13 +3294,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="cf"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="c" to="cf"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="cf"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="c" to="cf"/>
 						</graph>
 					</app>
 					<app>
@@ -3315,11 +3315,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3335,11 +3335,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="?"></node>
-							<arc from="?" to="a"></arc>
-							<arc from="?" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="?"/>
+							<arc from="?" to="a"/>
+							<arc from="?" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3354,11 +3354,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3374,13 +3374,13 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="d"></node>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="a" to="d"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
 						</graph>
 					</app>
 					<app>
@@ -3394,9 +3394,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3411,9 +3411,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3428,11 +3428,11 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="af"></node>
-							<node n="b"></node>
-							<arc from="a" to="af"></arc>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3446,9 +3446,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 					<app>
@@ -3466,17 +3466,17 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="ao1"></node>
-							<node n="ao2"></node>
-							<node n="b"></node>
-							<node n="c"></node>
-							<node n="cf"></node>
-							<arc from="a" to="ao1"></arc>
-							<arc from="a" to="ao2"></arc>
-							<arc from="a" to="b"></arc>
-							<arc from="a" to="c"></arc>
-							<arc from="c" to="cf"></arc>
+							<node n="a"/>
+							<node n="ao1"/>
+							<node n="ao2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="cf"/>
+							<arc from="a" to="ao1"/>
+							<arc from="a" to="ao2"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="c" to="cf"/>
 						</graph>
 					</app>
 					<app>
@@ -3490,9 +3490,9 @@
 							</f>
 						</fs>
 						<graph type="directed">
-							<node n="a"></node>
-							<node n="b"></node>
-							<arc from="a" to="b"></arc>
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
 						</graph>
 					</app>
 				</div>

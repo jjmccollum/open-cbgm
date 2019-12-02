@@ -1,0 +1,2263 @@
+<?xml version='1.0'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+	<teiHeader>
+		<sourceDesc>
+			<listWit>
+				<witness xml:id="A" />
+				<witness xml:id="Byz" />
+				<witness xml:id="P74" />
+				<witness xml:id="01" />
+				<witness xml:id="02" />
+				<witness xml:id="03" />
+				<witness xml:id="04" />
+				<witness xml:id="044" />
+				<witness xml:id="048" />
+				<witness xml:id="0251" />
+				<witness xml:id="1" />
+				<witness xml:id="5" />
+				<witness xml:id="6" />
+				<witness xml:id="18" />
+				<witness xml:id="33" />
+				<witness xml:id="35" />
+				<witness xml:id="43" />
+				<witness xml:id="61" />
+				<witness xml:id="69" />
+				<witness xml:id="81" />
+				<witness xml:id="88" />
+				<witness xml:id="93" />
+				<witness xml:id="94" />
+				<witness xml:id="104" />
+				<witness xml:id="181" />
+				<witness xml:id="218" />
+				<witness xml:id="254" />
+				<witness xml:id="307" />
+				<witness xml:id="321" />
+				<witness xml:id="323" />
+				<witness xml:id="326" />
+				<witness xml:id="365" />
+				<witness xml:id="378" />
+				<witness xml:id="424" />
+				<witness xml:id="431" />
+				<witness xml:id="436" />
+				<witness xml:id="442" />
+				<witness xml:id="453" />
+				<witness xml:id="459" />
+				<witness xml:id="467" />
+				<witness xml:id="614" />
+				<witness xml:id="621" />
+				<witness xml:id="623" />
+				<witness xml:id="629" />
+				<witness xml:id="630" />
+				<witness xml:id="642" />
+				<witness xml:id="720" />
+				<witness xml:id="808" />
+				<witness xml:id="876" />
+				<witness xml:id="915" />
+				<witness xml:id="918" />
+				<witness xml:id="945" />
+				<witness xml:id="1067" />
+				<witness xml:id="1127" />
+				<witness xml:id="1241" />
+				<witness xml:id="1243" />
+				<witness xml:id="1270" />
+				<witness xml:id="1292" />
+				<witness xml:id="1297" />
+				<witness xml:id="1359" />
+				<witness xml:id="1409" />
+				<witness xml:id="1505" />
+				<witness xml:id="1523" />
+				<witness xml:id="1524" />
+				<witness xml:id="1563" />
+				<witness xml:id="1595" />
+				<witness xml:id="1611" />
+				<witness xml:id="1661" />
+				<witness xml:id="1678" />
+				<witness xml:id="1718" />
+				<witness xml:id="1735" />
+				<witness xml:id="1739" />
+				<witness xml:id="1751" />
+				<witness xml:id="1832" />
+				<witness xml:id="1836" />
+				<witness xml:id="1837" />
+				<witness xml:id="1838" />
+				<witness xml:id="1842" />
+				<witness xml:id="1844" />
+				<witness xml:id="1845" />
+				<witness xml:id="1846" />
+				<witness xml:id="1852" />
+				<witness xml:id="1875" />
+				<witness xml:id="1881" />
+				<witness xml:id="2138" />
+				<witness xml:id="2147" />
+				<witness xml:id="2186" />
+				<witness xml:id="2200" />
+				<witness xml:id="2243" />
+				<witness xml:id="2298" />
+				<witness xml:id="2344" />
+				<witness xml:id="2374" />
+				<witness xml:id="2412" />
+				<witness xml:id="2464" />
+				<witness xml:id="2492" />
+				<witness xml:id="2541" />
+				<witness xml:id="2544" />
+				<witness xml:id="2652" />
+				<witness xml:id="2774" />
+				<witness xml:id="2805" />
+				<witness xml:id="2818" />
+			</listWit>
+		</sourceDesc>
+	</teiHeader>
+	<text xml:lang="GRC">
+		<body>
+			<div type="book" n="B05">
+				<div type="chapter" n="B05K1">
+					<app>
+						<label>3Jo 1:1/2</label>
+						<rdg n="a" wit="#A #Byz">ο</rdg>
+						<rdg n="b" wit="#467 #2243 #2818" />
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:1/6</label>
+						<rdg n="a" wit="#A #Byz">Γαιω</rdg>
+						<rdg n="af1" type="defective" wit="#69"></rdg>
+						<rdg n="af2" type="defective" wit="#459"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:1/8</label>
+						<rdg n="a" wit="#A #Byz">τω</rdg>
+						<rdg n="b" wit="#1241 #1739 #1881 #2298" />
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:1/10</label>
+						<rdg n="a" wit="#A #Byz">αγαπητω</rdg>
+						<rdg n="af" type="defective" wit="#1729"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:1/12-20</label>
+						<rdg n="a" wit="#A #Byz">ον εγω αγαπω εν αληθεια</rdg>
+						<rdg n="af" type="defective" wit="#1844"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:1/18</label>
+						<rdg n="a" wit="#A #Byz">εν</rdg>
+						<rdg n="b" wit="#1718">τη</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:2/6</label>
+						<rdg n="a" wit="#A #Byz">παντων</rdg>
+						<rdg n="b" wit="#945">παντα</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:2/12-16</label>
+						<rdg n="a" wit="#A #Byz">ευοδουσθαι και υγιαινειν</rdg>
+						<rdg n="b" wit="#2243">υγιαινειν και ευοδουσθαι</rdg>
+						<rdg n="c" wit="#614 #2412">και ευοδουσθαι και υγιαινειν</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:2/18</label>
+						<rdg n="a" wit="#A #Byz">καθως</rdg>
+						<rdg n="b" wit="#330">και καθως</rdg>
+						<rdg n="c" wit="#1595">καθως και</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:2/20</label>
+						<rdg n="a" wit="#A #Byz">ευοδουται</rdg>
+						<rdg n="af" type="defective" wit="#1838"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:2/22</label>
+						<rdg n="a" wit="#A #Byz">σου</rdg>
+						<rdg n="b" wit="#1067"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:3/4</label>
+						<rdg n="a" wit="#A #Byz #02 #03 #04 #044 #048 #61 #69 #88 #93 #94 #181 #254 #307 #321 #323 #326 #378 #424 #431 #436 #442 #453 #459 #467 #614 #621 #630 #720 #915 #918 #945 #1067 #1241 #1243 #1292 #1409 #1505 #1524 #1595 #1611 #1739 #1751 #1836 #1837 #1842 #1844 #1845 #1846 #1852 #1875 #1881 #2147 #2186 #2200 #2298 #2412 #2492 #2541 #2652 #2774 #2818">γαρ</rdg>
+						<rdg n="b" wit="#01 #5 #6 #33 #81 #104 #218 #623 #629 #642 #808 #876 #1127 #1270 #1297 #1359 #1563 #1661 #1718 #1735 #1832 #1838 #2138 #2243 #2344 #2374 #2464 #2544 #2805"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:3/6</label>
+						<rdg n="a" wit="#A #Byz">λιαν</rdg>
+						<rdg n="af" type="defective" wit="#1838"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:3/9</label>
+						<rdg n="a" wit="#A #Byz"/>
+						<rdg n="af" type="defective" wit="#459">δε</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:3/14</label>
+						<rdg n="a" wit="#A #Byz">μαρτυρουντων</rdg>
+						<rdg n="af1" type="defective" wit="#03"></rdg>
+						<rdg n="af2" type="defective" wit="#1241"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:3/16</label>
+						<rdg n="a" wit="#A #Byz">σου</rdg>
+						<rdg n="b" wit="#1524"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:3/18-20</label>
+						<rdg n="a" wit="#A #Byz">τη αληθεια</rdg>
+						<rdg n="b" wit="#1243">την αληθειαν</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:3/22</label>
+						<rdg n="a" wit="">καθως</rdg>
+						<rdg n="af" type="defective" wit="#1838"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:3/24</label>
+						<rdg n="a" wit="#A #Byz">συ</rdg>
+						<rdg n="b" wit="#424 #996 #1661 #2423">και συ</rdg>
+						<rdg n="c" wit="#02 #630 #2200"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:4/2-10</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #044 #048 #5 #33 #81 #94 #252 #307 #321 #424 #453 #467 #623 #629 #720 #918 #945 #1270 #1297 #1595 #1678 #1735 #1751 #1852 #2147 #2186 #2344 #2464 #2544">μειζοτεραν τουτων ουκ εχω χαραν</rdg>
+						<rdg n="af1" type="defective" wit="#254 #1523 #1524"></rdg>
+						<rdg n="af2" type="defective" wit="#2818"></rdg>
+						<rdg n="ao" type="orthographic" wit="#378 #630 #876 #1292 #1448 #1505 #1611 #1832 #2138 #2200 #2243 #2652">μειζονα τουτων ουκ εχω χαραν</rdg>
+						<rdg n="b" wit="#04 #93 #1241">μειζοτεραν τουτων χαραν ουκ εχω</rdg>
+						<rdg n="c" wit="#621">μειζοτεραν χαραν τουτων ουκ εχω</rdg>
+						<rdg n="d" wit="#L921">μειζοτεραν τουτου ουκ εχω χαραν</rdg>
+						<rdg n="e" wit="#6 #88 #442 #L596">μειζοτεραν ταυτης χαραν ουκ εχω</rdg>
+						<rdg n="ef1" type="defective" wit="#323 #1739 #1881"></rdg>
+						<rdg n="ef2" type="defective" wit="#915"></rdg>
+						<rdg n="f" wit="#61 #69 #326 #1837">μειζοτεραν χαραν ταυτης ουκ εχω</rdg>
+						<rdg n="g" wit="#104 #181 #218 #429 #431 #436 #459 #522 #642 #808 #1067 #1409 #1490 #1501 #1563 #1718 #1799 #1831 #1836 #1842 #1845 #1846 #1875 #2374 #2541 #2774 #2805">μειζοτεραν ταυτης ουκ εχω χαραν</rdg>
+						<rdg n="go" type="orthographic" wit="#1127">μειζονα ταυτης ουκ εχω χαραν</rdg>
+						<rdg n="h" wit="#1359">μειζοτερας ουκ εχω ταυτης χαραν</rdg>
+						<rdg n="i" wit="#252">μειζοτεραν τουτων ουκ εχω χαριν</rdg>
+						<rdg n="j" wit="#03">μειζοτεραν τουτων ουκ εχων χαριν</rdg>
+						<rdg n="k" wit="#1241 #2298">μειζοτεραν τουτων χαριν ουκ εχω</rdg>
+						<rdg n="l" wit="#1243 #2492">μειζοτεραν ταυτης χαριν ουκ εχω</rdg>
+						<rdg n="m" wit="#1838">μειζοτεραν ταυτην ουκ εχω χαριν</rdg>
+						<rdg n="n" wit="#614 #2412">μειζονα τουτων εχω χαραν</rdg>
+						<rdg n="p" wit="#1844">μειζοτεραν την τουτων χαριν</rdg>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="ef1"/>
+							<node n="ef2"/>
+							<node n="f"/>
+							<node n="g"/>
+							<node n="go"/>
+							<node n="h"/>
+							<node n="i"/>
+							<node n="j"/>
+							<node n="k"/>
+							<node n="l"/>
+							<node n="m"/>
+							<node n="n"/>
+							<node n="p"/>
+							<node n="?"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="ao"/>
+							<arc from="?" to="b"/>
+							<arc from="?" to="c"/>
+							<arc from="?" to="d"/>
+							<arc from="?" to="e"/>
+							<arc from="?" to="f"/>
+							<arc from="?" to="g"/>
+							<arc from="?" to="h"/>
+							<arc from="?" to="i"/>
+							<arc from="?" to="j"/>
+							<arc from="?" to="k"/>
+							<arc from="?" to="l"/>
+							<arc from="?" to="m"/>
+							<arc from="?" to="n"/>
+							<arc from="?" to="p"/>
+							<arc from="e" to="ef1"/>
+							<arc from="e" to="ef2"/>
+							<arc from="g" to="go"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:4/11</label>
+						<rdg n="a" wit="#A #Byz"/>
+						<rdg n="b" wit="#88 #429 #522 #915 #1127 #1490 #1799 #1831">η</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:4/14-20</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #04 #044 #048 #5 #6 #33 #61 #69 #81 #88 #93 #94 #104 #181 #307 #321 #323 #326 #378 #431 #436 #442 #453 #459 #467 #614 #621 #623 #629 #630 #720 #876 #915 #918 #945 #1067 #1241 #1270 #1292 #1297 #1409 #1505 #1595 #1611 #1678 #1735 #1739 #1751 #1832 #1836 #1837 #1842 #1845 #1846 #1875 #1881 #2138 #2147 #2186 #2200 #2243 #2298 #2344 #2412 #2464 #2492 #2541 #2544 #2652 #2774 #2805 #2818">ακουω τα εμα τεκνα</rdg>
+						<rdg n="b" wit="#218 #642 #808 #1127 #1359 #1563 #1718 #2374">τα εμα τεκνα ακουω</rdg>
+						<rdg n="c" wit="#254 #330 #1243 #1523 #1524 #1838 #1844">ακουσω τα εμα τεκνα</rdg>
+						<rdg n="d" wit="#1852">ακουω τα εμα σπλαγχνα</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:4/22-26</label>
+						<rdg n="a" wit="#A #Byz #01 #044 #048 #5 #6 #69 #88 #93 #94 #104 #181 #218 #254 #307 #321 #323 #378 #442 #453 #459 #467 #614 #621 #623 #629 #630 #642 #720 #808 #876 #915 #918 #1067 #1127 #1241 #1243 #1292 #1359 #1505 #1523 #1524 #1563 #1611 #1678 #1718 #1739 #1751 #1832 #1836 #1838 #1842 #1844 #1845 #1846 #1875 #2138 #2147 #2186 #2200 #2243 #2298 #2374 #2412 #2464 #2492 #2544 #2652 #2774 #2805 #2818">εν αληθεια περιπατουνται</rdg>
+						<rdg n="af" type="defective" wit="#1881"></rdg>
+						<rdg n="b" wit="#02 #03 #04 #33 #81 #431 #436 #1409 #1678 #1735 #1852 #2541">εν τη αληθεια περιπατουνται</rdg>
+						<rdg n="c" wit="#945 #1270 #1297 #1595">περιπατουνται εν αληθεια</rdg>
+						<rdg n="d" wit="#61 #326 #1837 #2344">τη αληθεια περιπατουνται</rdg>
+						<rdg n="d2" type="split" wit="">τη αληθεια περιπατουνται</rdg>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="d2"/>
+							<node n="?"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="?" to="d2"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:5/4</label>
+						<rdg n="a" wit="#A #Byz">πιστον</rdg>
+						<rdg n="b" wit="#104 #459 #1838 #1842">πιστως</rdg>
+						<rdg n="c" wit="#436 #1067 #1409 #1735 #1827 #2541">μισθον</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:5/6</label>
+						<rdg n="a" wit="#A #Byz">ποιεις</rdg>
+						<rdg n="b" wit="#5 #2344">ποιει</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:5/8</label>
+						<rdg n="a" wit="#A #Byz">ο</rdg>
+						<rdg n="b" wit="#321"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:5/10</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #04 #048 #5 #6 #33 #61 #81 #88 #94 #104 #181 #254 #307 #321 #323 #326 #378 #431 #436 #442 #453 #459 #467 #614 #621 #623 #629 #642 #720 #876 #915 #918 #945 #1067 #1243 #1270 #1292 #1297 #1409 #1505 #1523 #1524 #1595 #1611 #1678 #1735 #1751 #1832 #1836 #1837 #1838 #1842 #1844 #1845 #1846 #1852 #1875 #2138 #2147 #2186 #2200 #2243 #2344 #2374 #2412 #2492 #2541 #2544 #2652 #2774 #2805 #2818">εαν</rdg>
+						<rdg n="ao" type="orthographic" wit="#044 #048 #93 #218 #808 #1127 #1359 #1490 #1563 #1718 #1739 #1831 #2298">αν</rdg>
+						<rdg n="b" wit="#630 #1881"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:5/12</label>
+						<rdg n="a" wit="#A #Byz #01 #03 #04 #048 #5 #6 #33 #61 #81 #88 #93 #94 #104 #181 #218 #254 #307 #321 #323 #326 #378 #431 #442 #453 #459 #467 #614 #621 #623 #629 #642 #720 #808 #915 #918 #1243 #1359 #1523 #1524 #1563 #1678 #1718 #1739 #1751 #1836 #1837 #1838 #1842 #1845 #1846 #1852 #1875 #1881 #2147 #2186 #2243 #2298 #2344 #2374 #2412 #2492 #2544 #2652 #2774 #2805 #2818">εργαση</rdg>
+						<rdg n="af" type="defective" wit="#1844"></rdg>
+						<rdg n="b" wit="#02 #044 #048 #436 #630 #876 #945 #1067 #1127 #1270 #1292 #1297 #1409 #1505 #1595 #1611 #1729 #1735 #1832 #2138 #2200 #2541">εργαζη</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:5/16</label>
+						<rdg n="a" wit="#A #Byz">τους</rdg>
+						<rdg n="b" wit="#044"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:5/22</label>
+						<rdg n="a" wit="#A #01 #02 #03 #04 #044 #048 #6 #33 #61 #93 #323 #326 #436 #442 #617 #1241 #1243 #1735 #1739 #1837 #1845 #1846 #1852 #1881 #2344 #2374 #2541 #2774 #2805 #L596">τουτο</rdg>
+						<rdg n="b" wit="#1409">τουτο και</rdg>
+						<rdg n="c" wit="#88 #915">ταυτα</rdg>
+						<rdg n="d" wit="#Byz #5 #69 #94 #104 #181 #254 #307 #321 #378 #424 #431 #453 #459 #467 #614 #621 #623 #629 #630 #720 #876 #918 #945 #1292 #1359 #1505 #1523 #1524 #1563 #1611 #1678 #1718 #1751 #1832 #1836 #1838 #1842 #1844 #1875 #2138 #2147 #2186 #2200 #2243 #2298 #2412 #2492 #2544 #2652 #2818">ταυτα</rdg>
+						<rdg n="e" wit="#81 #218 #642 #808 #1127 #1270 #1297 #1595">τους</rdg>
+						<rdg n="f" wit="#1067">τοτε</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="f"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
+							<arc from="a" to="f"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:5/24</label>
+						<rdg n="a" wit="#A #Byz">ξενους</rdg>
+						<rdg n="b" wit="#915">ξενοις</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:6/2</label>
+						<rdg n="a" wit="#A #Byz">οι</rdg>
+						<rdg n="af" type="defective" wit="#018 #218 #630"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:6/3</label>
+						<rdg n="a" wit="#A #Byz"/>
+						<rdg n="b" wit="#L921">και</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:6/6</label>
+						<rdg n="a" wit="#A #Byz">σου</rdg>
+						<rdg n="b" wit="#33">σοι</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:6/8-10</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #04 #044 #5 #33 #61 #93 #94 #104 #181 #218 #254 #307 #321 #323 #326 #431 #436 #442 #453 #459 #467 #621 #623 #629 #642 #720 #808 #915 #918 #945 #1067 #1127 #1241 #1243 #1270 #1359 #1409 #1523 #1524 #1563 #1595 #1678 #1718 #1735 #1739 #1751 #1836 #1837 #1838 #1842 #1845 #1846 #1852 #1875 #1881 #2186 #2298 #2344 #2374 #2492 #2541 #2544 #2774 #2805 #2818">τη αγαπη</rdg>
+						<rdg n="b" wit="#6 #81 #88 #1844 #L921">την αγαπην</rdg>
+						<rdg n="c" wit="#1297 #2243">τη αληθεια</rdg>
+						<rdg n="d" wit="#378 #630 #876 #1292 #1505 #1611 #1832 #2138 #2147 #2200 #2652">τη αληθεια και αγαπη</rdg>
+						<rdg n="e" wit="#614 #2412">τη αληθεια και η αγαπη</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="d" to="e"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:6/12-14</label>
+						<rdg n="a" wit="#A #Byz">ενωπιον εκκλησιας</rdg>
+						<rdg n="b" wit="#61 #88 #181 #431 #621 #915 #1838 #2544">ενωπιον της εκκλησιας</rdg>
+						<rdg n="d" wit="#1270 #1297">ενωπιον εκκλησιας του θεου</rdg>
+						<rdg n="e" wit="#1595">ενωπιον της εκκλησιας του θεου</rdg>
+						<rdg n="f" wit="#2243"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="f"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="f"/>
+							<arc from="d" to="e"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:6/20-22</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #044 #048 #5 #6 #33 #81 #88 #93 #104 #181 #218 #254 #307 #321 #326 #378 #431 #436 #453 #459 #467 #614 #621 #623 #629 #630 #642 #720 #808 #876 #915 #918 #945 #1067 #1127 #1243 #1270 #1292 #1297 #1359 #1409 #1505 #1523 #1524 #1563 #1595 #1611 #1678 #1718 #1832 #1836 #1837 #1838 #1842 #1845 #1846 #1852 #1875 #2138 #2147 #2186 #2200 #2243 #2344 #2374 #2412 #2492 #2541 #2652 #2774 #2805 #2818">ποιησεις προπεμψας</rdg>
+						<rdg n="af" type="defective" wit="#1844"></rdg>
+						<rdg n="b" wit="#33 #1751">ποιησω προπεμψας</rdg>
+						<rdg n="bf" type="defective" wit="#1844"></rdg>
+						<rdg n="c" wit="#33 #94 #323 #442 #1241 #1735 #1739 #1881 #2298 #L596">ποιεις προπεμψας</rdg>
+						<rdg n="cf" type="defective" wit="#1844"></rdg>
+						<rdg n="d" wit="#04">ποιησας προπεμψεις</rdg>
+						<rdg n="e" wit="#61">ποιων προπεμπεις</rdg>
+						<rdg n="g" wit="#2544">ποιησεις προπεμπων</rdg>
+						<rdg n="h" wit="#L921">ποιησεις προπεμψαι</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="bf"/>
+							<node n="c"/>
+							<node n="cf"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="g"/>
+							<node n="h"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
+							<arc from="a" to="g"/>
+							<arc from="b" to="bf"/>
+							<arc from="c" to="cf"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:6/24-28</label>
+						<rdg n="a" wit="#A #Byz #048">αξιως του θεου</rdg>
+						<rdg n="b" wit="#1067">αξιους του θεου</rdg>
+						<rdg n="c" wit="#1735">αξιως</rdg>
+						<rdg n="d" wit="#048 #61 #621 #1875 #L1141">αξιως τω θεω</rdg>
+						<rdg n="e" wit="#1838">αξιους τω θεω</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="a" to="e"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:7/2</label>
+						<rdg n="a" wit="#A #Byz">υπερ</rdg>
+						<rdg n="b" wit="#1359 #1563 #1718">υπο</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:7/4</label>
+						<rdg n="a" wit="#A #Byz">γαρ</rdg>
+						<rdg n="af" type="defective" wit="#01 #436"></rdg>
+						<rdg n="b" wit="#6"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:7/9</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #04 #048 #5 #6 #33 #61 #81 #93 #94 #104 #218 #252 #254 #307 #321 #323 #326 #431 #436 #442 #453 #459 #623 #642 #720 #876 #918 #945 #1067 #1241 #1243 #1359 #1409 #1505 #1523 #1524 #1563 #1611 #1678 #1718 #1739 #1837 #1838 #1844 #1845 #1852 #1881 #2138 #2186 #2200 #2298 #2344 #2374 #2492 #2541 #2774 #2805 #2818"/>
+						<rdg n="b" wit="#044 #88 #180 #181 #378 #429 #467 #522 #614 #621 #629 #630 #808 #915 #996 #1127 #1270 #1292 #1297 #1490 #1501 #1595 #1609 #1661 #1729 #1751 #1799 #1831 #1832 #1836 #1846 #1875 #2147 #2243 #2412 #2544 #2652 #2718 #L1281">αυτου</rdg>
+						<rdg n="c" wit="#1735">του θεου</rdg>
+						<rdg n="d" wit="#1842 #L921">σου</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:7/10</label>
+						<rdg n="a" wit="#A #Byz #1241">εξηλθον</rdg>
+						<rdg n="ao" type="orthographic" wit="#01 #03 #1241">εξηλθαν</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="ao"/>
+							<arc from="a" to="ao"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:7/14</label>
+						<rdg n="a" wit="#A #Byz #048 #33 #424">λαμβανοντες</rdg>
+						<rdg n="af" type="defective" wit="#1">λαμβανοντες</rdg>
+						<rdg n="b" wit="#6 #323 #1241 #1270 #1297 #1595 #1739 #1881 #2298">λαβοντες</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:7/16</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #04 #044 #6 #69 #88 #93 #94 #104 #181 #254 #307 #321 #378 #442 #453 #459 #467 #614 #621 #629 #630 #720 #876 #915 #918 #945 #1243 #1270 #1292 #1297 #1505 #1523 #1524 #1595 #1611 #1678 #1751 #1832 #1836 #1838 #1842 #1844 #1845 #1846 #1852 #1875 #2138 #2147 #2186 #2200 #2243 #2298 #2412 #2492 #2544 #2652 #2818">απο</rdg>
+						<rdg n="af" type="defective" wit="#323"></rdg>
+						<rdg n="b" wit="#048 #5 #33 #61 #81 #218 #326 #431 #436 #617 #623 #642 #808 #1067 #1127 #1241 #1359 #1409 #1563 #1718 #1735 #1739 #1837 #1881 #2344 #2374 #2541 #2774 #2805 #L1281">παρα</rdg>
+						<rdg n="bf" type="defective" wit="#323"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="bf"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="bf"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:7/18</label>
+						<rdg n="a" wit="#A #Byz">των</rdg>
+						<rdg n="b" wit="#04"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:7/20</label>
+						<rdg n="a" wit="#A #01 #02 #03 #04 #044 #048 #33 #61 #81 #88 #181 #323 #326 #431 #436 #442 #617 #621 #630 #876 #915 #1067 #1241 #1243 #1292 #1409 #1505 #1611 #1735 #1739 #1832 #1836 #1837 #1845 #1846 #1852 #1875 #1881 #2138 #2200 #2243 #2298 #2344 #2492 #2541 #2718 #2805 #L596 #L921 #L938 #L1141 #L1281">εθνικων</rdg>
+						<rdg n="b" wit="#Byz #5 #6 #69 #93 #94 #104 #218 #254 #307 #321 #378 #453 #459 #467 #614 #623 #629 #642 #720 #808 #918 #945 #1127 #1270 #1297 #1359 #1523 #1524 #1563 #1595 #1678 #1718 #1751 #1831 #1838 #1842 #1844 #2147 #2186 #2374 #2412 #2544 #2652 #2818">εθνων</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:8/1</label>
+						<rdg n="a" wit="#A #Byz #048"/>
+						<rdg n="b" wit="#330">και</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:8/4</label>
+						<rdg n="a" wit="#A #Byz #048">ουν</rdg>
+						<rdg n="b" wit="#1844"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:8/8</label>
+						<rdg n="a" wit="#A #01 #02 #03 #04 #044 #048 #0142 #5 #6 #33 #61 #69 #81 #323 #326 #436 #442 #617 #623 #1241 #1243 #1739 #1837 #1845 #1846 #1852 #1881 #2344 #2541 #2774 #2805 #L596 #L1281">υπολαμβανειν</rdg>
+						<rdg n="b" wit="#Byz #048 #69 #88 #93 #94 #104 #181 #218 #254 #307 #321 #378 #424 #431 #453 #459 #467 #614 #621 #629 #630 #642 #720 #808 #876 #915 #918 #945 #1067 #1127 #1241 #1270 #1292 #1297 #1359 #1409 #1505 #1523 #1524 #1563 #1595 #1611 #1678 #1718 #1735 #1751 #1832 #1836 #1838 #1842 #1844 #1875 #2138 #2147 #2186 #2200 #2243 #2298 #2374 #2412 #2492 #2652 #2818">απολαμβανειν</rdg>
+						<rdg n="c" wit="#468 #2544">λαμβανειν</rdg>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:8/16</label>
+						<rdg n="a" wit="#A #Byz">συνεργοι</rdg>
+						<rdg n="b" wit="#5">ενεργοι</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:8/18</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #044 #6 #81 #93 #94 #218 #431 #467 #630 #642 #808 #945 #1127 #1241 #1270 #1409 #1523 #1739 #1751 #1875 #1881 #2200 #2298 #2374 #2492">γινωμεθα</rdg>
+						<rdg n="ao" wit="#2544">γιγνωμεθα</rdg>
+						<rdg n="b" wit="#04 #104 #181 #442 #1297 #1836 #1845 #1846 #1890">γινομεθα</rdg>
+						<rdg n="c" wit="#018 #048 #049 #5 #33 #43 #61 #88 #254 #307 #321 #323 #326 #378 #400 #429 #436 #453 #459 #522 #614 #621 #623 #629 #720 #876 #915 #918 #1067 #1243 #1292 #1359 #1490 #1505 #1523 #1524 #1563 #1595 #1611 #1661 #1678 #1718 #1729 #1735 #1799 #1831 #1832 #1837 #1838 #1842 #1844 #1852 #1874 #2138 #2147 #2186 #2243 #2344 #2412 #2541 #2652 #2774 #2805 #2818">γενωμεθα</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:8/19</label>
+						<rdg n="a" wit="#A #Byz #048"/>
+						<rdg n="b" wit="#1875">και</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:8/20-22</label>
+						<rdg n="a" wit="#A #Byz #03 #04 #044 #048 #6 #33 #61 #69 #81 #88 #93 #94 #104 #181 #218 #254 #307 #321 #323 #326 #431 #436 #442 #453 #459 #467 #621 #629 #642 #720 #808 #915 #918 #945 #1067 #1127 #1241 #1243 #1270 #1297 #1359 #1409 #1524 #1563 #1595 #1678 #1718 #1735 #1751 #1836 #1837 #1838 #1842 #1844 #1845 #1846 #1852 #1875 #1881 #2186 #2298 #2344 #2374 #2492 #2541 #2544 #2818">τη αληθεια</rdg>
+						<rdg n="b" wit="#5 #378 #614 #623 #630 #876 #1292 #1505 #1523 #1611 #1832 #2138 #2147 #2200 #2243 #2412 #2652 #2774 #2805">της αληθειας</rdg>
+						<rdg n="c" wit="#01 #02 #180">τη εκκλησια</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/2</label>
+						<rdg n="a" wit="#A #Byz">εγραψα</rdg>
+						<rdg n="b" wit="#03">εγραψας</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/4</label>
+						<rdg n="a" wit="#A #01 #02 #03 #442 #1241 #1739 #2298 #L596">τι</rdg>
+						<rdg n="b" wit="#048 #33 #61 #81 #94 #181 #218 #307 #321 #378 #431 #436 #453 #614 #630 #642 #720 #808 #876 #918 #945 #1067 #1127 #1243 #1270 #1292 #1297 #1359 #1409 #1505 #1563 #1595 #1678 #1718 #1735 #1832 #1836 #1837 #1875 #1881 #2138 #2147 #2200 #2344 #2412 #2492 #2541 #2652 #2818">αν</rdg>
+						<rdg n="c" wit="#323 #1611">αν τι</rdg>
+						<rdg n="cf" type="defective" wit="#6"></rdg>
+						<rdg n="d" wit="#Byz #04 #044 #5 #69 #88 #93 #104 #254 #326 #424 #459 #467 #621 #623 #629 #915 #1523 #1524 #1751 #1838 #1842 #1844 #1845 #1846 #1852 #2186 #2243 #2374 #2544 #2774 #2805"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="cf"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="b" to="c"/>
+							<arc from="c" to="cf"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/12-14</label>
+						<rdg n="a" wit="#A #Byz #048 #69">ο φιλοπρωτευων</rdg>
+						<rdg n="af1" type="defective" wit="#43 #330"></rdg>
+						<rdg n="af2" type="defective" wit="#81"></rdg>
+						<rdg n="b" wit="#720 #1067 #1799">ο πρωτευων</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/16</label>
+						<rdg n="a" wit="#A #Byz">αυτων</rdg>
+						<rdg n="af" type="defective" wit="#1729"></rdg>
+						<rdg n="b" wit="#996 #1661"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/17</label>
+						<rdg n="a" wit="#A #Byz"/>
+						<rdg n="b" wit="#5">τη αληθεια</rdg>
+						<rdg n="c" wit="#623">αληθεια</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/18</label>
+						<rdg n="a" wit="#A #Byz">διοτρεφης</rdg>
+						<rdg n="af1" type="defective" wit="#43"></rdg>
+						<rdg n="af2" type="defective" wit="#81"></rdg>
+						<rdg n="af3" type="defective" wit="#1874"></rdg>
+						<rdg n="af4" type="defective" wit="#2174"></rdg>
+						<rdg n="b" wit="#044">ο τρεφης</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="af3"/>
+							<node n="af4"/>
+							<node n="b"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="af3"/>
+							<arc from="a" to="af4"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/20</label>
+						<rdg n="a" wit="#A #Byz">ουκ</rdg>
+						<rdg n="af" type="defective" wit="#442 #L596"></rdg>
+						<rdg n="b" wit="#918"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/22</label>
+						<rdg n="a" wit="#A #Byz #33">επιδεχεται</rdg>
+						<rdg n="af1" type="defective" wit="#18"></rdg>
+						<rdg n="af2" type="defective" wit="#88"></rdg>
+						<rdg n="b" wit="#442 #L596">δεχεται</rdg>
+						<rdg n="c" wit="#048">επαισχυνεται</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/24</label>
+						<rdg n="a" wit="#A #Byz #33 #69 #1067">ημας</rdg>
+						<rdg n="b" wit="#5 #69 #326 #436 #522 #1241 #1661 #1837 #1881 #2541">υμας</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:9/25</label>
+						<rdg n="a" wit="#A #Byz"/>
+						<rdg n="b" wit="#1067">ως φιλοπρωτευων</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/6</label>
+						<rdg n="a" wit="#A #Byz">εαν</rdg>
+						<rdg n="ao" type="orthographic" wit="#02 #048">αν</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="ao"/>
+							<arc from="a" to="ao"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/10</label>
+						<rdg n="a" wit="#A #Byz #048">υπομνησω</rdg>
+						<rdg n="b" wit="#621">ελεγξω</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/12-16</label>
+						<rdg n="a" wit="#A #Byz #69">αυτου τα εργα</rdg>
+						<rdg n="af" type="defective" wit="#61 #442 #1838 #L596"></rdg>
+						<rdg n="b" wit="#1241">τα εργα αυτου</rdg>
+						<rdg n="c" wit="#044">αυτους τα εργα</rdg>
+						<rdg n="d" wit="#1844">τα εργα</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/18-20</label>
+						<rdg n="a" wit="#A #Byz">α ποιει</rdg>
+						<rdg n="af1" type="defective" wit="#044"></rdg>
+						<rdg n="af2" type="defective" wit="#1241"></rdg>
+						<rdg n="b" wit="#642">α ποιη</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/22-24</label>
+						<rdg n="a" wit="#A #Byz #048 #1523 #2541">λογοις πονηροις</rdg>
+						<rdg n="af2" type="defective" wit="#1838"></rdg>
+						<rdg n="b" wit="#1241 #1523 #2541">λογοις πονηριας</rdg>
+						<rdg n="c" wit="#1874">λογοις</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af2"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/26</label>
+						<rdg n="a" wit="#A #Byz">φλυαρων</rdg>
+						<rdg n="af" type="defective" wit="#2412"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/27</label>
+						<rdg n="a" wit="#A #Byz"/>
+						<rdg n="b" wit="#04">εις</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/28</label>
+						<rdg n="a" wit="#A #Byz #33 #996">ημας</rdg>
+						<rdg n="b" wit="#0142 #81 #378 #1241 #1505 #1661 #1735 #1881">υμας</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:1/32-38</label>
+						<rdg n="a" wit="#A #Byz #048">μη αρκουμενος επι τουτοις</rdg>
+						<rdg n="af1" type="defective" wit="#1836"></rdg>
+						<rdg n="af2" type="defective" wit="#2147"></rdg>
+						<rdg n="af3" type="defective" wit="#436 #1241"></rdg>
+						<rdg n="b" wit="#93">επι τουτοις μη αρκουμενος</rdg>
+						<rdg n="c" wit="#81 #2544">μη αρκουμενος τουτοις</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af1"/>
+							<node n="af2"/>
+							<node n="af3"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af1"/>
+							<arc from="a" to="af2"/>
+							<arc from="a" to="af3"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/40</label>
+						<rdg n="a" wit="#A #Byz #048">ουτε</rdg>
+						<rdg n="b" wit="#048 #81">ουδε</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/44</label>
+						<rdg n="a" wit="#A #Byz #048 #2774">επιδεχεται</rdg>
+						<rdg n="af" type="defective" wit="#69">επιδεχεται</rdg>
+						<rdg n="b" wit="#048 #630 #1611 #2200 #2374 #2805">υποδεχεται</rdg>
+						<rdg n="c" wit="#048 #1409">αποδεχεται</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/46</label>
+						<rdg n="a" wit="#A #Byz">τους</rdg>
+						<rdg n="b" wit="#2718">αυτους</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/52</label>
+						<rdg n="a" wit="#A #Byz">τους</rdg>
+						<rdg n="b" wit="#1844"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/54</label>
+						<rdg n="a" wit="#A #Byz #424">βουλομενος</rdg>
+						<rdg n="af" type="defective" wit="#206S #218"></rdg>
+						<rdg n="b" wit="#04 #6 #323 #621 #1241 #1243 #1739 #1881 #2298">επιδεχομενους</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/60</label>
+						<rdg n="a" wit="#A #Byz #02 #03 #04 #044 #5 #6 #33 #61 #69 #81 #93 #181 #218 #254 #323 #326 #431 #436 #442 #467 #621 #623 #642 #808 #945 #1067 #1127 #1241 #1270 #1297 #1359 #1409 #1523 #1524 #1595 #1718 #1735 #1836 #1837 #1844 #1845 #1846 #1852 #1875 #1881 #2298 #2344 #2541 #2805">εκ</rdg>
+						<rdg n="b" wit="#01 #048 #049 #88 #94 #104 #180 #307 #321 #378 #400 #453 #459 #468 #614 #629 #630 #720 #876 #915 #918 #1243 #1292 #1490 #1501 #1505 #1563 #1611 #1661 #1678 #1739 #1751 #1831 #1832 #1838 #1842 #2138 #2147 #2186 #2200 #2243 #2374 #2412 #2492 #2544 #2652 #2774 #2818 #L921"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:10/63</label>
+						<rdg n="a" wit="#A #Byz"/>
+						<rdg n="af" type="defective" wit="#1836"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:11/4-16</label>
+						<rdg n="a" wit="#A #Byz">μη μιμου το κακον αλλα το αγαθον</rdg>
+						<rdg n="b" wit="#1799">μιμου το καλον αλλα και το αγαθον και μη το κακον</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:11/4</label>
+						<rdg n="a" wit="#A #Byz">μη</rdg>
+						<rdg n="af" type="defective" wit="#330 #1844"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:11/10</label>
+						<rdg n="a" wit="#A #Byz">κακον</rdg>
+						<rdg n="af" type="defective" wit="#522"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:11/18</label>
+						<rdg n="a" wit="#A #Byz">ο</rdg>
+						<rdg n="b" wit="#2298"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:11/30-40</label>
+						<rdg n="a" wit="#A #Byz">ο κακοποιων ουχ εωρακεν τον θεον</rdg>
+						<rdg n="b" wit="#1799"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:11/31</label>
+						<rdg n="a" wit="#A #01 #02 #03 #04 #018 #025 #044 #048 #049 #0142 #1 #5 #6 #33 #43 #61 #81 #88 #93 #94 #104 #180 #181 #218 #252 #307 #319 #321 #323 #326 #330 #378 #398 #400 #424 #429 #431 #436 #442 #453 #459 #467 #468 #522 #607 #614 #617 #621 #623 #630 #642 #720 #808 #876 #915 #945 #996 #1127 #1175 #1241 #1243 #1292 #1359 #1409 #1448 #1490 #1501 #1505 #1563 #1609 #1611 #1661 #1678 #1718 #1729 #1735 #1739 #1751 #1827 #1831 #1832 #1836 #1837 #1838 #1842 #1845 #1846 #1875 #1881 #1890 #2138 #2147 #2186 #2200 #2243 #2298 #2344 #2374 #2412 #2423 #2492 #2541 #2544 #2652 #2718 #2774 #2805 #2818 #L596 #L921 #L938 #L1141 #L1281"/>
+						<rdg n="b" wit="#020 #18 #35 #69 #206S #254 #629 #918 #1067 #1270 #1297 #1523 #1524 #1595 #1844 #1852">δε</rdg>
+						<rdg n="c" wit="#1874">γαρ</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:11/32</label>
+						<rdg n="a" wit="#A #Byz">κακοποιων</rdg>
+						<rdg n="b" wit="#1292">μη αγαθοποιων</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:11/34-40</label>
+						<rdg n="a" wit="#A #Byz #33">ουχ εωρακεν τον θεον</rdg>
+						<rdg n="af" type="defective" wit="#04 #326 #1837 #2805"></rdg>
+						<rdg n="ao" type="orthographic" wit="#03 #33 #252 #1846 #2818">ουχ εορακεν τον θεον</rdg>
+						<rdg n="b" wit="#1661">τον θεον ουχ εωρακεν</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="ao"/>
+							<node n="b"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="ao"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:12/3</label>
+						<rdg n="a" wit="#A #Byz"/>
+						<rdg n="b" wit="#252">δε</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:12/12</label>
+						<rdg n="a" wit="#A #01 #04 #93 #L596">υπο</rdg>
+						<rdg n="ao" type="orthographic" wit="#Byz #02 #03 #044 #048 #5 #6 #33 #61 #69 #81 #88 #94 #104 #181 #218 #254 #307 #321 #323 #326 #378 #431 #436 #442 #453 #459 #467 #614 #621 #623 #629 #630 #642 #720 #808 #876 #915 #918 #945 #1067 #1127 #1243 #1270 #1292 #1297 #1359 #1409 #1505 #1523 #1524 #1563 #1595 #1611 #1678 #1718 #1735 #1739 #1751 #1832 #1836 #1837 #1838 #1842 #1844 #1845 #1846 #1852 #1875 #1881 #2138 #2147 #2186 #2200 #2243 #2298 #2344 #2374 #2412 #2492 #2541 #2544 #2652 #2774 #2805 #2818"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="ao"/>
+							<arc from="a" to="ao"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:12/14</label>
+						<rdg n="a" wit="#A #Byz">αυτης</rdg>
+						<rdg n="b" wit="#93"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:12/16</label>
+						<rdg n="a" wit="#A #Byz">της</rdg>
+						<rdg n="af" type="defective" wit="#2412"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:12/18</label>
+						<rdg n="a" wit="#A #Byz #048">αληθειας</rdg>
+						<rdg n="b" wit="#02">εκκλησιας</rdg>
+						<rdg n="c" wit="#04">εκκλησιας και της αληθειας</rdg>
+						<rdg n="d" wit="#P74">εκκλησιας και αληθειας</rdg>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="c"/>
+							<arc from="?" to="d"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:12/20-24</label>
+						<rdg n="a" wit="#A #Byz">και ημεις δε</rdg>
+						<rdg n="b" wit="#61 #629">και ημεις</rdg>
+						<rdg n="c" wit="#044">ημεις δε</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:12/28-30</label>
+						<rdg n="a" wit="#A #01 #02 #03 #04 #044 #048 #5 #6 #61 #81 #88 #93 #94 #181 #218 #307 #321 #323 #326 #378 #436 #442 #453 #614 #623 #642 #808 #915 #918 #1067 #1127 #1241 #1243 #1270 #1297 #1359 #1409 #1501 #1563 #1595 #1678 #1718 #1735 #1739 #1836 #1837 #1845 #1846 #1852 #1875 #1881 #2147 #2298 #2344 #2374 #2412 #2541 #2652 #2774 #2805 #2818 #L596">και οιδας</rdg>
+						<rdg n="b" wit="#018 #020 #025 #049 #0142 #1 #43 #69 #104 #252 #254 #319 #330 #398 #400 #424 #429 #459 #467 #468 #522 #607 #617 #621 #630 #720 #876 #945 #996 #1175 #1448 #1490 #1505 #1523 #1524 #1609 #1611 #1661 #1729 #1751 #1799 #1827 #1831 #1832 #1838 #1842 #1844 #1874 #2138 #2186 #2200 #2243 #2423 #2492 #2544 #2718 #L921 #L938 #L1141 #L1281">και οιδατε</rdg>
+						<rdg n="c" wit="#18 #35 #180 #431 #629 #1292 #1890">και οιδαμεν</rdg>
+						<rdg n="d" wit="#206S"/>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="c"/>
+							<arc from="?" to="d"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:12/34-42</label>
+						<rdg n="a" wit="#A #01 #02 #03 #044 #048 #5 #33 #61 #81 #88 #94 #104 #181 #218 #254 #307 #321 #326 #431 #436 #453 #459 #467 #614 #623 #629 #630 #642 #720 #808 #876 #915 #918 #945 #1067 #1127 #1270 #1292 #1297 #1359 #1409 #1505 #1523 #1524 #1563 #1595 #1611 #1678 #1718 #1735 #1751 #1832 #1836 #1837 #1838 #1842 #1844 #1845 #1846 #1852 #1875 #2138 #2147 #2186 #2200 #2243 #2344 #2374 #2412 #2492 #2541 #2544 #2652 #2774 #2805 #2818">η μαρτυρια ημων αληθης εστιν</rdg>
+						<rdg n="af" type="defective" wit="#6"></rdg>
+						<rdg n="b" wit="#04 #93 #1739 #1881 #2298">αληθης ημων εστιν η μαρτυρια</rdg>
+						<rdg n="c" wit="#69">αληθης εστιν η μαρτυρια ημων</rdg>
+						<rdg n="d" wit="#323 #442 #621 #1241 #1243">αληθης εστιν ημων η μαρτυρια</rdg>
+						<rdg n="df" type="defective" wit="#L596"></rdg>
+						<rdg n="e" wit="#378">η μαρτυρια ημων εστιν αληθης</rdg>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="df"/>
+							<node n="e"/>
+							<node n="?"/>
+							<arc from="a" to="af"/>
+							<arc from="?" to="b"/>
+							<arc from="?" to="c"/>
+							<arc from="?" to="d"/>
+							<arc from="?" to="e"/>
+							<arc from="d" to="df"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:13/2-4</label>
+						<rdg n="a" wit="#A #Byz">πολλα ειχον</rdg>
+						<rdg n="b" wit="#61 #720">ειχον πολλα</rdg>
+						<rdg n="c" wit="#048 #1270 #1297 #1595">πολλα εχω</rdg>
+						<rdg n="d" wit="#323 #1505">πολλα ηθελον</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:13/6-8</label>
+						<rdg n="a" wit="#A #01 #02 #03 #04 #044 #5 #6 #33 #61 #69 #81 #88 #93 #181 #254 #323 #326 #431 #436 #442 #621 #623 #630 #876 #915 #945 #1067 #1241 #1243 #1292 #1409 #1448 #1505 #1523 #1524 #1611 #1735 #1739 #1832 #1836 #1837 #1844 #1845 #1846 #1852 #1875 #1881 #2138 #2200 #2243 #2298 #2541 #2774 #2805 #L596">γραψαι σοι</rdg>
+						<rdg n="b" wit="#33 #104 #218 #459 #1270 #1297 #1359 #1563 #1595 #1718 #1827 #1838 #1842 #2374">γραφειν σοι</rdg>
+						<rdg n="c" wit="#629">γραφειν υμιν</rdg>
+						<rdg n="d" wit="#Byz #94 #307 #321 #378 #453 #467 #614 #642 #720 #808 #918 #1127 #1678 #1751 #2147 #2186 #2412 #2492 #2544 #2652 #2818">γραφειν</rdg>
+						<rdg n="e" wit="#048">σοι γραψαι</rdg>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="?"/>
+							<arc from="?" to="b"/>
+							<arc from="?" to="c"/>
+							<arc from="?" to="d"/>
+							<arc from="?" to="e"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:13/10</label>
+						<rdg n="a" wit="#A #Byz">αλλ</rdg>
+						<rdg n="ao" type="orthographic" wit="#03">αλλα</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="ao"/>
+							<arc from="a" to="ao"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:13/12-14</label>
+						<rdg n="a" wit="#A #Byz #0251">ου θελω</rdg>
+						<rdg n="b" wit="#02">ουκ εβουληθην</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:13/18-22</label>
+						<rdg n="a" wit="#A #Byz #0251 #1241">μελανος και καλαμου</rdg>
+						<rdg n="af" type="defective" wit="#181"></rdg>
+						<rdg n="b" wit="#020 #1838">μελανος και καλαμω</rdg>
+						<rdg n="c" wit="#1735">χαρτου και μελανος</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:13/24-26</label>
+						<rdg n="a" wit="#A #01 #03 #04 #5 #33 #69 #88 #93 #180 #442 #621 #623 #915 #1243 #L596">σοι γραφειν</rdg>
+						<rdg n="b" wit="#02 #044 #048 #0251 #81 #254 #323 #326 #431 #436 #630 #876 #1067 #1241 #1292 #1409 #1448 #1505 #1523 #1524 #1611 #1735 #1739 #1832 #1844 #1845 #1846 #1852 #1881 #2138 #2200 #2243 #2298 #2374 #2541 #2774 #2805">γραφειν σοι</rdg>
+						<rdg n="c" wit="#Byz #6 #94 #104 #181 #307 #321 #378 #400 #453 #459 #614 #629 #720 #918 #1270 #1297 #1595 #1678 #1836 #1838 #1875 #2147 #2186 #2412 #2492 #2544 #2652 #2818">σοι γραψαι</rdg>
+						<rdg n="cf" type="defective" wit="#467"></rdg>
+						<rdg n="d" wit="#218 #642 #808 #945 #1127 #1359 #1563 #1718 #1751 #1837">γραψαι σοι</rdg>
+						<rdg n="e" wit="#0142 #1842">γραψαι</rdg>
+						<rdg n="f" wit="#61"/>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="cf"/>
+							<node n="d"/>
+							<node n="e"/>
+							<node n="f"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="c" to="cf"/>
+							<arc from="c" to="d"/>
+							<arc from="?" to="e"/>
+							<arc from="?" to="f"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:14/2</label>
+						<rdg n="a" wit="#A #Byz">ελπιζω</rdg>
+						<rdg n="b" wit="#1729">ελπισω</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:14/4</label>
+						<rdg n="a" wit="#A #Byz">δε</rdg>
+						<rdg n="b" wit="#61">γαρ</rdg>
+						<rdg n="c" wit="#1735 #1836"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:14/6</label>
+						<rdg n="a" wit="#A #Byz">ευθεως</rdg>
+						<rdg n="b" wit="#378 #2147 #2652">αυθις</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:14/8-20</label>
+						<rdg n="a" wit="#A #Byz">σε ιδειν και στομα προς στομα λαλησομεν</rdg>
+						<rdg n="c" wit="#629">και στομα προς στομα λαλησομεν σε ιδειν</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="c"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:14/8-10</label>
+						<rdg n="a" wit="#A #02 #03 #04 #048 #5 #33 #69 #81 #93 #323 #326 #436 #623 #629 #1067 #1241 #1243 #1409 #1735 #1739 #1837 #1881 #2298 #2541">σε ιδειν</rdg>
+						<rdg n="af" type="defective" wit="#2805"></rdg>
+						<rdg n="b" wit="#Byz #01 #044 #6 #61 #88 #94 #104 #181 #218 #254 #307 #321 #378 #431 #442 #453 #459 #467 #614 #621 #630 #642 #720 #808 #876 #915 #945 #1127 #1270 #1292 #1297 #1359 #1505 #1523 #1524 #1563 #1595 #1611 #1678 #1718 #1751 #1832 #1836 #1838 #1842 #1844 #1845 #1846 #1852 #1875 #2138 #2147 #2186 #2200 #2243 #2374 #2412 #2492 #2544 #2652 #2774 #2818">ιδειν σε</rdg>
+						<rdg n="bf" type="defective" wit="#2805"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<node n="b"/>
+							<node n="bf"/>
+							<arc from="a" to="af"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="bf"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:14/16</label>
+						<rdg n="a" wit="">προς</rdg>
+						<rdg n="af" type="defective" wit="#04 #018 #181 #915 #1735 #1837 #1838 #1845 #1874 #2805"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:14/18</label>
+						<rdg n="a" wit="#A #Byz">στομα</rdg>
+						<rdg n="af" type="defective" wit="#2718"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:14/20</label>
+						<rdg n="a" wit="#A #Byz #02 #03 #04 #044 #048 #5 #6 #69 #181 #218 #323 #378 #431 #436 #614 #623 #629 #630 #642 #808 #876 #918 #945 #1067 #1127 #1270 #1292 #1297 #1409 #1505 #1563 #1595 #1611 #1739 #1751 #1832 #1852 #1881 #2138 #2186 #2200 #2298 #2412 #2423 #2492 #2541 #2544 #2652 #2818">λαλησομεν</rdg>
+						<rdg n="b" wit="#018 #048 #049 #0142 #0251 #93 #94 #180 #254 #307 #321 #326 #330 #453 #467 #522 #621 #1241 #1359 #1523 #1524 #1678 #1718 #1729 #1827 #1836 #1837 #1838 #1844 #2147 #2243 #L1281">λαλησωμεν</rdg>
+						<rdg n="bf" type="defective" wit="#1243"></rdg>
+						<rdg n="c" wit="#61 #81 #720 #2374 #2774 #2805 #L921">λαλησαι</rdg>
+						<rdg n="d" wit="#88 #104 #442 #459 #915 #1735 #1842 #1845 #1846 #1875 #L596">λαλησαι σοι</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="bf"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+							<arc from="b" to="bf"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:15/2-4</label>
+						<rdg n="a" wit="#A #Byz">ειρηνη σοι</rdg>
+						<rdg n="b" wit="#206S">ειρηνην</rdg>
+						<rdg n="c" wit="#1297"/>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:15/8</label>
+						<rdg n="a" wit="#A #Byz">σε</rdg>
+						<rdg n="af" type="defective" wit="#431 #614 #L1141"></rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="af"/>
+							<arc from="a" to="af"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:15/12</label>
+						<rdg n="a" wit="#A #Byz #01 #03 #04 #044 #048 #5 #6 #88 #93 #94 #104 #181 #254 #307 #321 #323 #378 #431 #442 #453 #459 #467 #614 #621 #623 #629 #630 #720 #876 #915 #918 #945 #1241 #1243 #1270 #1292 #1297 #1505 #1523 #1524 #1595 #1611 #1678 #1739 #1751 #1832 #1836 #1838 #1842 #1844 #1845 #1846 #1852 #1875 #1881 #2138 #2147 #2186 #2200 #2243 #2298 #2374 #2412 #2492 #2544 #2652 #2774 #2805 #2818">φιλοι</rdg>
+						<rdg n="b" wit="#02 #33 #61 #69 #81 #218 #326 #436 #642 #808 #1067 #1127 #1359 #1409 #1563 #1718 #1827 #1837 #2541 #L1281">αδελφοι</rdg>
+						<rdg n="c" wit="#1735">αδελφοι παντες</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<arc from="a" to="b"/>
+							<arc from="b" to="c"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:15/14</label>
+						<rdg n="a" wit="#A #Byz">ασπαζου</rdg>
+						<rdg n="b" wit="#01 #048 #181 #621 #1270 #1297 #1595 #1836 #1837 #1875 #2774">ασπασαι</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<arc from="a" to="b"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:15/18</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #04 #048 #0251 #5 #6 #33 #69 #81 #88 #93 #94 #104 #181 #218 #254 #307 #321 #323 #378 #431 #442 #453 #459 #467 #614 #621 #623 #629 #642 #720 #915 #918 #945 #1127 #1243 #1270 #1297 #1359 #1505 #1523 #1524 #1563 #1595 #1678 #1718 #1735 #1739 #1751 #1836 #1837 #1838 #1842 #1844 #1845 #1846 #1852 #1875 #1881 #2147 #2186 #2243 #2298 #2374 #2412 #2492 #2544 #2652 #2774 #2805 #2818">φιλους</rdg>
+						<rdg n="b" wit="#044">φιλους σου</rdg>
+						<rdg n="c" wit="#43">φιλουντας</rdg>
+						<rdg n="d" wit="#61 #326 #436 #630 #808 #876 #1067 #1292 #1409 #1448 #1505 #1611 #1832 #2138 #2200 #2541 #L1281">αδελφους</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="d"/>
+							<arc from="a" to="b"/>
+							<arc from="a" to="c"/>
+							<arc from="a" to="d"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:15/20</label>
+						<rdg n="a" wit="#A #Byz">κατ</rdg>
+						<rdg n="ao" type="orthographic" wit="#044">κατα</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="ao"/>
+							<arc from="a" to="ao"/>
+						</graph>
+					</app>
+					<app>
+						<label>3Jo 1:15/23</label>
+						<rdg n="a" wit="#A #Byz #01 #02 #03 #04 #044 #048 #5 #6 #33 #61 #69 #81 #88 #93 #94 #104 #181 #218 #323 #326 #431 #436 #442 #459 #621 #623 #629 #630 #642 #808 #876 #915 #945 #1067 #1127 #1243 #1270 #1292 #1297 #1359 #1409 #1505 #1563 #1595 #1611 #1718 #1735 #1739 #1832 #1836 #1842 #1844 #1845 #1846 #1875 #1881 #2138 #2200 #2243 #2298 #2492 #2541 #2544"/>
+						<rdg n="b" wit="#020 #254 #307 #321 #378 #453 #467 #614 #720 #918 #996 #1523 #1524 #1661 #1678 #1751 #1837 #1852 #2147 #2186 #2374 #2412 #2652 #2774 #2805 #2818">αμην</rdg>
+						<rdg n="c" wit="#1838">υμιν αμην</rdg>
+						<rdg n="?" wit="#A">?</rdg>
+						<fs>
+							<f name="connectivity">
+								<numeric value="10" />
+							</f>
+						</fs>
+						<graph type="directed">
+							<node n="a"/>
+							<node n="b"/>
+							<node n="c"/>
+							<node n="?"/>
+							<arc from="a" to="b"/>
+							<arc from="?" to="c"/>
+						</graph>
+					</app>
+				</div>
+			</div>
+		</body>
+	</text>
+</TEI>

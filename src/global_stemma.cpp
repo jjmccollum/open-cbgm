@@ -47,7 +47,7 @@ global_stemma::global_stemma(apparatus & app, unordered_map<string, witness> & w
 		string wit_id = kv.first;
 		witness wit = kv.second;
 		//The ausgangstext will not have any ancestors, so we can skip it:
-		if (wit_id == "A") {
+		if (wit.get_potential_ancestor_ids().size() == 0) {
 			continue;
 		}
 		unordered_set<string> global_stemma_ancestors = wit.get_global_stemma_ancestors();

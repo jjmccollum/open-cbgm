@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
 		comparison.rdg = "";
 		if (reading_support.find(secondary_wit_id) == reading_support.end()) {
 			//The secondary witness is lacunose:
-			comparison.rdg = "–";
+			comparison.rdg = "\u2013";
 		}
 		else {
 			list<string> rdg_ids = reading_support[secondary_wit_id];

@@ -19,7 +19,7 @@ void test_local_stemma() {
 	cout << "Running test_local_stemma..." << endl;
 	//Parse the test XML file:
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file("test/acts_1_collation.xml");
+	pugi::xml_parse_result result = doc.load_file("examples/acts_1_collation.xml");
 	cout << "XML file load result: " << result.description() << endl;
 	pugi::xml_node label_node = doc.select_node("descendant::app/label[text()=\"Acts 1:13/30-38\"]").node();
 	string label = label_node.text().get();
@@ -45,7 +45,7 @@ void test_is_equal_or_prior() {
 	cout << "Running test_is_equal_or_prior..." << endl;
 	//Parse the test XML file:
 	pugi::xml_document doc;
-	doc.load_file("test/acts_1_collation.xml");
+	doc.load_file("examples/acts_1_collation.xml");
 	pugi::xml_node label_node = doc.select_node("//app/label[text()=\"Acts 1:13/30-38\"]").node();
 	string label = label_node.text().get();
 	pugi::xml_node graph_node = label_node.select_node("following-sibling::graph").node();
@@ -78,7 +78,7 @@ void test_to_dot() {
 	cout << "Running test_to_dot..." << endl;
 	//Parse the test XML file:
 	pugi::xml_document doc;
-	doc.load_file("test/acts_1_collation.xml");
+	doc.load_file("examples/acts_1_collation.xml");
 	pugi::xml_node label_node = doc.select_node("//app/label[text()=\"Acts 1:13/30-38\"]").node();
 	string label = label_node.text().get();
 	pugi::xml_node graph_node = label_node.select_node("following-sibling::graph").node();

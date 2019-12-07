@@ -33,7 +33,7 @@ void test_variation_unit() {
 	cout << "Running test_variation_unit..." << endl;
 	//Parse the test XML file:
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file("test/acts_1_collation.xml");
+	pugi::xml_parse_result result = doc.load_file("examples/acts_1_collation.xml");
 	cout << "XML file load result: " << result.description() << endl;
 	pugi::xml_node app_node = doc.select_node("descendant::app/label[text()=\"Acts 1:13/30-38\"]").node().parent();
 	unordered_set<string> distinct_reading_types = unordered_set<string>({"substantive"});

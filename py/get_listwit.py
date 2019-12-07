@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
  
-import argparse
 from lxml import etree as et
 
 def get_listwit(input_addr):

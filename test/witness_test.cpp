@@ -18,7 +18,7 @@ void test_witness() {
 	cout << "Running test_witness..." << endl;
 	//Parse the test XML file:
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file("test/acts_1_collation.xml");
+	pugi::xml_parse_result result = doc.load_file("examples/acts_1_collation.xml");
 	cout << "XML file load result: " << result.description() << endl;
 	pugi::xml_node tei_node = doc.child("TEI");
 	unordered_set<string> substantive_reading_types = unordered_set<string>({"substantive", "split"});
@@ -28,10 +28,10 @@ void test_witness() {
 	cout << "id: " << mt.get_id() << endl;
 	cout << "agreements with 33: " << mt.get_agreements_for_witness("33").toString() << endl;
 	cout << "readings explained by 33: " << mt.get_explained_readings_for_witness("33").toString() << endl;
-	witness ga_33 = witness("3", app);
+	witness ga_33 = witness("33", app);
 	cout << "id: " << ga_33.get_id() << endl;
-	cout << "agreements with MT: " << ga_33.get_agreements_for_witness("RP").toString() << endl;
-	cout << "readings explained by MT: " << ga_33.get_explained_readings_for_witness("RP").toString() << endl;
+	cout << "agreements with MT: " << ga_33.get_agreements_for_witness("MT").toString() << endl;
+	cout << "readings explained by MT: " << ga_33.get_explained_readings_for_witness("MT").toString() << endl;
 	cout << "Done." << endl;
 	return;
 }

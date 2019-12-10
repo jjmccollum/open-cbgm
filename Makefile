@@ -26,6 +26,7 @@ ${objects} : src/%.o : src/%.cpp ${includes}
 programs = \
 	compare_witnesses \
 	find_relatives \
+	optimize_substemmata \
 	
 tests = \
 	test/local_stemma_test \

@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
 		comparison.posterior = (primary_explained_by_secondary ^ mutually_explained).cardinality();
 		comparison.uncl = (mutually_explained ^ agreements).cardinality();
 		comparison.norel = comparison.pass - comparison.eq - comparison.prior - comparison.posterior;
-		comparison.perc = 100 * float(comparison.eq) / float(comparison.pass);
+		comparison.perc = comparison.pass > 0 ? (100 * float(comparison.eq) / float(comparison.pass)) : 0;
 		comparison.dir = comparison.prior > comparison.posterior ? -1 : (comparison.posterior > comparison.prior ? 1 : 0);
 		comparisons.push_back(comparison);
 	}
@@ -220,18 +220,29 @@ int main(int argc, char* argv[]) {
 	comparisons.sort([](const witness_comparison & wc1, const witness_comparison & wc2) {
 		return wc1.perc > wc2.perc;
 	});
-	cout << "Genealogical comparisons for W1 = " << primary_wit_id << ":\n\n";
-	cout << "W2\t" << "DIR\t" << "PASS\t" << "PERC\t\t" << "EQ\t" << "W1>W2\t" << "W1<W2\t" << "UNCL\t" << "NOREL\n\n";
+	cout << "Genealogical comparisons for W1 = " << primary_wit_id << ":";
+	cout << "\n\n";
+	cout << std::left << std::setw(8) << "W2";
+	cout << std::left << std::setw(4) << "DIR";
+	cout << std::right << std::setw(8) << "PASS";
+	cout << std::right << std::setw(12) << "PERC";
+	cout << std::right << std::setw(8) << "EQ";
+	cout << std::right << std::setw(8) << "W1>W2";
+	cout << std::right << std::setw(8) << "W1<W2";
+	cout << std::right << std::setw(8) << "UNCL";
+	cout << std::right << std::setw(8) << "NOREL";
+	cout << "\n\n";
 	for (witness_comparison comparison : comparisons) {
-		cout << comparison.id << "\t";
-		cout << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "=")) << "\t";
-		cout << comparison.pass << "\t";
-		cout << fixed << std::setprecision(3) << comparison.perc << "%\t\t";
-		cout << comparison.eq << "\t";
-		cout << comparison.prior << "\t";
-		cout << comparison.posterior << "\t";
-		cout << comparison.uncl << "\t";
-		cout << comparison.norel << "\n";
+		cout << std::left << std::setw(8) << comparison.id;
+		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
+		cout << std::right << std::setw(8) << comparison.pass;
+		cout << std::right << std::setw(11) << fixed << std::setprecision(3) << comparison.perc << "%";
+		cout << std::right << std::setw(8) << comparison.eq;
+		cout << std::right << std::setw(8) << comparison.prior;
+		cout << std::right << std::setw(8) << comparison.posterior;
+		cout << std::right << std::setw(8) << comparison.uncl;
+		cout << std::right << std::setw(8) << comparison.norel;
+		cout << "\n";
 	}
 	cout << endl;
 	return 0;

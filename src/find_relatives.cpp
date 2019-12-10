@@ -28,7 +28,7 @@ struct witness_comparison {
 	string id; //ID of the secondary witness
 	int dir; //-1 if primary witness is prior; 1 if posterior; 0 otherwise
 	int nr; //rank of the secondary witness as a potential ancestor of the primary witness
-	string rdg; //reading(s) of the secondary witness at the given variation unit
+	list<string> rdgs; //readings of the secondary witness at the given variation unit
 	int pass; //number of variation units where the primary witness is extant
 	float perc; //percentage of agreement in variation units where the primary witness is extant
 	int eq; //number of agreements in variation units where the primary witness is extant
@@ -54,7 +54,8 @@ void help() {
 	printf("Get a table of genealogical relationships between the witness with the given ID and other witnesses, as specified by the user.\n\n");
 	printf("optional arguments:\n");
 	printf("\t-h, --help: print usage manual\n");
-	printf("\t-t, --threshold: minimum extant readings threshold\n\n");
+	printf("\t-t, --threshold: minimum extant readings threshold\n");
+	printf("\t-r, --reading: filter results for specific reading\n\n");
 	printf("\t--split: treat split attestations as distinct readings");
 	printf("\t--orth: treat orthographic subvariants as distinct readings");
 	printf("\t--def: treat defective forms as distinct readings");
@@ -74,12 +75,14 @@ int main(int argc, char* argv[]) {
 	int orth = 0;
 	int def = 0;
 	unsigned int threshold = 0;
-	const char* const short_opts = "ht:";
+	string filter_reading = "";
+	const char* const short_opts = "ht:r:";
 	const option long_opts[] = {
 		{"split", no_argument, & split, 1},
 		{"orth", no_argument, & orth, 1},
 		{"def", no_argument, & def, 1},
 		{"threshold", required_argument, nullptr, 't'},
+		{"reading", required_argument, nullptr, 'r'},
 		{"help", no_argument, nullptr, 'h'},
 		{nullptr, no_argument, nullptr, 0}
 	};
@@ -91,6 +94,9 @@ int main(int argc, char* argv[]) {
 				return 0;
 			case 't':
 				threshold = atoi(optarg);
+				break;
+			case 'r':
+				filter_reading = optarg;
 				break;
 			case 0:
 				//This will happen if a long option is being parsed; just move on:
@@ -208,20 +214,9 @@ int main(int argc, char* argv[]) {
 		Roaring mutually_explained = primary_explained_by_secondary & secondary_explained_by_primary;
 		witness_comparison comparison;
 		comparison.id = secondary_wit_id;
-		comparison.rdg = "";
-		if (reading_support.find(secondary_wit_id) == reading_support.end()) {
-			//The secondary witness is lacunose:
-			comparison.rdg = "\u2013";
-		}
-		else {
-			list<string> rdg_ids = reading_support[secondary_wit_id];
-			//Serialize all of the secondary witness's readings:
-			for (string rdg_id : rdg_ids) {
-				comparison.rdg += rdg_id;
-				if (rdg_id != rdg_ids.back()) {
-					comparison.rdg += " ";
-				}
-			}
+		comparison.rdgs = list<string>();
+		if (reading_support.find(secondary_wit_id) != reading_support.end()) {
+			comparison.rdgs = reading_support[secondary_wit_id];
 		}
 		comparison.pass = mutually_extant.cardinality();
 		comparison.eq = agreements.cardinality();
@@ -251,20 +246,52 @@ int main(int argc, char* argv[]) {
 			comparison.nr = -1;
 		}
 	}
-	cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << ":\n\n";
-	cout << "W2\t" << "NR\t" << "DIR\t" << "RDG\t" << "PASS\t" << "PERC\t\t" << "EQ\t" << "W1>W2\t" << "W1<W2\t" << "UNCL\t" << "NOREL\n\n";
+	cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << ":";
+	cout << "\n\n";
+	cout << std::left << std::setw(8) << "W2";
+	cout << std::left << std::setw(4) << "DIR";
+	cout << std::right << std::setw(8) << "NR";
+	cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
+	cout << std::left << std::setw(8) << "RDG";
+	cout << std::right << std::setw(8) << "PASS";
+	cout << std::right << std::setw(12) << "PERC";
+	cout << std::right << std::setw(8) << "EQ";
+	cout << std::right << std::setw(8) << "W1>W2";
+	cout << std::right << std::setw(8) << "W1<W2";
+	cout << std::right << std::setw(8) << "UNCL";
+	cout << std::right << std::setw(8) << "NOREL";
+	cout << "\n\n";
 	for (witness_comparison comparison : comparisons) {
-		cout << comparison.id << "\t";
-		cout << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "=")) << "\t";
-		cout << (comparison.nr > 0 ? to_string(comparison.nr) : "") << "\t";
-		cout << comparison.rdg << "\t";
-		cout << comparison.pass << "\t";
-		cout << fixed << std::setprecision(3) << comparison.perc << "%\t\t";
-		cout << comparison.eq << "\t";
-		cout << comparison.prior << "\t";
-		cout << comparison.posterior << "\t";
-		cout << comparison.uncl << "\t";
-		cout << comparison.norel << "\n";
+		string rdgs_str = "";
+		bool match = filter_reading == "" ? true : false;
+		for (string rdg : comparison.rdgs) {
+			if (rdg != comparison.rdgs.front()) {
+				rdgs_str += ", ";
+			}
+			rdgs_str += rdg;
+			if (rdg == filter_reading) {
+				match = true;
+			}
+		}
+		if (!match) {
+			continue;
+		}
+		if (rdgs_str == "") {
+			rdgs_str = "-";
+		}
+		cout << std::left << std::setw(8) << comparison.id;
+		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
+		cout << std::right << std::setw(8) << (comparison.nr > 0 ? to_string(comparison.nr) : "");
+		cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
+		cout << std::left << std::setw(8) << rdgs_str;
+		cout << std::right << std::setw(8) << comparison.pass;
+		cout << std::right << std::setw(11) << fixed << std::setprecision(3) << comparison.perc << "%";
+		cout << std::right << std::setw(8) << comparison.eq;
+		cout << std::right << std::setw(8) << comparison.prior;
+		cout << std::right << std::setw(8) << comparison.posterior;
+		cout << std::right << std::setw(8) << comparison.uncl;
+		cout << std::right << std::setw(8) << comparison.norel;
+		cout << "\n";
 	}
 	cout << endl;
 	return 0;

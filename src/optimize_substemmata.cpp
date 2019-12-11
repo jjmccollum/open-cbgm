@@ -58,7 +58,7 @@ struct set_cover_solution {
  * Prints the short usage message.
  */
 void usage() {
-	printf("usage: optimize_substemmata [-h] [-t threshold] [--split] [--orth] [--def] input_xml witness\n\n");
+	printf("usage: optimize_substemmata [-h] [-t threshold] [-b bound] [--split] [--orth] [--def] input_xml witness\n\n");
 	return;
 }
 
@@ -70,7 +70,8 @@ void help() {
 	printf("Get a table of best-found substemmata for the witness with the given ID.\n\n");
 	printf("optional arguments:\n");
 	printf("\t-h, --help: print usage manual\n");
-	printf("\t-t, --threshold: minimum extant readings threshold\n\n");
+	printf("\t-t, --threshold: minimum extant readings threshold\n");
+	printf("\t-b, --bound: fixed upper bound on substemmata cost; if specified, list all substemmata with costs within this bound\n\n");
 	printf("\t--split: treat split attestations as distinct readings");
 	printf("\t--orth: treat orthographic subvariants as distinct readings");
 	printf("\t--def: treat defective forms as distinct readings");
@@ -230,13 +231,14 @@ set_cover_solution get_greedy_solution(vector<set_cover_row> rows, Roaring targe
 	while (initial_greedy_solution_bitmap.cardinality() > 0) {
 		//Get the last-indexed (i.e., highest-cost) row:
 		unsigned int row_ind;
-		set_cover_row row = rows[row_ind];
 		initial_greedy_solution_bitmap.select(initial_greedy_solution_bitmap.cardinality() - 1, & row_ind);
+		set_cover_row row = rows[row_ind];
 		//Check if it is redundant (i.e., if the other rows still in the reduced solution set can cover the original target set):
 		reduced_greedy_solution_candidates.erase(row_ind);
 		Roaring row_union = Roaring();
 		for (unsigned int other_row_ind : reduced_greedy_solution_candidates) {
-			row_union |= rows[other_row_ind].bits;
+			set_cover_row other_row = rows[other_row_ind];
+			row_union |= other_row.bits;
 		}
 		if (!target.isSubset(row_union)) {
 			reduced_greedy_solution_candidates.insert(row_ind);
@@ -251,17 +253,16 @@ set_cover_solution get_greedy_solution(vector<set_cover_row> rows, Roaring targe
 /**
  * Given a vector of row data structures, and a target bitmap to cover,
  * populates the given solution list with progressively best-found solutions via branch and bound.
+ * Optionally, a fixed upper bound can be specified, and all solutions with costs within this bound will be enumerated.
  */
-void branch_and_bound(vector<set_cover_row> rows, Roaring target, list<set_cover_solution> & solutions) {
-	/*
-	//Obtain a good initial upper bound using the trivial solution and the greedy solution:
-	set_cover_solution trivial_solution = get_trivial_solution(rows, target);
-	set_cover_solution greedy_solution = get_greedy_solution(rows, target);
-	int ub = min(trivial_solution.cost, greedy_solution.cost);
-	*/
-	//Obtain a good initial upper bound using the greedy solution:
-	set_cover_solution greedy_solution = get_greedy_solution(rows, target);
-	int ub = greedy_solution.cost;
+void branch_and_bound(vector<set_cover_row> rows, Roaring target, list<set_cover_solution> & solutions, int fixed_ub=-1) {
+	//If no upper bound is specified, then obtain a good initial upper bound quickly using the trivial solution and the greedy solution:
+	int ub = fixed_ub;
+	if (fixed_ub < 0) {
+		set_cover_solution trivial_solution = get_trivial_solution(rows, target);
+		set_cover_solution greedy_solution = get_greedy_solution(rows, target);
+		ub = min(trivial_solution.cost, greedy_solution.cost);
+	}
 	//Initialize three bitmaps that partition the row set into rows that are accepted in the current candidate solution,
 	//rows that are rejected from the current candidate solution,
 	//and rows that have not been processed yet:
@@ -305,8 +306,11 @@ void branch_and_bound(vector<set_cover_row> rows, Roaring target, list<set_cover
 		if (is_feasible(rows, target, accepted)) {
 			//If it is, then the lower bound we calculated is this solution's cost; check if it is within the current upper bound:
 			if (lb <= ub) {
-				//If it is less than or equal to the upper bound, then update the upper bound and add a solution to the list:
-				ub = lb;
+				//If it is within the upper bound, then add a solution to the list;
+				//if the upper bound is not fixed, then update the upper bound, as well:
+				if (fixed_ub > 0) {
+					ub = lb;
+				}
 				set_cover_solution solution;
 				solution.rows = list<set_cover_row>();
 				for (Roaring::const_iterator row_ind = accepted.begin(); row_ind != accepted.end(); row_ind++) {
@@ -338,12 +342,14 @@ int main(int argc, char* argv[]) {
 	int orth = 0;
 	int def = 0;
 	unsigned int threshold = 0;
-	const char* const short_opts = "ht:";
+	int fixed_ub = -1;
+	const char* const short_opts = "ht:b:";
 	const option long_opts[] = {
 		{"split", no_argument, & split, 1},
 		{"orth", no_argument, & orth, 1},
 		{"def", no_argument, & def, 1},
 		{"threshold", required_argument, nullptr, 't'},
+		{"bound", required_argument, nullptr, 'b'},
 		{"help", no_argument, nullptr, 'h'},
 		{nullptr, no_argument, nullptr, 0}
 	};
@@ -355,6 +361,9 @@ int main(int argc, char* argv[]) {
 				return 0;
 			case 't':
 				threshold = atoi(optarg);
+				break;
+			case 'b':
+				fixed_ub = atoi(optarg);
 				break;
 			case 0:
 				//This will happen if a long option is being parsed; just move on:
@@ -376,7 +385,6 @@ int main(int argc, char* argv[]) {
 	index++;
 	//The next argument is the primary witness ID:
 	string primary_wit_id = string(argv[index]);
-	cout << "Calculating genealogical relationships between witness " << primary_wit_id << " and all other witnesses..." << endl;
 	//Using the input flags, populate a set of reading types to be treated as distinct:
 	unordered_set<string> distinct_reading_types = unordered_set<string>();
 	if (split) {
@@ -410,6 +418,7 @@ int main(int argc, char* argv[]) {
 		printf("Error: The XML file's <listWit> element has no child <witness> element with ID %s.\n", primary_wit_id.c_str());
 		exit(1);
 	}
+	cout << "Finding optimal substemmata for witness " << primary_wit_id << "..." << endl;
 	//Populate a set of IDs for all other witnesses that match the input parameters
 	//and a map of the witnesses themselves, keyed by ID:
 	unordered_set<string> secondary_wit_ids = unordered_set<string>();
@@ -504,6 +513,12 @@ int main(int argc, char* argv[]) {
 			solution.rows.push_back(row);
 			solution.cost += row.cost;
 		}
+		//If a fixed upper bound was specified and the cost of this solution is higher than it,
+		//then report to the user that there are no solutions within the bound:
+		if (fixed_ub >= 0 && solution.cost > fixed_ub) {
+			printf("No substemma exists with a cost below %i; try again with a higher bound.\n", fixed_ub);
+			return 0;
+		}
 		list<set_cover_solution> solutions = list<set_cover_solution>({solution});
 		print_substemmata(solutions);
 		return 0;
@@ -515,9 +530,25 @@ int main(int argc, char* argv[]) {
 			subproblem_rows.push_back(row);
 		}
 	}
+	//If a fixed upper bound was specified, then update it based on the costs of the unique coverage rows:
+	if (fixed_ub >= 0) {
+		for (set_cover_row row : unique_rows) {
+			fixed_ub -= row.cost;
+		}
+	}
 	//Then populate a list of best-found solutions for the resulting subproblem using branch and bound:
 	list<set_cover_solution> solutions = list<set_cover_solution>();
-	branch_and_bound(rows, target, solutions);
+	branch_and_bound(rows, target, solutions, fixed_ub);
+	//If a fixed upper bound was specified and no solutions were found within the bound,
+	//then report this to the user:
+	if (fixed_ub >= 0 && solutions.empty()) {
+		printf("No substemma exists with a cost below %i; try again with a higher bound.\n", fixed_ub);
+		return 0;
+	}
+	//Otherwise, sort the solutions in order of their costs, then cardinalities:
+	solutions.sort([](const set_cover_solution & s1, const set_cover_solution & s2) {
+		return s1.cost < s2.cost ? -1 : (s1.cost > s2.cost ? 1 : (s1.rows.size() < s2.rows.size() ? -1 : (s1.rows.size() > s2.rows.size() ? 1 : 0)));
+	});
 	//Then, for each of the best-found solutions for this subproblem, add back in the unique coverage rows found earlier:
 	for (set_cover_solution & solution : solutions) {
 		for (set_cover_row row : unique_rows) {

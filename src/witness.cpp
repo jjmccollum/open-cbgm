@@ -14,6 +14,7 @@
 
 #include "roaring.hh"
 #include "witness.h"
+#include "set_cover_solver.h"
 #include "apparatus.h"
 #include "variation_unit.h"
 #include "local_stemma.h"
@@ -78,7 +79,7 @@ witness::witness(string witness_id, apparatus app) {
 }
 
 /**
- * Alternative constructor for a "partial witness" relative to a set of other witnesses.
+ * Alternative constructor for a witness relative to a set of other witnesses.
  * This constructor only populates the witness's agreements and explained readings bitmaps relative to itself and the specified witnesses.
  */
 witness::witness(string witness_id, unordered_set<string> list_wit, apparatus app) {
@@ -127,6 +128,9 @@ witness::witness(string witness_id, unordered_set<string> list_wit, apparatus ap
 	}
 }
 
+/**
+ * Default destructor.
+ */
 witness::~witness() {
 
 }
@@ -152,20 +156,6 @@ unordered_map<string, Roaring> witness::get_agreements_by_witness() {
  */
 unordered_map<string, Roaring> witness::get_explained_readings_by_witness() {
 	return explained_readings_by_witness;
-}
-
-/**
- * Returns a list of this witness's potential ancestors' IDs, sorted by pregenealogical coherence.
- */
-list<string> witness::get_potential_ancestor_ids() {
-	return potential_ancestor_ids;
-}
-
-/**
- * Returns a set of IDs for all witnesses that are direct ancestors to this witness in textual flow diagrams.
- */
-unordered_set<string> witness::get_textual_flow_ancestor_ids() {
-	return textual_flow_ancestor_ids;
 }
 
 /**
@@ -197,6 +187,13 @@ bool witness::pregenealogical_comp(witness & w1, witness & w2) {
 }
 
 /**
+ * Returns a list of this witness's potential ancestors' IDs, sorted by pregenealogical coherence.
+ */
+list<string> witness::get_potential_ancestor_ids() {
+	return potential_ancestor_ids;
+}
+
+/**
  * Given a list of witnesses, populates this witness's list of potential ancestor IDs,
  * sorting the other witnesses by their pregenealogical similarity with this witness
  * and filtering them based on their genealogical priority relative to this witness.
@@ -219,92 +216,40 @@ void witness::set_potential_ancestor_ids(list<witness> wits) {
 }
 
 /**
- * Adds the given textual flow ancestor's witness ID to this witness's set of textual flow ancestors.
+ * Returns this witness's list of global stemma ancestor IDs.
  */
-void witness::add_textual_flow_ancestor_id(string ancestor_id) {
-	textual_flow_ancestor_ids.insert(ancestor_id);
-	return;
+list<string> witness::get_global_stemma_ancestors() {
+	return global_stemma_ancestor_ids;
 }
 
 /**
- * Returns the smallest subset of this witness's set of textual flow ancestors that explains this witness's readings.
- * To find this subset, we use a brute-force algorithm for solving the minimum set cover problem.
- * Because of the combinatorial nature of this problem, its runtime will be O(k*n^k),
- * where n is the number of textual flow ancestors and k is the size of the minimum set cover.
+ * Identifies the witnesses found in the optimal substemma for this witness.
+ * The results are stored in this witness's global_stemma_ancestor_ids list.
  */
-unordered_set<string> witness::get_global_stemma_ancestors() {
-	unordered_set<string> global_stemma_ancestors = unordered_set<string>();
-	//The set that needs to be covered is this witness's set of extant readings:
-	Roaring target_set = explained_readings_by_witness[id];
-	//Populate a vector of explained reading bitmaps:
-	vector<string> ancestor_ids;
-	vector<Roaring> explained_readings;
-	for (string textual_flow_ancestor_id : textual_flow_ancestor_ids) {
-		ancestor_ids.push_back(textual_flow_ancestor_id);
-		explained_readings.push_back(explained_readings_by_witness[textual_flow_ancestor_id]);
+void witness::set_global_stemma_ancestors() {
+	global_stemma_ancestor_ids = list<string>();
+	//Populate a vector of set cover rows using the explained readings bitmaps for this witness's potential ancestors:
+	vector<set_cover_row> rows = vector<set_cover_row>();
+	for (string secondary_wit_id : potential_ancestor_ids) {
+		set_cover_row row;
+		row.id = secondary_wit_id;
+		row.bits = explained_readings_by_witness[secondary_wit_id];
+		row.cost = (explained_readings_by_witness[id] ^ agreements_by_witness[secondary_wit_id]).cardinality();
+		rows.push_back(row);
 	}
-	//Before we begin, check if the union of all the bitmaps explains all of this witness's readings:
-	Roaring union_all = Roaring();
-	for (Roaring explained_reading : explained_readings) {
-		union_all |= explained_reading;
-	}
-	if ((union_all & target_set).cardinality() < target_set.cardinality()) {
-		//If it doesn't, then there is no set cover; report this to the user and return an empty set:
-		cout << "Warning: Witness " << id << " has some readings that cannot be explained by all of its textual flow ancestors; consider updating the connectivity or local stemmata of one or more variation units." << endl;
-		return global_stemma_ancestors;
-	}
-	//If the union explains all of this witness's readings, then proceed for each subset size, starting at 1:
-	//TODO: This might be accelerated slightly using 64-bit integers and the instructions listed at https://graphics.stanford.edu/~seander/bithacks.html.
-	bool found_set_cover = false;
-	list<unordered_set<unsigned int>> solutions = list<unordered_set<unsigned int>>();
-	for (unsigned int i = 1; i <= explained_readings.size(); i++) {
-		vector<bool> vec(explained_readings.size(), false); //this boolean vector will encode the current combination
-		fill(vec.begin(), vec.begin() + i, true); //set the first i entries to true as an initial combination
-		do {
-			//Initialize a set of indices describing the current subset of explained reading bitmaps:
-			unordered_set<unsigned int> comb = unordered_set<unsigned int>();
-			//Using the current permutation of the boolean vector, populate the combination indices set:
-			for (unsigned int j = 0; j < vec.size(); j++) {
-				if (vec[j]) {
-					comb.insert(j);
-				}
-				if (comb.size() == i) {
-					break;
-				}
-			}
-			//Check if the bitmaps in this combination explain all of this witness's readings:
-			Roaring explained_by_subset = Roaring();
-			for (unsigned int j : comb) {
-				explained_by_subset |= explained_readings[j];
-			}
-			if ((explained_by_subset & target_set).cardinality() == target_set.cardinality()) {
-				//If they do, then we have a set cover; set the flag indicating that we have found a set cover of this size
-				//and add the current subset indices to the solutions list:
-				found_set_cover = true;
-				solutions.push_back(comb);
-			}
-		} while(next_permutation(vec.begin(), vec.end()));
-		//If we've found any set covers of this size, then there's no need to check for larger ones:
-		if (found_set_cover) {
-			break;
+	//Initialize the bitmap of the target set to be covered:
+	Roaring target = explained_readings_by_witness[id];
+	//Initialize the list of solutions to be populated:
+	list<set_cover_solution> solutions;
+	//Then populate it using the solver:
+	set_cover_solver solver = set_cover_solver(rows, target);
+	solver.solve(solutions);
+	//If it is not empty, then add the IDs corresponding to the optimal solution:
+	if (!solutions.empty()) {
+		set_cover_solution solution = solutions.front();
+		for (set_cover_row row : solution.rows) {
+			global_stemma_ancestor_ids.push_back(row.id);
 		}
 	}
-	//Choose the set cover with the highest total number of agreements with this witness:
-	int best_total = 0;
-	unordered_set<string> best_cover;
-	for (unordered_set<unsigned int> solution : solutions) {
-		int total_agreements = 0;
-		unordered_set<string> ancestors_in_solutions = unordered_set<string>();
-		for (unsigned int i : solution) {
-			string ancestor_id = ancestor_ids[i];
-			total_agreements += agreements_by_witness[ancestor_id].cardinality();
-			ancestors_in_solutions.insert(ancestor_id);
-		}
-		if (total_agreements > best_total) {
-			best_total = total_agreements;
-			best_cover = ancestors_in_solutions;
-		}
-	}
-	global_stemma_ancestors = best_cover;
-	return global_stemma_ancestors;
+	return;
 }

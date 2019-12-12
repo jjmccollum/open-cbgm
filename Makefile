@@ -9,6 +9,7 @@ objects = \
 	src/local_stemma.o \
 	src/variation_unit.o \
 	src/apparatus.o \
+	src/set_cover_solver.o \
 	src/witness.o \
 	src/global_stemma.o \
 

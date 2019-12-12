@@ -106,6 +106,9 @@ local_stemma::local_stemma(string apparatus_label, const pugi::xml_node xml, uno
 	}
 }
 
+/**
+ * Default destructor.
+ */
 local_stemma::~local_stemma() {
 
 }
@@ -146,10 +149,6 @@ bool local_stemma::is_equal_or_prior(string r1, string r2) {
 void local_stemma::to_dot(ostream & out) {
 	//Add the graph first:
 	out << "digraph local_stemma {\n";
-	//Add lines specifying the font and font size:
-	out << "\tgraph [fontname = \"helvetica\", fontsize=15];\n";
-    out << "\tnode [fontname = \"helvetica\", fontsize=15];\n";
-    out << "\tedge [fontname = \"helvetica\", fontsize=15];\n";
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit:

@@ -15,6 +15,7 @@
 
 #include "roaring.hh"
 #include "apparatus.h"
+
 using namespace std;
 
 class witness {
@@ -23,7 +24,7 @@ private:
 	unordered_map<string, Roaring> agreements_by_witness;
 	unordered_map<string, Roaring> explained_readings_by_witness;
 	list<string> potential_ancestor_ids;
-	unordered_set<string> textual_flow_ancestor_ids;
+	list<string> global_stemma_ancestor_ids;
 public:
 	witness();
 	witness(string witness_id, apparatus app);
@@ -32,14 +33,13 @@ public:
 	string get_id();
 	unordered_map<string, Roaring> get_agreements_by_witness();
 	unordered_map<string, Roaring> get_explained_readings_by_witness();
-	list<string> get_potential_ancestor_ids();
-	unordered_set<string> get_textual_flow_ancestor_ids();
 	Roaring get_agreements_for_witness(string other_id);
 	Roaring get_explained_readings_for_witness(string other_id);
 	bool pregenealogical_comp(witness & w1, witness & w2);
+	list<string> get_potential_ancestor_ids();
 	void set_potential_ancestor_ids(list<witness> wits);
-	void add_textual_flow_ancestor_id(string ancestor_id);
-	unordered_set<string> get_global_stemma_ancestors();
+	list<string> get_global_stemma_ancestors();
+	void set_global_stemma_ancestors();
 };
 
 #endif /* WITNESS_H */

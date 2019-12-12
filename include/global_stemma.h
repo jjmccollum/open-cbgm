@@ -24,7 +24,6 @@ struct global_stemma_edge {
 	string ancestor;
 	string descendant;
 	float weight;
-	bool ambiguous;
 };
 struct global_stemma_graph {
 	list<global_stemma_vertex> vertices;
@@ -36,7 +35,7 @@ private:
 	global_stemma_graph graph;
 public:
 	global_stemma();
-	global_stemma(apparatus & app, unordered_map<string, witness> & witnesses_by_id);
+	global_stemma(apparatus app, unordered_map<string, witness> witnesses_by_id);
 	virtual ~global_stemma();
 	global_stemma_graph get_graph();
 	void to_dot(std::ostream & out);

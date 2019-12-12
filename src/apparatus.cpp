@@ -44,6 +44,9 @@ apparatus::apparatus(const pugi::xml_node xml, unordered_set<string> substantive
 	}
 }
 
+/**
+ * Default destructor.
+ */
 apparatus::~apparatus() {
 
 }

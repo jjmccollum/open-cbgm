@@ -338,6 +338,9 @@ variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xm
 	graph.edges = list<textual_flow_edge>();
 }
 
+/**
+ * Default destructor.
+ */
 variation_unit::~variation_unit() {
 
 }
@@ -431,8 +434,6 @@ void variation_unit::calculate_textual_flow_for_witness(witness & w) {
 			if (w.get_agreements_for_witness(potential_ancestor_id).contains(index)) {
 				textual_flow_ancestor_id = potential_ancestor_id;
 				type = ambiguous ? flow_type::AMBIGUOUS : flow_type::EQUAL;
-				//Add the textual flow ancestor to this witness's set of textual flow ancestors:
-				w.add_textual_flow_ancestor_id(textual_flow_ancestor_id);
 				break;
 			}
 			//Otherwise, continue through the loop:
@@ -452,15 +453,12 @@ void variation_unit::calculate_textual_flow_for_witness(witness & w) {
 		}
 		//Set the type based on whether or not this witness is extant:
 		type = extant ? flow_type::CHANGE : flow_type::LOSS;
-		//Add the textual flow ancestor to this witness's set of textual flow ancestors:
-		w.add_textual_flow_ancestor_id(textual_flow_ancestor_id);
 		//If this witness is extant, then find the closest ancestor with a reading that explains its reading here,
 		//and add it to this witness's set of textual flow ancestors, as well:
 		if (extant) {
 			bool reading_explained = false;
 			for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
 				if (w.get_explained_readings_for_witness(potential_ancestor_id).contains(index)) {
-					w.add_textual_flow_ancestor_id(potential_ancestor_id);
 					reading_explained = true;
 					break;
 				}
@@ -503,10 +501,6 @@ void variation_unit::calculate_textual_flow(unordered_map<string, witness> & wit
 void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
-	//Add lines specifying the font and font size:
-	out << "\tgraph [fontname = \"helvetica\", fontsize=15];\n";
-	out << "\tnode [fontname = \"helvetica\", fontsize=15];\n";
-	out << "\tedge [fontname = \"helvetica\", fontsize=15];\n";
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit:
@@ -575,10 +569,6 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 void variation_unit::textual_flow_diagram_for_reading_to_dot(string rdg_id, ostream & out) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
-	//Add lines specifying the font and font size:
-	out << "\tgraph [fontname = \"helvetica\", fontsize=15];\n";
-	out << "\tnode [fontname = \"helvetica\", fontsize=15];\n";
-	out << "\tedge [fontname = \"helvetica\", fontsize=15];\n";
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit and the selected reading:
@@ -701,10 +691,6 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(string rdg_id, ostr
 void variation_unit::textual_flow_diagram_for_changes_to_dot(ostream & out) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
-	//Add lines specifying the font and font size:
-	out << "\tgraph [fontname = \"helvetica\", fontsize=15];\n";
-	out << "\tnode [fontname = \"helvetica\", fontsize=15];\n";
-	out << "\tedge [fontname = \"helvetica\", fontsize=15];\n";
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit:

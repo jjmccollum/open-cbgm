@@ -26,14 +26,11 @@ global_stemma::global_stemma() {
 
 /**
  * Constructs a global stemma from an apparatus and a map of witnesses keyed by ID.
+ * The witnesses are assumed to have their lists of global stemma ancestor populated.
  */
-global_stemma::global_stemma(apparatus & app, unordered_map<string, witness> & witnesses_by_id) {
+global_stemma::global_stemma(apparatus app, unordered_map<string, witness> witnesses_by_id) {
 	graph.vertices = list<global_stemma_vertex>();
 	graph.edges = list<global_stemma_edge>();
-	//Ensure that each variation unit's textual flow has been calculated:
-	for (variation_unit vu : app.get_variation_units()) {
-		vu.calculate_textual_flow(witnesses_by_id);
-	}
 	//Create a vertex for each witness:
 	for (pair<string, witness> kv : witnesses_by_id) {
 		string wit_id = kv.first;
@@ -46,11 +43,11 @@ global_stemma::global_stemma(apparatus & app, unordered_map<string, witness> & w
 	for (pair<string, witness> kv : witnesses_by_id) {
 		string wit_id = kv.first;
 		witness wit = kv.second;
-		//The ausgangstext will not have any ancestors, so we can skip it:
-		if (wit.get_potential_ancestor_ids().size() == 0) {
+		//Skip any witnesses with no potential ancestors (such as the Ausgangstext and highly lacunose witnesses):
+		if (wit.get_potential_ancestor_ids().empty()) {
 			continue;
 		}
-		unordered_set<string> global_stemma_ancestors = wit.get_global_stemma_ancestors();
+		list<string> global_stemma_ancestors = wit.get_global_stemma_ancestors();
 		//Get the maximum number of agreements between this witness and its ancestors:
 		int max_agreements = 0;
 		for (string ancestor_id : global_stemma_ancestors) {
@@ -66,14 +63,23 @@ global_stemma::global_stemma(apparatus & app, unordered_map<string, witness> & w
 			e.ancestor = ancestor_id;
 			e.descendant = wit_id;
 			e.weight = float(wit.get_agreements_for_witness(ancestor_id).cardinality()) / float(max_agreements);
-			e.ambiguous = (wit.get_explained_readings_for_witness(ancestor_id).cardinality() == ancestor.get_explained_readings_for_witness(wit_id).cardinality());
 			graph.edges.push_back(e);
 		}
 	}
 }
 
+/**
+ * Default destructor.
+ */
 global_stemma::~global_stemma() {
 
+}
+
+/**
+ * Returns the graph representing this global stemma.
+ */
+global_stemma_graph global_stemma::get_graph() {
+	return graph;
 }
 
 /**
@@ -82,10 +88,6 @@ global_stemma::~global_stemma() {
 void global_stemma::to_dot(ostream & out) {
 	//Add the graph first:
 	out << "digraph global_stemma {\n";
-	//Add lines specifying the font and font size:
-	out << "\tgraph [fontname = \"helvetica\", fontsize=15];\n";
-	out << "\tnode [fontname = \"helvetica\", fontsize=15];\n";
-	out << "\tedge [fontname = \"helvetica\", fontsize=15];\n";
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit:
@@ -108,18 +110,9 @@ void global_stemma::to_dot(ostream & out) {
 		int ancestor_index = id_to_index[ancestor_id];
 		int descendant_index = id_to_index[descendant_id];
 		float weight = e.weight;
-		bool ambiguous = e.ambiguous;
 		out << "\t";
-		//Use a dashed, undirected edge if the relationship is ambiguous:
-		if (ambiguous) {
-			out << ancestor_index << " -- " << descendant_index;
-			out << " [style=dashed, penwidth=" << weight << "]";
-		}
-		//Otherwise, use a solid, directed edge:
-		else {
-			out << ancestor_index << " -> " << descendant_index;
-			out << " [penwidth=" << weight << ", arrowsize=" << weight << "]";
-		}
+		out << ancestor_index << " -> " << descendant_index;
+		out << " [penwidth=" << weight << ", arrowsize=" << weight << "]";
 		out << ";\n";
 	}
 	out << "}" << endl;

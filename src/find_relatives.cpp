@@ -55,10 +55,10 @@ void help() {
 	printf("optional arguments:\n");
 	printf("\t-h, --help: print usage manual\n");
 	printf("\t-t, --threshold: minimum extant readings threshold\n");
-	printf("\t-r, --reading: filter results for specific reading\n\n");
-	printf("\t--split: treat split attestations as distinct readings");
-	printf("\t--orth: treat orthographic subvariants as distinct readings");
-	printf("\t--def: treat defective forms as distinct readings");
+	printf("\t-r, --reading: filter results for specific reading\n");
+	printf("\t--split: treat split attestations as distinct readings\n");
+	printf("\t--orth: treat orthographic subvariants as distinct readings\n");
+	printf("\t--def: treat defective forms as distinct readings\n\n");
 	printf("positional arguments:\n");
 	printf("\tinput_xml: collation file in TEI XML format\n");
 	printf("\twitness: ID of the witness whose relatives are desired, as found in its <witness> element in the XML file\n");

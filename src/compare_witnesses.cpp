@@ -52,10 +52,10 @@ void help() {
 	printf("Get a table of genealogical relationships between the witness with the given ID and other witnesses, as specified by the user.\n\n");
 	printf("optional arguments:\n");
 	printf("\t-h, --help: print usage manual\n");
-	printf("\t-t, --threshold: minimum extant readings threshold\n\n");
-	printf("\t--split: treat split attestations as distinct readings");
-	printf("\t--orth: treat orthographic subvariants as distinct readings");
-	printf("\t--def: treat defective forms as distinct readings");
+	printf("\t-t, --threshold: minimum extant readings threshold\n");
+	printf("\t--split: treat split attestations as distinct readings\n");
+	printf("\t--orth: treat orthographic subvariants as distinct readings\n");
+	printf("\t--def: treat defective forms as distinct readings\n\n");
 	printf("positional arguments:\n");
 	printf("\tinput_xml: collation file in TEI XML format\n");
 	printf("\twitness_1: ID of the primary witness to be compared, as found in its <witness> element in the XML file\n");

@@ -47,6 +47,7 @@ class variation_unit {
 private:
 	unsigned int index=0;
 	string label;
+	list<string> readings;
 	unordered_map<string, list<string>> reading_support;
 	int connectivity = 10;
 	local_stemma stemma;
@@ -57,13 +58,14 @@ public:
 	virtual ~variation_unit();
 	unsigned int get_index();
 	string get_label();
+	list<string> get_readings();
 	int size();
 	unordered_map<string, list<string>> get_reading_support();
 	int get_connectivity();
 	local_stemma get_local_stemma();
 	textual_flow_graph get_textual_flow_diagram();
-	void calculate_textual_flow_for_witness(witness &w);
-	void calculate_textual_flow(unordered_map<string, witness> & witnesses_by_id);
+	void calculate_textual_flow_for_witness(witness w);
+	void calculate_textual_flow(unordered_map<string, witness> witnesses_by_id);
 	void textual_flow_diagram_to_dot(ostream & out);
 	void textual_flow_diagram_for_reading_to_dot(string rdg_id, ostream & out);
 	void textual_flow_diagram_for_changes_to_dot(ostream & out);

@@ -36,7 +36,9 @@ variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xm
 	index = variation_unit_index;
 	//Populate the label:
 	label = (xml.child("label") && xml.child("label").text()) ? xml.child("label").text().get() : "";
-	//Populate the witness-to-readings map, and for the local stemma, maintain a map of trivial subvariants to their nearest nontrivial parent readings:
+	//Populate the list of reading IDs and the witness-to-readings map,
+	//and for the local stemma, maintain a map of trivial subvariants to their nearest nontrivial parent readings:
+	readings = list<string>();
 	reading_support = unordered_map<string, list<string>>();
 	unordered_map<string, string> trivial_to_significant = unordered_map<string, string>();
 	unordered_map<string, string> text_to_substantive_reading = unordered_map<string, string>();
@@ -299,6 +301,10 @@ variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xm
 			default: //unknown code (this should never happen)
 				break;
 		}
+		//If the raw reading ID is not mapped to an existing reading ID, then add it to the list:
+		if (trivial_to_significant.find(rdg_id) == trivial_to_significant.end()) {
+			readings.push_back(rdg_id);
+		}
 		//Now split the witness support attribute into a list of witness strings:
 		list<string> wits = list<string>();
 		const string wit_string = rdg.attribute("wit").value();
@@ -360,6 +366,13 @@ string variation_unit::get_label() {
 }
 
 /**
+ * Returns this variation unit's list of reading IDs.
+ */
+list<string> variation_unit::get_readings() {
+	return readings;
+}
+
+/**
  * Returns the number of (substantive) readings in this variation_unit.
  */
 int variation_unit::size() {
@@ -395,10 +408,9 @@ textual_flow_graph variation_unit::get_textual_flow_diagram() {
 }
 
 /**
- * Given a witness, adds a vertex representing it and an edge representing its relationship to its ancestor to the textual flow diagram graph
- * and adds the IDs of its textual flow parents to its set of textual flow ancestors.
+ * Given a witness, adds a vertex representing it and an edge representing its relationship to its ancestor to the textual flow diagram graph.
  */
-void variation_unit::calculate_textual_flow_for_witness(witness & w) {
+void variation_unit::calculate_textual_flow_for_witness(witness w) {
 	string wit_id = w.get_id();
 	//Check if this witness is lacunose:
 	bool extant = (reading_support.find(wit_id) != reading_support.end());
@@ -484,7 +496,7 @@ void variation_unit::calculate_textual_flow_for_witness(witness & w) {
  * Given a map of witness IDs to witnesses, constructs the textual flow diagram for this variation_unit
  * and modifies each witness's set of textual flow ancestors.
  */
-void variation_unit::calculate_textual_flow(unordered_map<string, witness> & witnesses_by_id) {
+void variation_unit::calculate_textual_flow(unordered_map<string, witness> witnesses_by_id) {
 	graph.vertices = list<textual_flow_vertex>();
 	graph.edges = list<textual_flow_edge>();
 	//Add a node for each witness:

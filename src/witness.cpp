@@ -194,12 +194,16 @@ list<string> witness::get_potential_ancestor_ids() {
 }
 
 /**
- * Given a list of witnesses, populates this witness's list of potential ancestor IDs,
+ * Given a map of witnesses keyed by ID, populates this witness's list of potential ancestor IDs,
  * sorting the other witnesses by their pregenealogical similarity with this witness
  * and filtering them based on their genealogical priority relative to this witness.
  */
-void witness::set_potential_ancestor_ids(list<witness> wits) {
+void witness::set_potential_ancestor_ids(unordered_map<string, witness> witnesses_by_id) {
 	potential_ancestor_ids = list<string>();
+	list<witness> wits = list<witness>();
+	for (pair<string, witness> kv : witnesses_by_id) {
+		wits.push_back(kv.second);
+	}
 	//Sort the input list by pregenealogical similarity to this witness:
 	wits.sort([this](witness & w1, witness & w2) {
 		return pregenealogical_comp(w1, w2);

@@ -37,7 +37,7 @@ public:
 	Roaring get_explained_readings_for_witness(string other_id);
 	bool pregenealogical_comp(witness & w1, witness & w2);
 	list<string> get_potential_ancestor_ids();
-	void set_potential_ancestor_ids(list<witness> wits);
+	void set_potential_ancestor_ids(unordered_map<string, witness> witnesses_by_id);
 	list<string> get_global_stemma_ancestors();
 	void set_global_stemma_ancestors();
 };

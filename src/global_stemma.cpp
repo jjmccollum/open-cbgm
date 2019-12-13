@@ -11,8 +11,6 @@
 #include <unordered_set>
 
 #include "global_stemma.h"
-#include "variation_unit.h"
-#include "apparatus.h"
 #include "witness.h"
 
 using namespace std;
@@ -25,10 +23,10 @@ global_stemma::global_stemma() {
 }
 
 /**
- * Constructs a global stemma from an apparatus and a map of witnesses keyed by ID.
+ * Constructs a global stemma from a map of witnesses keyed by ID.
  * The witnesses are assumed to have their lists of global stemma ancestor populated.
  */
-global_stemma::global_stemma(apparatus app, unordered_map<string, witness> witnesses_by_id) {
+global_stemma::global_stemma(unordered_map<string, witness> witnesses_by_id) {
 	graph.vertices = list<global_stemma_vertex>();
 	graph.edges = list<global_stemma_edge>();
 	//Create a vertex for each witness:
@@ -38,16 +36,16 @@ global_stemma::global_stemma(apparatus app, unordered_map<string, witness> witne
 		v.id = wit_id;
 		graph.vertices.push_back(v);
 	}
-	//Now that each witness has its set of textual flow ancestors populated,
+	//Now that each witness has its global stemma ancestors determined,
 	//retrieve the ancestors in their optimal substemmata and add the appropriate edges:
 	for (pair<string, witness> kv : witnesses_by_id) {
 		string wit_id = kv.first;
 		witness wit = kv.second;
-		//Skip any witnesses with no potential ancestors (such as the Ausgangstext and highly lacunose witnesses):
-		if (wit.get_potential_ancestor_ids().empty()) {
+		//Skip any witnesses with no global stemma ancestors (such as the Ausgangstext and highly lacunose witnesses):
+		list<string> global_stemma_ancestors = wit.get_global_stemma_ancestors();
+		if (global_stemma_ancestors.empty()) {
 			continue;
 		}
-		list<string> global_stemma_ancestors = wit.get_global_stemma_ancestors();
 		//Get the maximum number of agreements between this witness and its ancestors:
 		int max_agreements = 0;
 		for (string ancestor_id : global_stemma_ancestors) {
@@ -90,7 +88,7 @@ void global_stemma::to_dot(ostream & out) {
 	out << "digraph global_stemma {\n";
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
-	//Add a box node indicating the label of this variation_unit:
+	//Add a box node indicating the label of this graph:
 	out << "\tlabel [shape=box, label=\"Global Stemma\"];\n";
 	//Add all of its nodes, mapping their IDs to numerical indices:
 	unordered_map<string, int> id_to_index = unordered_map<string, int>();

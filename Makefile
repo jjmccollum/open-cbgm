@@ -28,6 +28,7 @@ programs = \
 	compare_witnesses \
 	find_relatives \
 	optimize_substemmata \
+	print_graphs \
 	
 tests = \
 	test/local_stemma_test \
@@ -45,6 +46,7 @@ ${tests} : % : %.cpp ${objects} src/roaring.o
 all: ${programs} ${tests} ${objects}
 
 clean:
+	rm -f src/roaring.o
 	rm -f ${objects}
 	rm -f ${tests}
 	rm -f ${programs}

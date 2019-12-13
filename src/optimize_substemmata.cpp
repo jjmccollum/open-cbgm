@@ -40,10 +40,10 @@ void help() {
 	printf("optional arguments:\n");
 	printf("\t-h, --help: print usage manual\n");
 	printf("\t-t, --threshold: minimum extant readings threshold\n");
-	printf("\t-b, --bound: fixed upper bound on substemmata cost; if specified, list all substemmata with costs within this bound\n\n");
-	printf("\t--split: treat split attestations as distinct readings");
-	printf("\t--orth: treat orthographic subvariants as distinct readings");
-	printf("\t--def: treat defective forms as distinct readings");
+	printf("\t-b, --bound: fixed upper bound on substemmata cost; if specified, list all substemmata with costs within this bound\n");
+	printf("\t--split: treat split attestations as distinct readings\n");
+	printf("\t--orth: treat orthographic subvariants as distinct readings\n");
+	printf("\t--def: treat defective forms as distinct readings\n\n");
 	printf("positional arguments:\n");
 	printf("\tinput_xml: collation file in TEI XML format\n");
 	printf("\twitness: ID of the witness whose substemmata are desired, as found in its <witness> element in the XML file\n");
@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
 	//Populate a set of IDs for all other witnesses that match the input parameters
 	//and a map of the witnesses themselves, keyed by ID:
 	unordered_set<string> secondary_wit_ids = unordered_set<string>();
-	list<witness> secondary_witnesses = list<witness>();
+	unordered_map<string, witness> secondary_witnesses_by_id = unordered_map<string, witness>();
 	for (string secondary_wit_id : list_wit) {
 		//Skip the primary witness:
 		if (secondary_wit_id == primary_wit_id) {
@@ -176,13 +176,13 @@ int main(int argc, char* argv[]) {
 		}
 		//Otherwise, add it:
 		secondary_wit_ids.insert(secondary_wit_id);
-		secondary_witnesses.push_back(secondary_wit);
+		secondary_witnesses_by_id[secondary_wit_id] = secondary_wit;
 	}
 	//Initialize the primary witness relative to all of the secondary witnesses in this map:
 	secondary_wit_ids.insert(primary_wit_id);
 	witness primary_wit = witness(primary_wit_id, secondary_wit_ids, app);
 	//Now populate the primary witness's list of potential ancestors:
-	primary_wit.set_potential_ancestor_ids(secondary_witnesses);
+	primary_wit.set_potential_ancestor_ids(secondary_witnesses_by_id);
 	//If this witness has no potential ancestors, then let the user know:
 	if (primary_wit.get_potential_ancestor_ids().empty()) {
 		cout << "The witness with ID " << primary_wit_id << " has no potential ancestors. This may be because it is too fragmentary or because it has equal priority to the Ausgangstext according to local stemmata." << endl;

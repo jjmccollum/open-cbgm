@@ -2,7 +2,7 @@ all:
 #compiler flags
 CXXFLAGS = -O3 -Wall -I ./include -std=c++11
 #external libraries
-#LIBS = 
+libs = -lstdc++fs
 #object files to link
 objects = \
 	src/pugixml.o \
@@ -38,10 +38,10 @@ tests = \
 
 #compile all executables from their implementation files, all linked objects, and external libraries:
 ${programs} : % : src/%.cpp ${objects} src/roaring.o
-	g++ ${CXXFLAGS} -o $@ $< ${objects} src/roaring.o
+	g++ ${CXXFLAGS} -o $@ $< ${objects} src/roaring.o ${libs}
 	
 ${tests} : % : %.cpp ${objects} src/roaring.o
-	g++ ${CXXFLAGS} -o $@ $< ${objects} src/roaring.o
+	g++ ${CXXFLAGS} -o $@ $< ${objects} src/roaring.o ${libs}
 
 all: ${programs} ${tests} ${objects}
 

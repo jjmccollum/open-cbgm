@@ -37,13 +37,13 @@ private:
 	set<pair<string, string>> closure_set;
 public:
 	local_stemma();
-	local_stemma(string label, const pugi::xml_node xml, unordered_map<string, string> trivial_to_significant);
+	local_stemma(const string & label, const pugi::xml_node & xml, const unordered_map<string, string> & trivial_to_significant);
 	virtual ~local_stemma();
-	string get_label();
-	local_stemma_graph get_graph();
-	set<pair<string, string>> get_closure_set();
-	bool is_equal_or_prior(string r1, string r2);
-	void to_dot(std::ostream & out);
+	string get_label() const;
+	local_stemma_graph get_graph() const;
+	set<pair<string, string>> get_closure_set() const;
+	bool is_equal_or_prior(const string & r1, const string & r2) const;
+	void to_dot(ostream & out);
 };
 
 #endif /* LOCAL_STEMMA_H */

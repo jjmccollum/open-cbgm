@@ -56,17 +56,17 @@ private:
 	int fixed_ub = -1;
 public:
 	set_cover_solver();
-	set_cover_solver(vector<set_cover_row> _rows, Roaring _target);
-	set_cover_solver(vector<set_cover_row> _rows, Roaring _target, int _fixed_ub);
+	set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target);
+	set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target, int _fixed_ub);
 	virtual ~set_cover_solver();
-	Roaring get_uncovered_columns();
-	list<set_cover_row> get_unique_rows();
+	Roaring get_uncovered_columns() const;
+	list<set_cover_row> get_unique_rows() const;
 	void branch();
-	int bound();
-	bool is_feasible();
-	bool is_any_branch_feasible();
-	set_cover_solution get_trivial_solution();
-	set_cover_solution get_greedy_solution();
+	int bound() const;
+	bool is_feasible() const;
+	bool is_any_branch_feasible() const;
+	set_cover_solution get_trivial_solution() const;
+	set_cover_solution get_greedy_solution() const;
 	void branch_and_bound(list<set_cover_solution> & solutions);
 	void solve(list<set_cover_solution> & solutions);
 };

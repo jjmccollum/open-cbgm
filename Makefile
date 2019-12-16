@@ -36,6 +36,14 @@ tests = \
 	test/apparatus_test \
 	test/witness_test \
 
+#generated folders
+generated_dirs = \
+	local \
+	flow \
+	attestations \
+	variants \
+	global \
+
 #compile all executables from their implementation files, all linked objects, and external libraries:
 ${programs} : % : src/%.cpp ${objects} src/roaring.o
 	g++ ${CXXFLAGS} -o $@ $< ${objects} src/roaring.o ${libs}
@@ -50,3 +58,4 @@ clean:
 	rm -f ${objects}
 	rm -f ${tests}
 	rm -f ${programs}
+	rm -r -f ${generated_dirs}

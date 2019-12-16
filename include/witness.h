@@ -27,18 +27,18 @@ private:
 	list<string> global_stemma_ancestor_ids;
 public:
 	witness();
-	witness(string witness_id, apparatus app);
-	witness(string witness_id, unordered_set<string> list_wit, apparatus app);
+	witness(const string & witness_id, const apparatus & app);
+	witness(const string & witness_id, const unordered_set<string> & list_wit, const apparatus & app);
 	virtual ~witness();
-	string get_id();
-	unordered_map<string, Roaring> get_agreements_by_witness();
-	unordered_map<string, Roaring> get_explained_readings_by_witness();
-	Roaring get_agreements_for_witness(string other_id);
-	Roaring get_explained_readings_for_witness(string other_id);
-	bool pregenealogical_comp(witness & w1, witness & w2);
-	list<string> get_potential_ancestor_ids();
-	void set_potential_ancestor_ids(unordered_map<string, witness> witnesses_by_id);
-	list<string> get_global_stemma_ancestors();
+	string get_id() const;
+	unordered_map<string, Roaring> get_agreements_by_witness() const;
+	unordered_map<string, Roaring> get_explained_readings_by_witness() const;
+	Roaring get_agreements_for_witness(const string & other_id) const;
+	Roaring get_explained_readings_for_witness(const string & other_id) const;
+	bool pregenealogical_comp(const witness & w1, const witness & w2);
+	list<string> get_potential_ancestor_ids() const;
+	void set_potential_ancestor_ids(const unordered_map<string, witness> & witnesses_by_id);
+	list<string> get_global_stemma_ancestors() const;
 	void set_global_stemma_ancestors();
 };
 

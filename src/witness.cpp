@@ -31,7 +31,7 @@ witness::witness() {
 /**
  * Constructs a witness using its ID and a textual apparatus.
  */
-witness::witness(string witness_id, apparatus app) {
+witness::witness(const string & witness_id, const apparatus & app) {
 	//Set its ID:
 	id = witness_id;
 	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:
@@ -82,7 +82,7 @@ witness::witness(string witness_id, apparatus app) {
  * Alternative constructor for a witness relative to a set of other witnesses.
  * This constructor only populates the witness's agreements and explained readings bitmaps relative to itself and the specified witnesses.
  */
-witness::witness(string witness_id, unordered_set<string> list_wit, apparatus app) {
+witness::witness(const string & witness_id, const unordered_set<string> & list_wit, const apparatus & app) {
 	//Set its ID:
 	id = witness_id;
 	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:
@@ -138,7 +138,7 @@ witness::~witness() {
 /**
  * Returns the ID of this witness.
  */
-string witness::get_id() {
+string witness::get_id() const {
 	return id;
 }
 
@@ -146,7 +146,7 @@ string witness::get_id() {
  * Returns the bitset representing the agreements of this witness with other witnesses,
  * keyed by the other witness's ID.
  */
-unordered_map<string, Roaring> witness::get_agreements_by_witness() {
+unordered_map<string, Roaring> witness::get_agreements_by_witness() const {
 	return agreements_by_witness;
 }
 
@@ -154,33 +154,33 @@ unordered_map<string, Roaring> witness::get_agreements_by_witness() {
  * Returns a map of bitsets representing the readings of this witness explained by other witnesses,
  * keyed by the other witness's ID.
  */
-unordered_map<string, Roaring> witness::get_explained_readings_by_witness() {
+unordered_map<string, Roaring> witness::get_explained_readings_by_witness() const {
 	return explained_readings_by_witness;
 }
 
 /**
  * Returns a bitset indicating the units at which this witness agrees with the witness with the given ID.
  */
-Roaring witness::get_agreements_for_witness(string other_id) {
-	return agreements_by_witness[other_id];
+Roaring witness::get_agreements_for_witness(const string & other_id) const {
+	return agreements_by_witness.at(other_id);
 }
 
 /**
  * Returns a bitset indicating which of this witness's readings are explained by the witness with the given ID.
  * If this witness's ID is the input, then the bitset indicates the units at which this witness is extant.
  */
-Roaring witness::get_explained_readings_for_witness(string other_id) {
-	return explained_readings_by_witness[other_id];
+Roaring witness::get_explained_readings_for_witness(const string & other_id) const {
+	return explained_readings_by_witness.at(other_id);
 }
 
 /**
  * Computes the pregenealogical similarity of the two given witnesses to this witness
  * and returns a boolean value indicating whether the similarity to the first is greater than the similarity to the second.
  */
-bool witness::pregenealogical_comp(witness & w1, witness & w2) {
-	Roaring agreements_with_w1 = agreements_by_witness[w1.get_id()];
-	Roaring agreements_with_w2 = agreements_by_witness[w2.get_id()];
-	Roaring extant = explained_readings_by_witness[id];
+bool witness::pregenealogical_comp(const witness & w1, const witness & w2) {
+	Roaring agreements_with_w1 = agreements_by_witness.at(w1.get_id());
+	Roaring agreements_with_w2 = agreements_by_witness.at(w2.get_id());
+	Roaring extant = explained_readings_by_witness.at(id);
 	float pregenealogical_similarity_to_w1 = float(agreements_with_w1.cardinality()) / float(extant.cardinality());
 	float pregenealogical_similarity_to_w2 = float(agreements_with_w2.cardinality()) / float(extant.cardinality());
 	return pregenealogical_similarity_to_w1 > pregenealogical_similarity_to_w2;
@@ -189,7 +189,7 @@ bool witness::pregenealogical_comp(witness & w1, witness & w2) {
 /**
  * Returns a list of this witness's potential ancestors' IDs, sorted by pregenealogical coherence.
  */
-list<string> witness::get_potential_ancestor_ids() {
+list<string> witness::get_potential_ancestor_ids() const {
 	return potential_ancestor_ids;
 }
 
@@ -198,7 +198,7 @@ list<string> witness::get_potential_ancestor_ids() {
  * sorting the other witnesses by their pregenealogical similarity with this witness
  * and filtering them based on their genealogical priority relative to this witness.
  */
-void witness::set_potential_ancestor_ids(unordered_map<string, witness> witnesses_by_id) {
+void witness::set_potential_ancestor_ids(const unordered_map<string, witness> & witnesses_by_id) {
 	potential_ancestor_ids = list<string>();
 	list<witness> wits = list<witness>();
 	for (pair<string, witness> kv : witnesses_by_id) {
@@ -222,7 +222,7 @@ void witness::set_potential_ancestor_ids(unordered_map<string, witness> witnesse
 /**
  * Returns this witness's list of global stemma ancestor IDs.
  */
-list<string> witness::get_global_stemma_ancestors() {
+list<string> witness::get_global_stemma_ancestors() const {
 	return global_stemma_ancestor_ids;
 }
 

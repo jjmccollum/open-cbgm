@@ -26,7 +26,7 @@ set_cover_solver::set_cover_solver() {
  * Constructs a set cover solver given a vector of row data structures (assumed to be sorted by ascending costs)
  * and a bitmap representing the target set to cover.
  */
-set_cover_solver::set_cover_solver(vector<set_cover_row> _rows, Roaring _target) {
+set_cover_solver::set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target) {
 	//Copy the input rows and target set:
 	rows = vector<set_cover_row>(_rows);
 	target = Roaring(_target);
@@ -42,7 +42,7 @@ set_cover_solver::set_cover_solver(vector<set_cover_row> _rows, Roaring _target)
  * Constructs a set cover solver given a vector of row data structures (assumed to be sorted by ascending costs),
  * a bitmap representing the target set to cover, and a fixed upper bound.
  */
-set_cover_solver::set_cover_solver(vector<set_cover_row> _rows, Roaring _target, int _fixed_ub) {
+set_cover_solver::set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target, int _fixed_ub) {
 	//Copy the input rows and target set:
 	rows = vector<set_cover_row>(_rows);
 	target = Roaring(_target);
@@ -66,7 +66,7 @@ set_cover_solver::~set_cover_solver() {
 /**
  * Returns a bitmap of target columns not covered by any row.
  */
-Roaring set_cover_solver::get_uncovered_columns() {
+Roaring set_cover_solver::get_uncovered_columns() const {
 	//Get the union of all rows:
 	Roaring row_union = Roaring();
 	for (set_cover_row row : rows) {
@@ -79,7 +79,7 @@ Roaring set_cover_solver::get_uncovered_columns() {
  * Returns a list of set cover rows that uniquely cover one or more columns
  * (and therefore must be included in any solution).
  */
-list<set_cover_row> set_cover_solver::get_unique_rows() {
+list<set_cover_row> set_cover_solver::get_unique_rows() const {
 	list<set_cover_row> unique_rows = list<set_cover_row>();
 	Roaring unique_row_inds = Roaring();
 	//If there are no set cover rows, then return an empty list:
@@ -126,7 +126,7 @@ list<set_cover_row> set_cover_solver::get_unique_rows() {
 		}
 		//If the pointer is at the index of a single row in the union tree, then that row uniquely covers this column:
 		if (p >= n - 1) {
-			unsigned int row_ind = union_tree.size() - (n - 1);
+			unsigned int row_ind = p - (n - 1);
 			unique_row_inds.add(row_ind);
 		}
 	}
@@ -164,7 +164,7 @@ void set_cover_solver::branch() {
 /**
  * Returns a lower bound on the cost of any solution that contains the current set of accepted rows.
  */
-int set_cover_solver::bound() {
+int set_cover_solver::bound() const {
 	int bound = 0;
 	for (Roaring::const_iterator it = accepted.begin(); it != accepted.end(); it++) {
 		unsigned int row_ind = *it;
@@ -177,7 +177,7 @@ int set_cover_solver::bound() {
 /**
  * Returns a boolean value indicating if the current set of accepted rows constitutes a feasible set cover solution.
  */
-bool set_cover_solver::is_feasible() {
+bool set_cover_solver::is_feasible() const {
 	//Check if the target set is covered by the accepted rows:
 	Roaring row_union = Roaring();
 	for (Roaring::const_iterator it = accepted.begin(); it != accepted.end(); it++) {
@@ -194,7 +194,7 @@ bool set_cover_solver::is_feasible() {
 /**
  * Returns a boolean value indicating if any solution containing the current set of accepted rows is feasible.
  */
-bool set_cover_solver::is_any_branch_feasible() {
+bool set_cover_solver::is_any_branch_feasible() const {
 	//Check if the target set is covered by the accepted and remaining rows:
 	Roaring rows_in_branch = accepted | remaining;
 	Roaring row_union = Roaring();
@@ -216,7 +216,7 @@ bool set_cover_solver::is_any_branch_feasible() {
  * (i.e., if all local stemmata are connected, which is necessary for the global stemma to be connected),
  * then at least one such solution is guaranteed to exist.
  */
-set_cover_solution set_cover_solver::get_trivial_solution() {
+set_cover_solution set_cover_solver::get_trivial_solution() const {
 	set_cover_solution trivial_solution;
 	trivial_solution.rows = list<set_cover_row>();
 	trivial_solution.cost = target.cardinality();
@@ -232,7 +232,7 @@ set_cover_solution set_cover_solver::get_trivial_solution() {
 /**
  * Returns the set cover solution found by the basic greedy heuristic.
  */
-set_cover_solution set_cover_solver::get_greedy_solution() {
+set_cover_solution set_cover_solver::get_greedy_solution() const {
 	Roaring initial_greedy_solution_candidates = Roaring();
 	Roaring uncovered = Roaring(target);
 	//Until the target is completely covered, choose the row with the lowest cost-to-coverage proportion:

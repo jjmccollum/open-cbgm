@@ -20,9 +20,9 @@ using namespace std;
 /**
  * Recursive function for populating a transitive closure adjacency matrix given an adjacency list for a graph.
  */
-void transitive_closure_dfs(string prior, string posterior, map<string, list<string>> adjacency_map, set<pair<string, string>> & closure_set) {
+void transitive_closure_dfs(const string & prior, const string & posterior, const map<string, list<string>> & adjacency_map, set<pair<string, string>> & closure_set) {
 	closure_set.insert(pair<string, string>(prior, posterior));
-	for (string next : adjacency_map[posterior]) {
+	for (string next : adjacency_map.at(posterior)) {
 		if (closure_set.find(pair<string, string>(prior, next)) == closure_set.end()) {
 			transitive_closure_dfs(prior, next, adjacency_map, closure_set);
 		}
@@ -41,7 +41,7 @@ local_stemma::local_stemma() {
  * Constructs a local stemma from a <graph/> XML element using the given label taken from the apparatus.
  * A map of trivial reading IDs to their significant parent readings (which may optionally be empty) is also used to collapse the graph in the XML element.
  */
-local_stemma::local_stemma(string apparatus_label, const pugi::xml_node xml, unordered_map<string, string> trivial_to_significant) {
+local_stemma::local_stemma(const string & apparatus_label, const pugi::xml_node & xml, const unordered_map<string, string> & trivial_to_significant) {
 	graph.vertices = list<local_stemma_vertex>();
 	graph.edges = list<local_stemma_edge>();
 	//Set the label:
@@ -70,10 +70,10 @@ local_stemma::local_stemma(string apparatus_label, const pugi::xml_node xml, uno
 		string posterior = arc.attribute("to").value();
 		//Map any trivial readings to their significant parent readings:
 		if (trivial_to_significant.find(prior) != trivial_to_significant.end()) {
-			prior = trivial_to_significant[prior];
+			prior = trivial_to_significant.at(prior);
 		}
 		if (trivial_to_significant.find(posterior) != trivial_to_significant.end()) {
-			posterior = trivial_to_significant[posterior];
+			posterior = trivial_to_significant.at(posterior);
 		}
 		//If the resulting readings are identical, then do not add the collapsed edge:
 		if (prior == posterior) {
@@ -116,21 +116,21 @@ local_stemma::~local_stemma() {
 /**
  * Returns the label for this local_stemma.
  */
-string local_stemma::get_label() {
+string local_stemma::get_label() const {
 	return label;
 }
 
 /**
  * Returns the graph structure for this local_stemma.
  */
-local_stemma_graph local_stemma::get_graph() {
+local_stemma_graph local_stemma::get_graph() const {
 	return graph;
 }
 
 /**
  * Return the set of edges in the transitive closure of this local_stemma's graph.
  */
-set<pair<string, string>> local_stemma::get_closure_set() {
+set<pair<string, string>> local_stemma::get_closure_set() const {
 	return closure_set;
 }
 
@@ -139,7 +139,7 @@ set<pair<string, string>> local_stemma::get_closure_set() {
  * or if the first reading is prior to the second
  * (i.e., if the first reading is adjacent to the second in the transitive closure of the stemma graph).
  */
-bool local_stemma::is_equal_or_prior(string r1, string r2) {
+bool local_stemma::is_equal_or_prior(const string & r1, const string & r2) const {
 	return closure_set.find(pair<string, string>(r1, r2)) != closure_set.end();
 }
 
@@ -159,7 +159,7 @@ void local_stemma::to_dot(ostream & out) {
 		//Add the vertex's ID to the map:
 		id_to_index[v.id] = id_to_index.size();
 		out << "\t";
-		out << id_to_index[v.id];
+		out << id_to_index.at(v.id);
 		//Use the ID as the node label:
 		out << " [label=\"" << v.id << "\"]";
 		out << ";\n";
@@ -169,7 +169,7 @@ void local_stemma::to_dot(ostream & out) {
 		string prior = e.prior;
 		string posterior = e.posterior;
 		out << "\t";
-		out << id_to_index[prior] << " -> " << id_to_index[posterior];
+		out << id_to_index.at(prior) << " -> " << id_to_index.at(posterior);
 		out << ";\n";
 	}
 	out << "}" << endl;

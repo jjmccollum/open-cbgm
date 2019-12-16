@@ -54,7 +54,7 @@ void help() {
  * Given a list of set cover solutions (assumed to be sorted from lowest cost to highest),
  * prints the corresponding best-found substemmata for the primary witness, along with their costs.
  */
-void print_substemmata(list<set_cover_solution> solutions) {
+void print_substemmata(const list<set_cover_solution> & solutions) {
 	//Print the header row first:
 	cout << std::left << std::setw(64) << "SUBSTEMMA" << std::right << std::setw(8) << "COST" << "\n\n";
 	for (set_cover_solution solution : solutions) {
@@ -210,12 +210,14 @@ int main(int argc, char* argv[]) {
 		Roaring uncovered_columns = solver.get_uncovered_columns();
 		if (uncovered_columns.cardinality() > 0) {
 			cout << "The witness with ID " << primary_wit_id << " cannot be explained by any of its potential ancestors at the following variation units: ";
-			unsigned int vu_ind = 0;
-			for (variation_unit vu : app.get_variation_units()) {
-				if (uncovered_columns.contains(vu_ind)) {
-					cout << vu.get_label() << " ";
+			vector<variation_unit> vus = app.get_variation_units();
+			for (Roaring::const_iterator it = uncovered_columns.begin(); it != uncovered_columns.end(); it++) {
+				unsigned int col_ind = *it;
+				variation_unit vu = vus[col_ind];
+				if (it != uncovered_columns.begin()) {
+					cout << ", ";
 				}
-				vu_ind++;
+				cout << vu.get_label();
 			}
 			cout << endl;
 			exit(0);

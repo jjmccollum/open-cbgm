@@ -102,6 +102,14 @@ int main(int argc, char* argv[]) {
 				exit(1);
 		}
 	}
+	//If no graphs are specified for printing, then print all of them:
+	if (local + flow + attestations + variants + global == 0) {
+		local = 1;
+		flow = 1;
+		attestations = 1;
+		variants = 1;
+		global = 1;
+	}
 	//Parse the positional arguments:
 	int index = optind;
 	if (argc <= index) {
@@ -144,20 +152,26 @@ int main(int argc, char* argv[]) {
 	if (local) {
 		cout << "Printing all local stemmata..." << endl;
 		//Create the directory to write files to:
-		fs::path local_dir = cwd.append("local");
+		fs::path local_dir = fs::path(cwd);
+		local_dir.append("local");
 		fs::create_directory(local_dir);
 		for (variation_unit vu : app.get_variation_units()) {
-			//The filename will be the label, with hyphens in place of spaces and the suffix .dot:
-			string filename = vu.get_label();
+			//The filename will be a reformatted version of the label:
+			string filename = "B" + vu.get_label(); // prefix the book with "B"
+			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
+			filename.replace(filename.find(":"), 1, "V"); //prefix the verse with "V"
+			filename.replace(filename.find("/"), 1, "U"); //prefix the variation unit with "U"
+			//Replace any remaining spaces with hyphens:
 			while (filename.find(" ") != string::npos) {
 				filename.replace(filename.find(" "), 1, "-");
 			}
 			filename += "-local-stemma.dot";
-			//Append the path:
-			filename = local_dir.append(filename);
+			//Complete the path to this file:
+			fs::path filepath = fs::path(local_dir);
+			filepath.append(filename);
 			//Open a filestream:
 			fstream dot_file;
-			dot_file.open(filename, ios::out);
+			dot_file.open(filepath, ios::out);
 			local_stemma ls = vu.get_local_stemma();
 			ls.to_dot(dot_file);
 			dot_file.close();
@@ -171,7 +185,7 @@ int main(int argc, char* argv[]) {
 	cout << "Comparing all witnesses (this may take a while)... " << endl;
 	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
 	for (string wit_id : app.get_list_wit()) {
-		cout << "Initializing witness " << wit_id << "... " << endl;
+		cout << "Calculating coherences for witness " << wit_id << "... " << endl;
 		witness wit = witness(wit_id, app);
 		//Do not add the witnesses that are too fragmentary:
 		if (wit.get_explained_readings_for_witness(wit_id).cardinality() < threshold) {
@@ -181,8 +195,7 @@ int main(int argc, char* argv[]) {
 	}
 	//Then populate each witness's list of potential ancestors:
 	for (auto & kv : witnesses_by_id) {
-		witness wit = kv.second;
-		wit.set_potential_ancestor_ids(witnesses_by_id);
+		kv.second.set_potential_ancestor_ids(witnesses_by_id);
 	}
 	//If any type of textual flow diagrams are requested, then construct the textual flow diagrams for all variation units:
 	if (flow + attestations + variants > 0) {
@@ -195,20 +208,26 @@ int main(int argc, char* argv[]) {
 	if (flow) {
 		cout << "Printing all complete textual flow diagrams..." << endl;
 		//Create the directory to write files to:
-		fs::path flow_dir = cwd.append("flow");
+		fs::path flow_dir = fs::path(cwd);
+		flow_dir.append("flow");
 		fs::create_directory(flow_dir);
 		for (variation_unit vu : app.get_variation_units()) {
-			//The filename will be the label, with hyphens in place of spaces and the suffix .dot:
-			string filename = vu.get_label();
+			//The filename will be a reformatted version of the label:
+			string filename = "B" + vu.get_label(); // prefix the book with "B"
+			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
+			filename.replace(filename.find(":"), 1, "V"); //prefix the verse with "V"
+			filename.replace(filename.find("/"), 1, "U"); //prefix the variation unit with "U"
+			//Replace any remaining spaces with hyphens:
 			while (filename.find(" ") != string::npos) {
 				filename.replace(filename.find(" "), 1, "-");
 			}
 			filename += "-textual-flow.dot";
-			//Append the path:
-			filename = flow_dir.append(filename);
+			//Complete the path to this file:
+			fs::path filepath = fs::path(flow_dir);
+			filepath.append(filename);
 			//Open a filestream:
 			fstream dot_file;
-			dot_file.open(filename, ios::out);
+			dot_file.open(filepath, ios::out);
 			vu.textual_flow_diagram_to_dot(dot_file);
 			dot_file.close();
 		}
@@ -217,22 +236,28 @@ int main(int argc, char* argv[]) {
 	if (attestations) {
 		cout << "Printing all coherence in attestations textual flow diagrams..." << endl;
 		//Create the directory to write files to:
-		fs::path attestations_dir = cwd.append("attestations");
+		fs::path attestations_dir = fs::path(cwd);
+		attestations_dir.append("attestations");
 		fs::create_directory(attestations_dir);
 		for (variation_unit vu : app.get_variation_units()) {
 			for (string rdg : vu.get_readings()) {
-				//The filename will be the label, with hyphens in place of spaces and the suffix .dot:
-				string filename = vu.get_label();
+				//The filename will be a reformatted version of the label:
+				string filename = "B" + vu.get_label(); // prefix the book with "B"
+				filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
+				filename.replace(filename.find(":"), 1, "V"); //prefix the verse with "V"
+				filename.replace(filename.find("/"), 1, "U"); //prefix the variation unit with "U"
+				//Replace any remaining spaces with hyphens:
 				while (filename.find(" ") != string::npos) {
 					filename.replace(filename.find(" "), 1, "-");
 				}
-				filename += rdg;
+				filename += "R" + rdg; // prefix the reading with "R"
 				filename += "-coherence-attestations.dot";
-				//Append the path:
-				filename = attestations_dir.append(filename);
+				//Complete the path to this file:
+				fs::path filepath = fs::path(attestations_dir);
+				filepath.append(filename);
 				//Open a filestream:
 				fstream dot_file;
-				dot_file.open(filename, ios::out);
+				dot_file.open(filepath, ios::out);
 				vu.textual_flow_diagram_for_reading_to_dot(rdg, dot_file);
 				dot_file.close();
 			}
@@ -242,20 +267,26 @@ int main(int argc, char* argv[]) {
 	if (variants) {
 		cout << "Printing all coherence in variant passages textual flow diagrams..." << endl;
 		//Create the directory to write files to:
-		fs::path variants_dir = cwd.append("variants");
+		fs::path variants_dir = fs::path(cwd);
+		variants_dir.append("variants");
 		fs::create_directory(variants_dir);
 		for (variation_unit vu : app.get_variation_units()) {
-			//The filename will be the label, with hyphens in place of spaces and the suffix .dot:
-			string filename = vu.get_label();
+			//The filename will be a reformatted version of the label:
+			string filename = "B" + vu.get_label(); // prefix the book with "B"
+			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
+			filename.replace(filename.find(":"), 1, "V"); //prefix the verse with "V"
+			filename.replace(filename.find("/"), 1, "U"); //prefix the variation unit with "U"
+			//Replace any remaining spaces with hyphens:
 			while (filename.find(" ") != string::npos) {
 				filename.replace(filename.find(" "), 1, "-");
 			}
 			filename += "-coherence-variants.dot";
-			//Append the path:
-			filename = variants_dir.append(filename);
+			//Complete the path to this file:
+			fs::path filepath = fs::path(variants_dir);
+			filepath.append(filename);
 			//Open a filestream:
 			fstream dot_file;
-			dot_file.open(filename, ios::out);
+			dot_file.open(filepath, ios::out);
 			vu.textual_flow_diagram_to_dot(dot_file);
 			dot_file.close();
 		}
@@ -265,12 +296,11 @@ int main(int argc, char* argv[]) {
 		exit(0);
 	}
 	//Otherwise, optimize the substemmata for all witnesses:
-	cout << "Optimizing substemmata for all witnesses (this may take a while)... " << endl;
+	cout << "Optimizing substemmata for all witnesses (this may take a while)..." << endl;
 	for (auto & kv: witnesses_by_id) {
 		string wit_id = kv.first;
-		cout << "Optimizing substemmata for witness " << wit_id << "... " << endl;
-		witness wit = kv.second;
-		wit.set_global_stemma_ancestors();
+		cout << "Optimizing substemmata for witness " << wit_id << "..." << endl;
+		kv.second.set_global_stemma_ancestors();
 	}
 	//Then initialize the global stemma:
 	global_stemma gs = global_stemma(witnesses_by_id);
@@ -278,14 +308,16 @@ int main(int argc, char* argv[]) {
 	if (global) {
 		cout << "Printing global stemma..." << endl;
 		//Create the directory to write files to:
-		fs::path global_dir = cwd.append("global");
+		fs::path global_dir = fs::path(cwd);
+		global_dir.append("global");
 		fs::create_directory(global_dir);
 		string filename = "global-stemma.dot";
-		//Append the path:
-		filename = global_dir.append(filename);
+		//Complete the path to this file:
+		fs::path filepath = fs::path(global_dir);
+		filepath.append(filename);
 		//Open a filestream:
 		fstream dot_file;
-		dot_file.open(filename, ios::out);
+		dot_file.open(filepath, ios::out);
 		gs.to_dot(dot_file);
 		dot_file.close();
 	}

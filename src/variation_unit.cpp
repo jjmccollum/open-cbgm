@@ -31,9 +31,11 @@ variation_unit::variation_unit() {
  * Constructs a variation unit from an <app/> XML element and its numerical index.
  * A set of strings indicating reading types that should be treated as substantive is also expected.
  */
-variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xml_node xml, unordered_set<string> distinct_reading_types) {
+variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xml_node & xml, const unordered_set<string> & distinct_reading_types) {
 	//Populate the index:
 	index = variation_unit_index;
+	//Populate the ID, if one is specified:
+	id = xml.attribute("xml:id") ? xml.attribute("xml:id").value() : (xml.attribute("id") ? xml.attribute("id").value() : (xml.attribute("n") ? xml.attribute("n").value() : ""));
 	//Populate the label:
 	label = (xml.child("label") && xml.child("label").text()) ? xml.child("label").text().get() : "";
 	//Populate the list of reading IDs and the witness-to-readings map,
@@ -359,6 +361,13 @@ unsigned int variation_unit::get_index() {
 }
 
 /**
+ * Returns the ID of this variation_unit.
+ */
+string variation_unit::get_id() {
+	return id;
+}
+
+/**
  * Returns the label of this variation_unit.
  */
 string variation_unit::get_label() {
@@ -410,7 +419,7 @@ textual_flow_graph variation_unit::get_textual_flow_diagram() {
 /**
  * Given a witness, adds a vertex representing it and an edge representing its relationship to its ancestor to the textual flow diagram graph.
  */
-void variation_unit::calculate_textual_flow_for_witness(witness w) {
+void variation_unit::calculate_textual_flow_for_witness(const witness & w) {
 	string wit_id = w.get_id();
 	//Check if this witness is lacunose:
 	bool extant = (reading_support.find(wit_id) != reading_support.end());
@@ -496,7 +505,7 @@ void variation_unit::calculate_textual_flow_for_witness(witness w) {
  * Given a map of witness IDs to witnesses, constructs the textual flow diagram for this variation_unit
  * and modifies each witness's set of textual flow ancestors.
  */
-void variation_unit::calculate_textual_flow(unordered_map<string, witness> witnesses_by_id) {
+void variation_unit::calculate_textual_flow(const unordered_map<string, witness> & witnesses_by_id) {
 	graph.vertices = list<textual_flow_vertex>();
 	graph.edges = list<textual_flow_edge>();
 	//Add a node for each witness:
@@ -578,7 +587,7 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 /**
  * Given a reading ID and an output stream, writes this variation_unit's textual flow diagram graph for that reading to output in .dot format.
  */
-void variation_unit::textual_flow_diagram_for_reading_to_dot(string rdg_id, ostream & out) {
+void variation_unit::textual_flow_diagram_for_reading_to_dot(const string & rdg_id, ostream & out) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
 	//Add a line indicating that nodes do not have any shape:

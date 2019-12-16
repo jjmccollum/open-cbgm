@@ -26,7 +26,7 @@ global_stemma::global_stemma() {
  * Constructs a global stemma from a map of witnesses keyed by ID.
  * The witnesses are assumed to have their lists of global stemma ancestor populated.
  */
-global_stemma::global_stemma(unordered_map<string, witness> witnesses_by_id) {
+global_stemma::global_stemma(const unordered_map<string, witness> & witnesses_by_id) {
 	graph.vertices = list<global_stemma_vertex>();
 	graph.edges = list<global_stemma_edge>();
 	//Create a vertex for each witness:
@@ -56,7 +56,7 @@ global_stemma::global_stemma(unordered_map<string, witness> witnesses_by_id) {
 		}
 		//Now, add an edge for each ancestor:
 		for (string ancestor_id : global_stemma_ancestors) {
-			witness ancestor = witnesses_by_id[ancestor_id];
+			witness ancestor = witnesses_by_id.at(ancestor_id);
 			global_stemma_edge e;
 			e.ancestor = ancestor_id;
 			e.descendant = wit_id;
@@ -76,7 +76,7 @@ global_stemma::~global_stemma() {
 /**
  * Returns the graph representing this global stemma.
  */
-global_stemma_graph global_stemma::get_graph() {
+global_stemma_graph global_stemma::get_graph() const {
 	return graph;
 }
 
@@ -95,7 +95,7 @@ void global_stemma::to_dot(ostream & out) {
 	for (global_stemma_vertex v : graph.vertices) {
 		string wit_id = v.id;
 		id_to_index[wit_id] = id_to_index.size();
-		int index = id_to_index[wit_id];
+		int index = id_to_index.at(wit_id);
 		out << "\t";
 		out << index << " [label=\"" << wit_id << "\"]";
 		out << ";\n";
@@ -105,8 +105,8 @@ void global_stemma::to_dot(ostream & out) {
 		//Get the numerical indices of the endpoints:
 		string ancestor_id = e.ancestor;
 		string descendant_id = e.descendant;
-		int ancestor_index = id_to_index[ancestor_id];
-		int descendant_index = id_to_index[descendant_id];
+		int ancestor_index = id_to_index.at(ancestor_id);
+		int descendant_index = id_to_index.at(descendant_id);
 		float weight = e.weight;
 		out << "\t";
 		out << ancestor_index << " -> " << descendant_index;

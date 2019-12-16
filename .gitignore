@@ -33,3 +33,10 @@
 *.exe
 *.out
 *.app
+
+# Generated directories
+local/
+flow/
+attestations/
+variants/
+global/

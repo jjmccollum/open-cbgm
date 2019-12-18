@@ -11,7 +11,7 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <unordered_set>
+#include <set>
 #include <unordered_map>
 #include <getopt.h>
 
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 	int split = 0;
 	int orth = 0;
 	int def = 0;
-	unsigned int threshold = 0;
+	int threshold = 0;
 	int local = 0;
 	int flow = 0;
 	int attestations = 0;
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 				//This will happen if a long option is being parsed; just move on:
 				break;
 			default:
-				printf("Error: invalid argument.\n");
+				cout << "Error: invalid argument." << endl;
 				usage();
 				exit(1);
 		}
@@ -113,14 +113,14 @@ int main(int argc, char* argv[]) {
 	//Parse the positional arguments:
 	int index = optind;
 	if (argc <= index) {
-		printf("Error: 1 positional argument (input_xml) is required.\n");
+		cout << "Error: 1 positional argument (input_xml) is required." << endl;
 		exit(1);
 	}
 	//The first positional argument is the XML file:
 	char * input_xml = argv[index];
 	index++;
 	//Using the input flags, populate a set of reading types to be treated as distinct:
-	unordered_set<string> distinct_reading_types = unordered_set<string>();
+	set<string> distinct_reading_types = set<string>();
 	if (split) {
 		//Treat split readings as distinct:
 		distinct_reading_types.insert("split");
@@ -137,12 +137,12 @@ int main(int argc, char* argv[]) {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml);
 	if (!result) {
-		printf("Error: An error occurred while loading XML file %s: %s\n", input_xml, result.description());
+		cout << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
 	}
 	pugi::xml_node tei_node = doc.child("TEI");
 	if (!tei_node) {
-		printf("Error: The XML file %s does not have a <TEI> element as its root element.\n", input_xml);
+		cout << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
 	apparatus app = apparatus(tei_node, distinct_reading_types);
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
 		fs::path local_dir = fs::path(cwd);
 		local_dir.append("local");
 		fs::create_directory(local_dir);
-		for (variation_unit vu : app.get_variation_units()) {
+		for (variation_unit & vu : app.get_variation_units()) {
 			//The filename will be a reformatted version of the label:
 			string filename = "B" + vu.get_label(); // prefix the book with "B"
 			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
@@ -181,16 +181,27 @@ int main(int argc, char* argv[]) {
 	if (flow + attestations + variants + global == 0) {
 		exit(0);
 	}
-	//Otherwise, initialize all witnesses:
-	cout << "Comparing all witnesses (this may take a while)... " << endl;
-	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
-	for (string wit_id : app.get_list_wit()) {
-		cout << "Calculating coherences for witness " << wit_id << "... " << endl;
-		witness wit = witness(wit_id, app);
-		//Do not add the witnesses that are too fragmentary:
-		if (wit.get_explained_readings_for_witness(wit_id).cardinality() < threshold) {
-			continue;
+	//If the user has specified a minimum extant readings threshold,
+	//then populate a set of witnesses that meet the threshold:
+	list<string> list_wit = list<string>();
+	if (threshold > 0) {
+		cout << "Filtering out fragmentary witnesses... " << endl;
+		for (string wit_id : app.get_list_wit()) {
+			if (app.get_extant_passages_for_witness(wit_id) >= threshold) {
+				list_wit.push_back(wit_id);
+			}
 		}
+	}
+	//Otherwise, just use the full list of witnesses found in the apparatus:
+	else {
+		list_wit = app.get_list_wit();
+	}
+	//Then initialize all of these witnesses:
+	cout << "Initializing all witnesses (this may take a while)... " << endl;
+	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
+	for (string wit_id : list_wit) {
+		cout << "Calculating coherences for witness " << wit_id << "..." << endl;
+		witness wit = witness(wit_id, list_wit, app);
 		witnesses_by_id[wit_id] = wit;
 	}
 	//Then populate each witness's list of potential ancestors:
@@ -198,9 +209,10 @@ int main(int argc, char* argv[]) {
 		kv.second.set_potential_ancestor_ids(witnesses_by_id);
 	}
 	//If any type of textual flow diagrams are requested, then construct the textual flow diagrams for all variation units:
+	vector<variation_unit> vus = app.get_variation_units();
 	if (flow + attestations + variants > 0) {
-		cout << "Calculating textual flow for all variation units... " << endl;
-		for (variation_unit & vu : app.get_variation_units()) {
+		cout << "Calculating textual flow for all variation units..." << endl;
+		for (variation_unit & vu : vus) {
 			vu.calculate_textual_flow(witnesses_by_id);
 		}
 	}
@@ -211,7 +223,7 @@ int main(int argc, char* argv[]) {
 		fs::path flow_dir = fs::path(cwd);
 		flow_dir.append("flow");
 		fs::create_directory(flow_dir);
-		for (variation_unit vu : app.get_variation_units()) {
+		for (variation_unit vu : vus) {
 			//The filename will be a reformatted version of the label:
 			string filename = "B" + vu.get_label(); // prefix the book with "B"
 			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
@@ -239,7 +251,7 @@ int main(int argc, char* argv[]) {
 		fs::path attestations_dir = fs::path(cwd);
 		attestations_dir.append("attestations");
 		fs::create_directory(attestations_dir);
-		for (variation_unit vu : app.get_variation_units()) {
+		for (variation_unit vu : vus) {
 			for (string rdg : vu.get_readings()) {
 				//The filename will be a reformatted version of the label:
 				string filename = "B" + vu.get_label(); // prefix the book with "B"
@@ -270,7 +282,7 @@ int main(int argc, char* argv[]) {
 		fs::path variants_dir = fs::path(cwd);
 		variants_dir.append("variants");
 		fs::create_directory(variants_dir);
-		for (variation_unit vu : app.get_variation_units()) {
+		for (variation_unit vu : vus) {
 			//The filename will be a reformatted version of the label:
 			string filename = "B" + vu.get_label(); // prefix the book with "B"
 			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"

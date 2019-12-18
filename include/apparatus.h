@@ -9,8 +9,9 @@
 #define APPARATUS_H
 
 #include <string>
+#include <list>
 #include <vector>
-#include <unordered_set>
+#include <set>
 
 #include "pugixml.h"
 #include "variation_unit.h"
@@ -19,14 +20,15 @@ using namespace std;
 
 class apparatus {
 private:
-	unordered_set<string> list_wit;
+	list<string> list_wit;
 	vector<variation_unit> variation_units;
 public:
 	apparatus();
-	apparatus(const pugi::xml_node & xml, const unordered_set<string> & substantive_reading_types);
+	apparatus(const pugi::xml_node & xml, const set<string> & substantive_reading_types);
 	virtual ~apparatus();
-	unordered_set<string> get_list_wit() const;
+	list<string> get_list_wit() const;
 	vector<variation_unit> get_variation_units() const;
+	int get_extant_passages_for_witness(const string & wit_id) const;
 };
 
 #endif /* APPARATUS_H */

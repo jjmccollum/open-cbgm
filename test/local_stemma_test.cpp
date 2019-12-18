@@ -7,7 +7,8 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_set>
+#include <set>
+#include <map>
 
 #include "pugixml.h"
 #include "roaring.hh"
@@ -24,7 +25,7 @@ void test_local_stemma() {
 	pugi::xml_node label_node = doc.select_node("descendant::app/label[text()=\"Acts 1:13/30-38\"]").node();
 	string label = label_node.text().get();
 	pugi::xml_node graph_node = label_node.select_node("following-sibling::graph").node();
-	local_stemma ls = local_stemma(label, graph_node, unordered_map<string, string>());
+	local_stemma ls = local_stemma(label, graph_node, map<string, string>());
 	cout << "label: " << ls.get_label() << endl;
 	cout << "graph: " << endl;
 	for (local_stemma_vertex v : ls.get_graph().vertices) {
@@ -49,7 +50,7 @@ void test_is_equal_or_prior() {
 	pugi::xml_node label_node = doc.select_node("//app/label[text()=\"Acts 1:13/30-38\"]").node();
 	string label = label_node.text().get();
 	pugi::xml_node graph_node = label_node.select_node("following-sibling::graph").node();
-	local_stemma ls = local_stemma(label, graph_node, unordered_map<string, string>());
+	local_stemma ls = local_stemma(label, graph_node, map<string, string>());
 	//Test equality:
 	if (!ls.is_equal_or_prior("a", "a")) {
 		cout << "Error: is_equal_or_prior(\"a\", \"a\") should return true." << endl;
@@ -82,7 +83,7 @@ void test_to_dot() {
 	pugi::xml_node label_node = doc.select_node("//app/label[text()=\"Acts 1:13/30-38\"]").node();
 	string label = label_node.text().get();
 	pugi::xml_node graph_node = label_node.select_node("following-sibling::graph").node();
-	local_stemma ls = local_stemma(label, graph_node, unordered_map<string, string>());
+	local_stemma ls = local_stemma(label, graph_node, map<string, string>());
 	//Test .dot output on command-line output:
 	ls.to_dot(cout);
 	cout << "Done." << endl;

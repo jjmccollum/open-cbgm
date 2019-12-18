@@ -12,7 +12,7 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <unordered_set>
+#include <set>
 #include <unordered_map>
 
 #include "pugixml.h"
@@ -55,17 +55,16 @@ private:
 	textual_flow_graph graph;
 public:
 	variation_unit();
-	variation_unit(unsigned int variation_unit_index, const pugi::xml_node & xml, const unordered_set<string> & substantive_reading_types);
+	variation_unit(unsigned int variation_unit_index, const pugi::xml_node & xml, const set<string> & substantive_reading_types);
 	virtual ~variation_unit();
-	unsigned int get_index();
-	string get_id();
-	string get_label();
-	list<string> get_readings();
-	int size();
-	unordered_map<string, list<string>> get_reading_support();
-	int get_connectivity();
-	local_stemma get_local_stemma();
-	textual_flow_graph get_textual_flow_diagram();
+	unsigned int get_index() const;
+	string get_id() const;
+	string get_label() const;
+	list<string> get_readings() const;
+	unordered_map<string, list<string>> get_reading_support() const;
+	int get_connectivity() const;
+	local_stemma get_local_stemma() const;
+	textual_flow_graph get_textual_flow_diagram() const;
 	void calculate_textual_flow_for_witness(const witness & w);
 	void calculate_textual_flow(const unordered_map<string, witness> & witnesses_by_id);
 	void textual_flow_diagram_to_dot(ostream & out);

@@ -11,7 +11,6 @@
 #include <string>
 #include <list>
 #include <unordered_map>
-#include <unordered_set>
 
 #include "roaring.hh"
 #include "apparatus.h"
@@ -28,7 +27,7 @@ private:
 public:
 	witness();
 	witness(const string & witness_id, const apparatus & app);
-	witness(const string & witness_id, const unordered_set<string> & list_wit, const apparatus & app);
+	witness(const string & witness_id, const list<string> & list_wit, const apparatus & app);
 	virtual ~witness();
 	string get_id() const;
 	unordered_map<string, Roaring> get_agreements_by_witness() const;

@@ -9,9 +9,9 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <list>
 #include <set>
+#include <map>
 
 #include "pugixml.h"
 
@@ -37,7 +37,7 @@ private:
 	set<pair<string, string>> closure_set;
 public:
 	local_stemma();
-	local_stemma(const string & label, const pugi::xml_node & xml, const unordered_map<string, string> & trivial_to_significant);
+	local_stemma(const string & label, const pugi::xml_node & xml, const map<string, string> & trivial_to_significant);
 	virtual ~local_stemma();
 	string get_label() const;
 	local_stemma_graph get_graph() const;

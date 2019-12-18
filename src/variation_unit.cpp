@@ -9,8 +9,9 @@
 #include <cstring>
 #include <string>
 #include <list>
-#include <unordered_set>
-#include <unordered_map>
+#include <set>
+#include <map> //for small maps keyed by readings
+#include <unordered_map> //for large maps keyed by witnesses
 
 #include "pugixml.h"
 #include "roaring.hh"
@@ -31,7 +32,7 @@ variation_unit::variation_unit() {
  * Constructs a variation unit from an <app/> XML element and its numerical index.
  * A set of strings indicating reading types that should be treated as substantive is also expected.
  */
-variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xml_node & xml, const unordered_set<string> & distinct_reading_types) {
+variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xml_node & xml, const set<string> & distinct_reading_types) {
 	//Populate the index:
 	index = variation_unit_index;
 	//Populate the ID, if one is specified:
@@ -42,8 +43,8 @@ variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xm
 	//and for the local stemma, maintain a map of trivial subvariants to their nearest nontrivial parent readings:
 	readings = list<string>();
 	reading_support = unordered_map<string, list<string>>();
-	unordered_map<string, string> trivial_to_significant = unordered_map<string, string>();
-	unordered_map<string, string> text_to_substantive_reading = unordered_map<string, string>();
+	map<string, string> trivial_to_significant = map<string, string>();
+	map<string, string> text_to_substantive_reading = map<string, string>();
 	string last_substantive_rdg = "";
 	string last_split_rdg = "";
 	string last_orthographic_rdg = "";
@@ -85,7 +86,7 @@ variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xm
 				last_orthographic_rdg = "";
 				last_defective_rdg = "";
 				//Reset the text to substantive reading map:
-				text_to_substantive_reading = unordered_map<string, string>();
+				text_to_substantive_reading = map<string, string>();
 				//Map this reading's content to its ID (for resolving split readings to their parent substantive readings):
 				text_to_substantive_reading[rdg_text] = rdg_id;
 				break;
@@ -356,63 +357,56 @@ variation_unit::~variation_unit() {
 /**
  * Returns the numerical index of this variation unit.
  */
-unsigned int variation_unit::get_index() {
+unsigned int variation_unit::get_index() const {
 	return index;
 }
 
 /**
  * Returns the ID of this variation_unit.
  */
-string variation_unit::get_id() {
+string variation_unit::get_id() const {
 	return id;
 }
 
 /**
  * Returns the label of this variation_unit.
  */
-string variation_unit::get_label() {
+string variation_unit::get_label() const {
 	return label;
 }
 
 /**
  * Returns this variation unit's list of reading IDs.
  */
-list<string> variation_unit::get_readings() {
+list<string> variation_unit::get_readings() const {
 	return readings;
-}
-
-/**
- * Returns the number of (substantive) readings in this variation_unit.
- */
-int variation_unit::size() {
-	return reading_support.size();
 }
 
 /**
  * Returns the reading support set of this variation_unit.
  */
-unordered_map<string, list<string>> variation_unit::get_reading_support() {
+unordered_map<string, list<string>> variation_unit::get_reading_support() const {
 	return reading_support;
 }
 
 /**
  * Returns the connectivity of this variation_unit.
  */
-int variation_unit::get_connectivity() {
+int variation_unit::get_connectivity() const {
 	return connectivity;
 }
 
 /**
  * Returns the local stemma of this variation_unit.
  */
-local_stemma variation_unit::get_local_stemma() {
+local_stemma variation_unit::get_local_stemma() const {
 	return stemma;
 }
 
 /**
  * Returns the textual flow diagram of this variation unit.
  */
-textual_flow_graph variation_unit::get_textual_flow_diagram() {
+textual_flow_graph variation_unit::get_textual_flow_diagram() const {
 	return graph;
 }
 
@@ -441,7 +435,7 @@ void variation_unit::calculate_textual_flow_for_witness(const witness & w) {
 	}
 	//Otherwise, identify this witness's textual flow ancestor for this variation unit:
 	string textual_flow_ancestor_id;
-	int con;
+	int con = 0;
 	flow_type type = flow_type::NONE;
 	//If the witness is extant, then attempt to find an ancestor within the connectivity limit that agrees with it:
 	if (extant) {
@@ -474,22 +468,6 @@ void variation_unit::calculate_textual_flow_for_witness(const witness & w) {
 		}
 		//Set the type based on whether or not this witness is extant:
 		type = extant ? flow_type::CHANGE : flow_type::LOSS;
-		//If this witness is extant, then find the closest ancestor with a reading that explains its reading here,
-		//and add it to this witness's set of textual flow ancestors, as well:
-		if (extant) {
-			bool reading_explained = false;
-			for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
-				if (w.get_explained_readings_for_witness(potential_ancestor_id).contains(index)) {
-					reading_explained = true;
-					break;
-				}
-			}
-			if (!reading_explained) {
-				//If no such ancestor can be found, then the global stemma will not be constructible;
-				//report a warning to the user:
-				cout << "Warning: witness " << wit_id << " has no potential ancestors that can explain its reading at variation unit " << label << "; consider modifying the local stemma for this variation unit." << endl;
-			}
-		}
 	}
 	//Add an edge to the graph connecting the current witness to its textual flow ancestor:
 	textual_flow_edge e;
@@ -536,7 +514,7 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 		out << "\t" << wit_index;
 		//Format the node based on whether the witness is extant or ambiguous here:
 		if (v.extant && !v.ambiguous) {
-			out << " [label=\"" << wit_id << "\", shape=circle]";
+			out << " [label=\"" << wit_id << "\"]";
 		}
 		else if (v.extant && v.ambiguous) {
 			out << " [label=\"" << wit_id << "\", shape=circle, peripheries=2]";
@@ -622,7 +600,7 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(const string & rdg_
 			out << " [label=\"" << wit_id << "\", shape=circle, peripheries=2]";
 		}
 		else {
-			out << " [label=\"" << wit_id << "\", shape=circle]";
+			out << " [label=\"" << wit_id << "\"]";
 		}
 		out << ";\n";
 	}
@@ -655,10 +633,10 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(const string & rdg_
 		out << "\t" << wit_index;
 		if (ancestor_readings.size() > 1) {
 			//The nearest extant ancestor has an ambiguous reading:
-			out << " [label=\"" << ancestor_reading << "\", color=blue, shape=circle, peripheries=2]";
+			out << " [label=\"" << ancestor_reading << "\", color=blue, shape=circle, peripheries=2, type=dashed]";
 		}
 		else {
-			out << " [label=\"" << ancestor_reading << ": " << ancestor_id << "\", color=blue, shape=circle]";
+			out << " [label=\"" << ancestor_reading << ": " << ancestor_id << "\", color=blue, shape=circle, type=dashed]";
 		}
 		out << ";\n";
 	}
@@ -717,7 +695,7 @@ void variation_unit::textual_flow_diagram_for_changes_to_dot(ostream & out) {
 	//Add a box node indicating the label of this variation_unit:
 	out << "\tlabel [shape=box, label=\"" << label << "\\nCon=" << connectivity << "\"];\n";
 	//Maintain a map of support lists for each reading:
-	unordered_map<string, list<string>> clusters = unordered_map<string, list<string>>();
+	map<string, list<string>> clusters = map<string, list<string>>();
 	for (pair<string, list<string>> kv : reading_support) {
 		string wit_id = kv.first;
 		list<string> wit_readings = kv.second;

@@ -10,7 +10,6 @@
 #include <list>
 #include <set> //used instead of unordered_set because pair does not have a default hash function and readings are few enough for tree structures to be more efficient
 #include <map> //used instead of unordered_map because readings are few enough for tree structures to be more efficient
-#include <unordered_map>
 
 #include "pugixml.h"
 #include "local_stemma.h"
@@ -41,7 +40,7 @@ local_stemma::local_stemma() {
  * Constructs a local stemma from a <graph/> XML element using the given label taken from the apparatus.
  * A map of trivial reading IDs to their significant parent readings (which may optionally be empty) is also used to collapse the graph in the XML element.
  */
-local_stemma::local_stemma(const string & apparatus_label, const pugi::xml_node & xml, const unordered_map<string, string> & trivial_to_significant) {
+local_stemma::local_stemma(const string & apparatus_label, const pugi::xml_node & xml, const map<string, string> & trivial_to_significant) {
 	graph.vertices = list<local_stemma_vertex>();
 	graph.edges = list<local_stemma_edge>();
 	//Set the label:

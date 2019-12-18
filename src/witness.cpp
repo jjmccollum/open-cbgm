@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <unordered_set>
+#include <list>
 #include <unordered_map>
 #include <algorithm>
 
@@ -37,7 +37,7 @@ witness::witness(const string & witness_id, const apparatus & app) {
 	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:
 	agreements_by_witness = unordered_map<string, Roaring>();
 	explained_readings_by_witness = unordered_map<string, Roaring>();
-	unordered_set<string> list_wit = app.get_list_wit();
+	list<string> list_wit = app.get_list_wit();
 	for (string other_id : list_wit) {
 		Roaring equal_readings = Roaring(); //readings in the other witness equal to this witness's readings
 		Roaring equal_or_prior_readings = Roaring(); //readings in the other witness equal or prior to this witness's readings
@@ -79,10 +79,10 @@ witness::witness(const string & witness_id, const apparatus & app) {
 }
 
 /**
- * Alternative constructor for a witness relative to a set of other witnesses.
+ * Alternative constructor for a witness relative to a list of other witnesses.
  * This constructor only populates the witness's agreements and explained readings bitmaps relative to itself and the specified witnesses.
  */
-witness::witness(const string & witness_id, const unordered_set<string> & list_wit, const apparatus & app) {
+witness::witness(const string & witness_id, const list<string> & list_wit, const apparatus & app) {
 	//Set its ID:
 	id = witness_id;
 	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:

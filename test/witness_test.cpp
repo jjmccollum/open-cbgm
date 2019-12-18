@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <set>
 
 #include "pugixml.h"
 #include "apparatus.h"
@@ -21,7 +22,7 @@ void test_witness() {
 	pugi::xml_parse_result result = doc.load_file("examples/acts_1_collation.xml");
 	cout << "XML file load result: " << result.description() << endl;
 	pugi::xml_node tei_node = doc.child("TEI");
-	unordered_set<string> substantive_reading_types = unordered_set<string>({"substantive", "split"});
+	set<string> substantive_reading_types = set<string>({"substantive", "split"});
 	apparatus app = apparatus(tei_node, substantive_reading_types);
 	//Now initialize the witnesses using this apparatus:
 	witness mt = witness("MT", app);

@@ -5,13 +5,13 @@
  *      Author: jjmccollum
  */
 
+#include <getopt.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <list>
-#include <unordered_set>
+#include <set>
 #include <unordered_map>
-#include <getopt.h>
 
 #include "pugixml.h"
 #include "roaring.hh"
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 	int split = 0;
 	int orth = 0;
 	int def = 0;
-	unsigned int threshold = 0;
+	int threshold = 0;
 	const char* const short_opts = "ht:";
 	const option long_opts[] = {
 		{"split", no_argument, & split, 1},
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 				//This will happen if a long option is being parsed; just move on:
 				break;
 			default:
-				printf("Error: invalid argument.\n");
+				cout << "Error: invalid argument." << endl;
 				usage();
 				exit(1);
 		}
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 	//Parse the positional arguments:
 	int index = optind;
 	if (argc <= index + 1) {
-		printf("Error: At least 2 positional arguments (input_xml and witness_1) are required.\n");
+		cout << "Error: At least 2 positional arguments (input_xml and witness_1) are required." << endl;
 		exit(1);
 	}
 	//The first positional argument is the XML file:
@@ -113,25 +113,18 @@ int main(int argc, char* argv[]) {
 	index++;
 	//The remaining arguments are IDs of specific secondary witnesses to consider;
 	//if they are not specified, then we will include all witnesses:
-	unordered_set<string> secondary_wit_ids = unordered_set<string>();
+	set<string> secondary_wit_ids = set<string>();
 	for (int i = index; i < argc; i++) {
 		string secondary_wit_id = string(argv[i]);
 		secondary_wit_ids.insert(secondary_wit_id);
 	}
-	cout << "Calculating genealogical relationships between witness " << primary_wit_id;
-	if (secondary_wit_ids.size() == 0) {
-		cout << " and all other witnesses...";
+	//The primary witness's ID should not occur again in this set:
+	if (secondary_wit_ids.find(primary_wit_id) != secondary_wit_ids.end()) {
+		cout << "Error: the primary witness ID should not be included in the list of secondary witness." << endl;
+		exit(1);
 	}
-	else {
-		cout << " and witness(es)";
-		for (string secondary_wit_id : secondary_wit_ids) {
-			cout << " " << secondary_wit_id;
-		}
-		cout << "...";
-	}
-	cout << endl;
 	//Using the input flags, populate a set of reading types to be treated as distinct:
-	unordered_set<string> distinct_reading_types = unordered_set<string>();
+	set<string> distinct_reading_types = set<string>();
 	if (split) {
 		//Treat split readings as distinct:
 		distinct_reading_types.insert("split");
@@ -148,50 +141,88 @@ int main(int argc, char* argv[]) {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml);
 	if (!result) {
-		printf("Error: An error occurred while loading XML file %s: %s\n", input_xml, result.description());
+		cout << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
 	}
 	pugi::xml_node tei_node = doc.child("TEI");
 	if (!tei_node) {
-		printf("Error: The XML file %s does not have a <TEI> element as its root element.\n", input_xml);
+		cout << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
 	apparatus app = apparatus(tei_node, distinct_reading_types);
 	//Ensure that the primary witness is included in the apparatus's <listWit> element:
-	unordered_set<string> list_wit = app.get_list_wit();
-	if (list_wit.find(primary_wit_id) == list_wit.end()) {
-		printf("Error: The XML file's <listWit> element has no child <witness> element with ID %s.\n", primary_wit_id.c_str());
+	bool primary_wit_exists = false;
+	for (string wit_id : app.get_list_wit()) {
+		if (wit_id == primary_wit_id) {
+			primary_wit_exists = true;
+			break;
+		}
+	}
+	if (!primary_wit_exists) {
+		cout << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
 		exit(1);
 	}
-	//If the user has not specified a set of secondary witness IDs, then set this to the apparatus's set of witness IDs:
-	if (secondary_wit_ids.size() == 0) {
-		secondary_wit_ids = unordered_set<string>(list_wit);
+	//If the user has specified a set of desired secondary witnesses or a minimum extant readings threshold,
+	//then populate a list of witnesses that meet these criteria:
+	list<string> list_wit = list<string>();
+	if (threshold > 0 || !secondary_wit_ids.empty()) {
+		cout << "Filtering witnesses... " << endl;
+		for (string wit_id : app.get_list_wit()) {
+			//Skip fragmentary witnesses:
+			if (threshold > 0 && app.get_extant_passages_for_witness(wit_id) < threshold) {
+				//If the primary witness is fragmentary, then report this to the user and exit:
+				if (wit_id == primary_wit_id) {
+					cout << "Primary witness " << primary_wit_id << " does not meet the specified minimum extant readings threshold of " << threshold << "." << endl;
+					exit(0);
+				}
+				continue;
+			}
+			//If a set of desired secondary witnesses was specified, then skip any witnesses not contained in it:
+			if (!secondary_wit_ids.empty() && secondary_wit_ids.find(wit_id) == secondary_wit_ids.end()) {
+				//Except for the primary witness:
+				if (wit_id == primary_wit_id) {
+					list_wit.push_back(wit_id);
+				}
+				continue;
+			}
+			//Otherwise, add this witness to the list:
+			list_wit.push_back(wit_id);
+		}
 	}
-	//Add the primary witness's ID to this set:
-	secondary_wit_ids.insert(primary_wit_id);
-	//Initialize the primary witness using the apparatus:
-	witness primary_wit = witness(primary_wit_id, secondary_wit_ids, app);
-	//Initialize the secondary witnesses according to the input parameters:
+	//Otherwise, just use the full list of witnesses found in the apparatus:
+	else {
+		list_wit = app.get_list_wit();
+	}
+	//Then initialize the primary witness:
+	witness primary_wit = witness(primary_wit_id, list_wit, app);
+	//Then populate a map of secondary witnesses, keyed by ID:
 	unordered_map<string, witness> secondary_witnesses_by_id = unordered_map<string, witness>();
 	for (string secondary_wit_id : list_wit) {
 		//Skip the primary witness:
 		if (secondary_wit_id == primary_wit_id) {
 			continue;
 		}
-		//Skip any witnesses not in the input set:
-		if (secondary_wit_ids.find(secondary_wit_id) == secondary_wit_ids.end()) {
-			continue;
-		}
-		//Initialize a witness relative to the primary witness:
-		unordered_set<string> wit_ids = unordered_set<string>({primary_wit_id, secondary_wit_id});
-		witness secondary_wit = witness(secondary_wit_id, wit_ids, app);
-		//If it is too lacunose, then ignore it:
-		if (secondary_wit.get_explained_readings_for_witness(secondary_wit_id).cardinality() < threshold) {
-			continue;
-		}
-		//Otherwise, add it to the map:
+		//Initialize the secondary witness relative to the primary witness:
+		list<string> secondary_list_wit = list<string>({primary_wit_id, secondary_wit_id});
+		witness secondary_wit = witness(secondary_wit_id, secondary_list_wit, app);
+		//Add it to the map:
 		secondary_witnesses_by_id[secondary_wit_id] = secondary_wit;
 	}
+	cout << "Calculating genealogical relationships between witness " << primary_wit_id;
+	if (secondary_wit_ids.empty()) {
+		cout << " and all other witnesses...";
+	}
+	else {
+		cout << " and witness(es) ";
+		for (string secondary_wit_id : secondary_wit_ids) {
+			if (secondary_wit_ids.find(secondary_wit_id) != secondary_wit_ids.begin()) {
+				cout << ", ";
+			}
+			cout << secondary_wit_id;
+		}
+		cout << "...";
+	}
+	cout << endl;
 	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
 	list<witness_comparison> comparisons = list<witness_comparison>();
 	Roaring primary_extant = primary_wit.get_explained_readings_for_witness(primary_wit_id);

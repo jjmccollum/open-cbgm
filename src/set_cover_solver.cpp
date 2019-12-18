@@ -219,7 +219,7 @@ bool set_cover_solver::is_any_branch_feasible() const {
 set_cover_solution set_cover_solver::get_trivial_solution() const {
 	set_cover_solution trivial_solution;
 	trivial_solution.rows = list<set_cover_row>();
-	trivial_solution.cost = target.cardinality();
+	trivial_solution.cost = numeric_limits<int>::infinity();
 	for (set_cover_row row : rows) {
 		if (target.isSubset(row.bits) && row.cost < trivial_solution.cost) {
 			trivial_solution.rows = list<set_cover_row>({row});
@@ -237,7 +237,7 @@ set_cover_solution set_cover_solver::get_greedy_solution() const {
 	Roaring uncovered = Roaring(target);
 	//Until the target is completely covered, choose the row with the lowest cost-to-coverage proportion:
 	while (uncovered.cardinality() > 0) {
-		float best_density = float(target.cardinality());
+		float best_density = numeric_limits<float>::infinity();
 		unsigned int best_row_ind = 0;
 		unsigned int row_ind = 0;
 		for (set_cover_row row : rows) {

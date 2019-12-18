@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_set>
+#include <set>
 #include <unordered_map>
 #include <list>
 
@@ -17,16 +17,22 @@
 using namespace std;
 
 void print_reading_support(unordered_map<string, list<string>> reading_support) {
-	cout << "{ ";
+	cout << "{";
 	for (pair<string, list<string>> kv : reading_support) {
-		cout << "\"" << kv.first << "\": ";
-		cout << "[ ";
-		for (string rdg_id : kv.second) {
-			cout << rdg_id << " ";
+		if (reading_support.find(kv.first) != reading_support.begin()) {
+			cout << ", ";
 		}
-		cout << "] ";
+		cout << "\"" << kv.first << "\": ";
+		cout << "[";
+		for (string rdg_id : kv.second) {
+			if (rdg_id != kv.second.front()) {
+				cout << ", ";
+			}
+			cout << rdg_id;
+		}
+		cout << "]";
 	}
-	cout << "} " << endl;
+	cout << "}" << endl;
 }
 
 void test_variation_unit() {
@@ -36,24 +42,24 @@ void test_variation_unit() {
 	pugi::xml_parse_result result = doc.load_file("examples/acts_1_collation.xml");
 	cout << "XML file load result: " << result.description() << endl;
 	pugi::xml_node app_node = doc.select_node("descendant::app/label[text()=\"Acts 1:13/30-38\"]").node().parent();
-	unordered_set<string> distinct_reading_types = unordered_set<string>({"substantive"});
+	set<string> distinct_reading_types = set<string>({"substantive"});
 	variation_unit vu = variation_unit(0, app_node, distinct_reading_types);
 	cout << "label: " << vu.get_label() << endl;
 	cout << "reading_support, substantive only: " << endl;
 	unordered_map<string, list<string>> reading_support = vu.get_reading_support();
 	print_reading_support(reading_support);
 	cout << "reading_support, substantive and split: " << endl;
-	distinct_reading_types = unordered_set<string>({"substantive", "split"});
+	distinct_reading_types = set<string>({"substantive", "split"});
 	vu = variation_unit(0, app_node, distinct_reading_types);
 	reading_support = vu.get_reading_support();
 	print_reading_support(reading_support);
 	cout << "reading_support, substantive, split, and orthographic: " << endl;
-	distinct_reading_types = unordered_set<string>({"substantive", "split", "orthographic"});
+	distinct_reading_types = set<string>({"substantive", "split", "orthographic"});
 	vu = variation_unit(0, app_node, distinct_reading_types);
 	reading_support = vu.get_reading_support();
 	print_reading_support(reading_support);
 	cout << "reading_support, substantive, split, orthographic, and defective: " << endl;
-	distinct_reading_types = unordered_set<string>({"substantive", "split", "orthographic", "defective"});
+	distinct_reading_types = set<string>({"substantive", "split", "orthographic", "defective"});
 	vu = variation_unit(0, app_node, distinct_reading_types);
 	reading_support = vu.get_reading_support();
 	print_reading_support(reading_support);

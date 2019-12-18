@@ -10,7 +10,7 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <unordered_set>
+#include <set>
 #include <unordered_map>
 #include <getopt.h>
 
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 	int split = 0;
 	int orth = 0;
 	int def = 0;
-	unsigned int threshold = 0;
+	int threshold = 0;
 	int fixed_ub = -1;
 	const char* const short_opts = "ht:b:";
 	const option long_opts[] = {
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 				//This will happen if a long option is being parsed; just move on:
 				break;
 			default:
-				printf("Error: invalid argument.\n");
+				cout << "Error: invalid argument." << endl;
 				usage();
 				exit(1);
 		}
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
 	//Parse the positional arguments:
 	int index = optind;
 	if (argc <= index + 1) {
-		printf("Error: 2 positional arguments (input_xml and witness) are required.\n");
+		cout << "Error: 2 positional arguments (input_xml and witness) are required." << endl;
 		exit(1);
 	}
 	//The first positional argument is the XML file:
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
 	//The next argument is the primary witness ID:
 	string primary_wit_id = string(argv[index]);
 	//Using the input flags, populate a set of reading types to be treated as distinct:
-	unordered_set<string> distinct_reading_types = unordered_set<string>();
+	set<string> distinct_reading_types = set<string>();
 	if (split) {
 		//Treat split readings as distinct:
 		distinct_reading_types.insert("split");
@@ -142,46 +142,64 @@ int main(int argc, char* argv[]) {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml);
 	if (!result) {
-		printf("Error: An error occurred while loading XML file %s: %s\n", input_xml, result.description());
+		cout << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
 	}
 	pugi::xml_node tei_node = doc.child("TEI");
 	if (!tei_node) {
-		printf("Error: The XML file %s does not have a <TEI> element as its root element.\n", input_xml);
+		cout << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
 	apparatus app = apparatus(tei_node, distinct_reading_types);
 	//Ensure that the primary witness is included in the apparatus's <listWit> element:
-	unordered_set<string> list_wit = app.get_list_wit();
-	if (list_wit.find(primary_wit_id) == list_wit.end()) {
-		printf("Error: The XML file's <listWit> element has no child <witness> element with ID %s.\n", primary_wit_id.c_str());
+	bool primary_wit_exists = false;
+	for (string wit_id : app.get_list_wit()) {
+		if (wit_id == primary_wit_id) {
+			primary_wit_exists = true;
+			break;
+		}
+	}
+	if (!primary_wit_exists) {
+		cout << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
 		exit(1);
 	}
-	cout << "Finding optimal substemmata for witness " << primary_wit_id << "..." << endl;
-	//Populate a set of IDs for all other witnesses that match the input parameters
-	//and a map of the witnesses themselves, keyed by ID:
-	unordered_set<string> secondary_wit_ids = unordered_set<string>();
+	//If the user has specified a minimum extant readings threshold,
+	//then populate a list of witnesses that meet the threshold:
+	list<string> list_wit = list<string>();
+	if (threshold > 0) {
+		cout << "Filtering out fragmentary witnesses... " << endl;
+		for (string wit_id : app.get_list_wit()) {
+			if (app.get_extant_passages_for_witness(wit_id) >= threshold) {
+				list_wit.push_back(wit_id);
+			}
+			//If the primary witness is fragmentary, then report this to the user and exit:
+			else if (wit_id == primary_wit_id) {
+				cout << "Primary witness " << primary_wit_id << " does not meet the specified minimum extant readings threshold of " << threshold << "." << endl;
+				exit(0);
+			}
+		}
+	}
+	//Otherwise, just use the full list of witnesses found in the apparatus:
+	else {
+		list_wit = app.get_list_wit();
+	}
+	//Then initialize the primary witness:
+	witness primary_wit = witness(primary_wit_id, list_wit, app);
+	//Then populate a map of secondary witnesses, keyed by ID:
 	unordered_map<string, witness> secondary_witnesses_by_id = unordered_map<string, witness>();
 	for (string secondary_wit_id : list_wit) {
 		//Skip the primary witness:
 		if (secondary_wit_id == primary_wit_id) {
 			continue;
 		}
-		//Initialize a secondary witness relative to the primary witness:
-		unordered_set<string> wit_ids = unordered_set<string>({primary_wit_id, secondary_wit_id});
-		witness secondary_wit = witness(secondary_wit_id, wit_ids, app);
-		//If it is too lacunose, then ignore it:
-		if (secondary_wit.get_explained_readings_for_witness(secondary_wit_id).cardinality() < threshold) {
-			continue;
-		}
-		//Otherwise, add it:
-		secondary_wit_ids.insert(secondary_wit_id);
+		//Initialize the secondary witness relative to the primary witness:
+		list<string> secondary_list_wit = list<string>({primary_wit_id, secondary_wit_id});
+		witness secondary_wit = witness(secondary_wit_id, secondary_list_wit, app);
+		//Add it to the map:
 		secondary_witnesses_by_id[secondary_wit_id] = secondary_wit;
 	}
-	//Initialize the primary witness relative to all of the secondary witnesses in this map:
-	secondary_wit_ids.insert(primary_wit_id);
-	witness primary_wit = witness(primary_wit_id, secondary_wit_ids, app);
-	//Now populate the primary witness's list of potential ancestors:
+	cout << "Finding optimal substemmata for witness " << primary_wit_id << "..." << endl;
+	//Populate the primary witness's list of potential ancestors:
 	primary_wit.set_potential_ancestor_ids(secondary_witnesses_by_id);
 	//If this witness has no potential ancestors, then let the user know:
 	if (primary_wit.get_potential_ancestor_ids().empty()) {
@@ -225,6 +243,12 @@ int main(int argc, char* argv[]) {
 		//If a fixed upper bound was specified, and no solution was found, then tell the user to raise the upper bound:
 		if (fixed_ub >= 0) {
 			cout << "No substemma exists with a cost below " << fixed_ub << "; try again with a higher bound or without specifying a fixed upper bound." << endl;
+			cout << "Alternatively, if any local stemma is not connected, then it may be the source of an unexplained reading in this witness." << endl;
+			exit(0);
+		}
+		//Otherwise, no solution was found because the given witness's potential ancestors cannot explain all of its readings:
+		else {
+			cout << "No substemma exists; if any local stemma is not connected, then it may be the source of an unexplained reading in this witness." << endl;
 			exit(0);
 		}
 	}

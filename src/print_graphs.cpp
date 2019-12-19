@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
 	//Parse the positional arguments:
 	int index = optind;
 	if (argc <= index) {
-		cout << "Error: 1 positional argument (input_xml) is required." << endl;
+		cerr << "Error: 1 positional argument (input_xml) is required." << endl;
 		exit(1);
 	}
 	//The first positional argument is the XML file:
@@ -137,12 +137,12 @@ int main(int argc, char* argv[]) {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml);
 	if (!result) {
-		cout << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
+		cerr << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
 	}
 	pugi::xml_node tei_node = doc.child("TEI");
 	if (!tei_node) {
-		cout << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
+		cerr << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
 	apparatus app = apparatus(tei_node, distinct_reading_types);
@@ -155,15 +155,16 @@ int main(int argc, char* argv[]) {
 		fs::path local_dir = fs::path(cwd);
 		local_dir.append("local");
 		fs::create_directory(local_dir);
+		int vu_ind = 0;
 		for (variation_unit & vu : app.get_variation_units()) {
-			//The filename will be a reformatted version of the label:
-			string filename = "B" + vu.get_label(); // prefix the book with "B"
-			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
-			filename.replace(filename.find(":"), 1, "V"); //prefix the verse with "V"
-			filename.replace(filename.find("/"), 1, "U"); //prefix the variation unit with "U"
-			//Replace any remaining spaces with hyphens:
-			while (filename.find(" ") != string::npos) {
-				filename.replace(filename.find(" "), 1, "-");
+			string filename;
+			//The filename base will be the ID of the variation unit, if it exists:
+			if (!vu.get_id().empty()) {
+				filename = vu.get_id();
+			}
+			//Otherwise, it will be the current variation unit index:
+			else {
+				filename = to_string(vu_ind);
 			}
 			filename += "-local-stemma.dot";
 			//Complete the path to this file:
@@ -175,6 +176,7 @@ int main(int argc, char* argv[]) {
 			local_stemma ls = vu.get_local_stemma();
 			ls.to_dot(dot_file);
 			dot_file.close();
+			vu_ind++;
 		}
 	}
 	//If no other flags are set, then we're done:
@@ -198,22 +200,22 @@ int main(int argc, char* argv[]) {
 	}
 	//Then initialize all of these witnesses:
 	cout << "Initializing all witnesses (this may take a while)... " << endl;
-	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
+	list<witness> witnesses = list<witness>();
 	for (string wit_id : list_wit) {
 		cout << "Calculating coherences for witness " << wit_id << "..." << endl;
 		witness wit = witness(wit_id, list_wit, app);
-		witnesses_by_id[wit_id] = wit;
+		witnesses.push_back(wit);
 	}
 	//Then populate each witness's list of potential ancestors:
-	for (auto & kv : witnesses_by_id) {
-		kv.second.set_potential_ancestor_ids(witnesses_by_id);
+	for (witness & wit : witnesses) {
+		wit.set_potential_ancestor_ids(witnesses);
 	}
 	//If any type of textual flow diagrams are requested, then construct the textual flow diagrams for all variation units:
 	vector<variation_unit> vus = app.get_variation_units();
 	if (flow + attestations + variants > 0) {
 		cout << "Calculating textual flow for all variation units..." << endl;
 		for (variation_unit & vu : vus) {
-			vu.calculate_textual_flow(witnesses_by_id);
+			vu.calculate_textual_flow(witnesses);
 		}
 	}
 	//If specified, print all complete textual flow diagrams:
@@ -223,15 +225,16 @@ int main(int argc, char* argv[]) {
 		fs::path flow_dir = fs::path(cwd);
 		flow_dir.append("flow");
 		fs::create_directory(flow_dir);
+		int vu_ind = 0;
 		for (variation_unit vu : vus) {
-			//The filename will be a reformatted version of the label:
-			string filename = "B" + vu.get_label(); // prefix the book with "B"
-			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
-			filename.replace(filename.find(":"), 1, "V"); //prefix the verse with "V"
-			filename.replace(filename.find("/"), 1, "U"); //prefix the variation unit with "U"
-			//Replace any remaining spaces with hyphens:
-			while (filename.find(" ") != string::npos) {
-				filename.replace(filename.find(" "), 1, "-");
+			string filename;
+			//The filename base will be the ID of the variation unit, if it exists:
+			if (!vu.get_id().empty()) {
+				filename = vu.get_id();
+			}
+			//Otherwise, it will be the current variation unit index:
+			else {
+				filename = to_string(vu_ind);
 			}
 			filename += "-textual-flow.dot";
 			//Complete the path to this file:
@@ -242,6 +245,7 @@ int main(int argc, char* argv[]) {
 			dot_file.open(filepath, ios::out);
 			vu.textual_flow_diagram_to_dot(dot_file);
 			dot_file.close();
+			vu_ind++;
 		}
 	}
 	//If specified, print all coherence in attestations textual flow diagrams:
@@ -251,16 +255,17 @@ int main(int argc, char* argv[]) {
 		fs::path attestations_dir = fs::path(cwd);
 		attestations_dir.append("attestations");
 		fs::create_directory(attestations_dir);
+		int vu_ind = 0;
 		for (variation_unit vu : vus) {
 			for (string rdg : vu.get_readings()) {
-				//The filename will be a reformatted version of the label:
-				string filename = "B" + vu.get_label(); // prefix the book with "B"
-				filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
-				filename.replace(filename.find(":"), 1, "V"); //prefix the verse with "V"
-				filename.replace(filename.find("/"), 1, "U"); //prefix the variation unit with "U"
-				//Replace any remaining spaces with hyphens:
-				while (filename.find(" ") != string::npos) {
-					filename.replace(filename.find(" "), 1, "-");
+				string filename;
+				//The filename base will be the ID of the variation unit, if it exists:
+				if (!vu.get_id().empty()) {
+					filename = vu.get_id();
+				}
+				//Otherwise, it will be the current variation unit index:
+				else {
+					filename = to_string(vu_ind);
 				}
 				filename += "R" + rdg; // prefix the reading with "R"
 				filename += "-coherence-attestations.dot";
@@ -273,6 +278,7 @@ int main(int argc, char* argv[]) {
 				vu.textual_flow_diagram_for_reading_to_dot(rdg, dot_file);
 				dot_file.close();
 			}
+			vu_ind++;
 		}
 	}
 	//If specified, print all coherence in variant passages flow diagrams:
@@ -282,15 +288,16 @@ int main(int argc, char* argv[]) {
 		fs::path variants_dir = fs::path(cwd);
 		variants_dir.append("variants");
 		fs::create_directory(variants_dir);
+		int vu_ind = 0;
 		for (variation_unit vu : vus) {
-			//The filename will be a reformatted version of the label:
-			string filename = "B" + vu.get_label(); // prefix the book with "B"
-			filename.replace(filename.find(" "), 1, "C"); //prefix the chapter with "C"
-			filename.replace(filename.find(":"), 1, "V"); //prefix the verse with "V"
-			filename.replace(filename.find("/"), 1, "U"); //prefix the variation unit with "U"
-			//Replace any remaining spaces with hyphens:
-			while (filename.find(" ") != string::npos) {
-				filename.replace(filename.find(" "), 1, "-");
+			string filename;
+			//The filename base will be the ID of the variation unit, if it exists:
+			if (!vu.get_id().empty()) {
+				filename = vu.get_id();
+			}
+			//Otherwise, it will be the current variation unit index:
+			else {
+				filename = to_string(vu_ind);
 			}
 			filename += "-coherence-variants.dot";
 			//Complete the path to this file:
@@ -299,8 +306,9 @@ int main(int argc, char* argv[]) {
 			//Open a filestream:
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
-			vu.textual_flow_diagram_to_dot(dot_file);
+			vu.textual_flow_diagram_for_changes_to_dot(dot_file);
 			dot_file.close();
+			vu_ind++;
 		}
 	}
 	//If no other flags are set, then we're done:
@@ -309,13 +317,13 @@ int main(int argc, char* argv[]) {
 	}
 	//Otherwise, optimize the substemmata for all witnesses:
 	cout << "Optimizing substemmata for all witnesses (this may take a while)..." << endl;
-	for (auto & kv: witnesses_by_id) {
-		string wit_id = kv.first;
+	for (witness & wit: witnesses) {
+		string wit_id = wit.get_id();
 		cout << "Optimizing substemmata for witness " << wit_id << "..." << endl;
-		kv.second.set_global_stemma_ancestors();
+		wit.set_global_stemma_ancestors();
 	}
 	//Then initialize the global stemma:
-	global_stemma gs = global_stemma(witnesses_by_id);
+	global_stemma gs = global_stemma(witnesses);
 	//If specified, print the global stemma:
 	if (global) {
 		cout << "Printing global stemma..." << endl;

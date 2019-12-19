@@ -1,5 +1,5 @@
 /*
- * Witness.cpp
+ * witness.cpp
  *
  *  Created on: Oct 24, 2019
  *      Author: jjmccollum
@@ -183,7 +183,7 @@ bool witness::pregenealogical_comp(const witness & w1, const witness & w2) {
 	Roaring extant = explained_readings_by_witness.at(id);
 	float pregenealogical_similarity_to_w1 = float(agreements_with_w1.cardinality()) / float(extant.cardinality());
 	float pregenealogical_similarity_to_w2 = float(agreements_with_w2.cardinality()) / float(extant.cardinality());
-	return pregenealogical_similarity_to_w1 > pregenealogical_similarity_to_w2;
+	return pregenealogical_similarity_to_w1 > pregenealogical_similarity_to_w2 ? true : (pregenealogical_similarity_to_w1 < pregenealogical_similarity_to_w2 ? false : true);
 }
 
 /**
@@ -194,16 +194,13 @@ list<string> witness::get_potential_ancestor_ids() const {
 }
 
 /**
- * Given a map of witnesses keyed by ID, populates this witness's list of potential ancestor IDs,
+ * Given a list of witnesses, populates this witness's list of potential ancestor IDs,
  * sorting the other witnesses by their pregenealogical similarity with this witness
  * and filtering them based on their genealogical priority relative to this witness.
  */
-void witness::set_potential_ancestor_ids(const unordered_map<string, witness> & witnesses_by_id) {
+void witness::set_potential_ancestor_ids(const list<witness> & witnesses) {
 	potential_ancestor_ids = list<string>();
-	list<witness> wits = list<witness>();
-	for (pair<string, witness> kv : witnesses_by_id) {
-		wits.push_back(kv.second);
-	}
+	list<witness> wits = list<witness>(witnesses);
 	//Sort the input list by pregenealogical similarity to this witness:
 	wits.sort([this](witness & w1, witness & w2) {
 		return pregenealogical_comp(w1, w2);

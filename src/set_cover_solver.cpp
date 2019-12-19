@@ -219,7 +219,7 @@ bool set_cover_solver::is_any_branch_feasible() const {
 set_cover_solution set_cover_solver::get_trivial_solution() const {
 	set_cover_solution trivial_solution;
 	trivial_solution.rows = list<set_cover_row>();
-	trivial_solution.cost = numeric_limits<int>::infinity();
+	trivial_solution.cost = target.cardinality();
 	for (set_cover_row row : rows) {
 		if (target.isSubset(row.bits) && row.cost < trivial_solution.cost) {
 			trivial_solution.rows = list<set_cover_row>({row});
@@ -336,7 +336,7 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 			if (lb <= ub) {
 				//If it is within the upper bound, then add a solution to the list;
 				//if the upper bound is not fixed, then update the upper bound, as well:
-				if (fixed_ub > 0) {
+				if (fixed_ub < 0) {
 					ub = lb;
 				}
 				set_cover_solution solution;
@@ -409,7 +409,7 @@ void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 	subproblem_solver.branch_and_bound(subproblem_solutions);
 	//Sort the subproblem solutions in order of their costs, then cardinalities:
 	subproblem_solutions.sort([](const set_cover_solution & s1, const set_cover_solution & s2) {
-		return s1.cost < s2.cost ? -1 : (s1.cost > s2.cost ? 1 : (s1.rows.size() < s2.rows.size() ? -1 : (s1.rows.size() > s2.rows.size() ? 1 : 0)));
+		return s1.cost < s2.cost ? true : (s1.cost > s2.cost ? false : (s1.rows.size() < s2.rows.size() ? true : (s1.rows.size() > s2.rows.size() ? false : true)));
 	});
 	//Then add the unique coverage rows found earlier to the subproblem solutions:
 	for (set_cover_solution subproblem_solution : subproblem_solutions) {

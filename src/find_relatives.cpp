@@ -34,7 +34,7 @@ struct witness_comparison {
 	int eq; //number of agreements in variation units where the primary witness is extant
 	int prior; //number of variation units where the primary witness has a prior reading
 	int posterior; //number of variation units where the primary witness has a posterior reading
-	int uncl; //number of variation units where both witnesses have different readings, but either's could explain that of the other
+	//int uncl; //number of variation units where both witnesses have different readings, but either's could explain that of the other
 	int norel; //number of variation units where the primary witness has a reading unrelated to that of the secondary witness
 };
 
@@ -62,7 +62,7 @@ void help() {
 	printf("positional arguments:\n");
 	printf("\tinput_xml: collation file in TEI XML format\n");
 	printf("\twitness: ID of the witness whose relatives are desired, as found in its <witness> element in the XML file\n");
-	printf("\tpassage: Label of the variation unit at which relatives' readings are desired\n");
+	printf("\tpassage: ID or index (0-based) of the variation unit at which relatives' readings are desired\n");
 	return;
 }
 
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 				//This will happen if a long option is being parsed; just move on:
 				break;
 			default:
-				cout << "Error: invalid argument." << endl;
+				cerr << "Error: invalid argument." << endl;
 				usage();
 				exit(1);
 		}
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
 	//Parse the positional arguments:
 	int index = optind;
 	if (argc <= index + 2) {
-		cout << "Error: 3 positional arguments (input_xml, witness, and passage) are required." << endl;
+		cerr << "Error: 3 positional arguments (input_xml, witness, and passage) are required." << endl;
 		exit(1);
 	}
 	//The first positional argument is the XML file:
@@ -119,15 +119,8 @@ int main(int argc, char* argv[]) {
 	//The next argument is the primary witness ID:
 	string primary_wit_id = string(argv[index]);
 	index++;
-	//The remaining arguments are the tokens in the variation unit label:
-	string vu_label = "";
-	while (index < argc) {
-		vu_label += argv[index];
-		if (index + 1 < argc) {
-			vu_label += " ";
-		}
-		index++;
-	}
+	//The next argument is the variation unit ID or index:
+	string vu_id = string(argv[index]);
 	//Using the input flags, populate a set of reading types to be treated as distinct:
 	set<string> distinct_reading_types = set<string>();
 	if (split) {
@@ -146,29 +139,51 @@ int main(int argc, char* argv[]) {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml);
 	if (!result) {
-		cout << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
+		cerr << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
 	}
 	pugi::xml_node tei_node = doc.child("TEI");
 	if (!tei_node) {
-		cout << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
+		cerr << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
 	apparatus app = apparatus(tei_node, distinct_reading_types);
-	//Attempt to retrieve the input variation unit:
+	//Attempt to retrieve the input variation unit by searching for a match in the apparatus:
 	variation_unit vu;
-	bool variation_unit_exists = false;
+	bool variation_unit_matched = false;
 	for (variation_unit curr_vu : app.get_variation_units()) {
-		if (curr_vu.get_label() == vu_label) {
+		if (curr_vu.get_id() == vu_id) {
 			vu = curr_vu;
-			variation_unit_exists = true;
+			variation_unit_matched = true;
 			break;
 		}
 	}
-	if (!variation_unit_exists) {
-		cout << "Error: The XML file has no <app> element with a <label> value of " << vu_label << "." << endl;
-		exit(1);
+	//If no match is found, the try to treat the ID as an index:
+	if (!variation_unit_matched) {
+		bool is_number = true;
+		for (string::const_iterator it = vu_id.begin(); it != vu_id.end(); it++) {
+			if (!isdigit(*it)) {
+				is_number = false;
+				break;
+			}
+		}
+		//If it isn't a number, then report an error to the user and exit:
+	    if (!is_number) {
+	    	cerr << "Error: The XML file has no <app> element with an xml:id, id, or n attribute value of " << vu_id << "." << endl;
+			exit(1);
+	    }
+	    //Otherwise, convert the ID to a number, and check if it is a valid index:
+	    unsigned int vu_ind = atoi(vu_id.c_str());
+	    if (vu_ind >= app.get_variation_units().size()) {
+	    	cerr << "Error: The XML file has no <app> element with an xml:id, id, or n attribute value of " << vu_id << "; if the variation unit ID was specified as an index, then it is out of range, as there are only " << app.get_variation_units().size() << " variation units." << endl;
+			exit(1);
+	    }
+	    //Otherwise, get the variation unit corresponding to this ID:
+	    vu = app.get_variation_units()[vu_ind];
+	    variation_unit_matched = true;
 	}
+	//Get the label for this variation unit, if it exists; otherwise, use the ID:
+	string vu_label = vu.get_label().empty() ? vu_id : vu.get_label();
 	//Ensure that the primary witness is included in the apparatus's <listWit> element:
 	bool primary_wit_exists = false;
 	for (string wit_id : app.get_list_wit()) {
@@ -178,7 +193,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	if (!primary_wit_exists) {
-		cout << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
+		cerr << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
 		exit(1);
 	}
 	//If the user has specified a minimum extant readings threshold,
@@ -203,8 +218,8 @@ int main(int argc, char* argv[]) {
 	}
 	//Then initialize the primary witness:
 	witness primary_wit = witness(primary_wit_id, list_wit, app);
-	//Then populate a map of secondary witnesses, keyed by ID:
-	unordered_map<string, witness> secondary_witnesses_by_id = unordered_map<string, witness>();
+	//Then populate a list of secondary witnesses:
+	list<witness> secondary_witnesses = list<witness>();
 	for (string secondary_wit_id : list_wit) {
 		//Skip the primary witness:
 		if (secondary_wit_id == primary_wit_id) {
@@ -213,23 +228,22 @@ int main(int argc, char* argv[]) {
 		//Initialize the secondary witness relative to the primary witness:
 		list<string> secondary_list_wit = list<string>({primary_wit_id, secondary_wit_id});
 		witness secondary_wit = witness(secondary_wit_id, secondary_list_wit, app);
-		//Add it to the map:
-		secondary_witnesses_by_id[secondary_wit_id] = secondary_wit;
+		//Add it to the list:
+		secondary_witnesses.push_back(secondary_wit);
 	}
 	cout << "Calculating relative comparisons for " << primary_wit_id << " at " << vu_label << "..." << endl;
 	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
 	list<witness_comparison> comparisons = list<witness_comparison>();
 	unordered_map<string, list<string>> reading_support = vu.get_reading_support();
 	Roaring primary_extant = primary_wit.get_explained_readings_for_witness(primary_wit_id);
-	for (pair<string, witness> kv : secondary_witnesses_by_id) {
-		string secondary_wit_id = kv.first;
-		witness secondary_wit = kv.second;
+	for (witness secondary_wit : secondary_witnesses) {
+		string secondary_wit_id = secondary_wit.get_id();
 		Roaring secondary_extant = secondary_wit.get_explained_readings_for_witness(secondary_wit_id);
 		Roaring mutually_extant = primary_extant & secondary_extant;
 		Roaring agreements = primary_wit.get_agreements_for_witness(secondary_wit_id);
 		Roaring primary_explained_by_secondary = primary_wit.get_explained_readings_for_witness(secondary_wit_id);
 		Roaring secondary_explained_by_primary = secondary_wit.get_explained_readings_for_witness(primary_wit_id);
-		Roaring mutually_explained = primary_explained_by_secondary & secondary_explained_by_primary;
+		//Roaring mutually_explained = primary_explained_by_secondary & secondary_explained_by_primary;
 		witness_comparison comparison;
 		comparison.id = secondary_wit_id;
 		comparison.rdgs = list<string>();
@@ -238,9 +252,11 @@ int main(int argc, char* argv[]) {
 		}
 		comparison.pass = mutually_extant.cardinality();
 		comparison.eq = agreements.cardinality();
-		comparison.prior = (secondary_explained_by_primary ^ mutually_explained).cardinality();
-		comparison.posterior = (primary_explained_by_secondary ^ mutually_explained).cardinality();
-		comparison.uncl = (mutually_explained ^ agreements).cardinality();
+		comparison.prior = (secondary_explained_by_primary ^ agreements).cardinality();
+		comparison.posterior = (primary_explained_by_secondary ^ agreements).cardinality();
+		//comparison.prior = (secondary_explained_by_primary ^ mutually_explained).cardinality();
+		//comparison.posterior = (primary_explained_by_secondary ^ mutually_explained).cardinality();
+		//comparison.uncl = (mutually_explained ^ agreements).cardinality();
 		comparison.norel = comparison.pass - comparison.eq - comparison.prior - comparison.posterior;
 		comparison.perc = comparison.pass > 0 ? (100 * float(comparison.eq) / float(comparison.pass)) : 0;
 		comparison.dir = comparison.prior > comparison.posterior ? -1 : (comparison.posterior > comparison.prior ? 1 : 0);
@@ -248,7 +264,7 @@ int main(int argc, char* argv[]) {
 	}
 	//Sort the list of comparisons from highest number of agreements to lowest:
 	comparisons.sort([](const witness_comparison & wc1, const witness_comparison & wc2) {
-		return wc1.perc > wc2.perc;
+		return wc1.perc > wc2.perc ? true : (wc1.perc < wc2.perc ? false : false);
 	});
 	//Pass through the sorted list of comparison to assign ancestral ranks:
 	int nr = 1;
@@ -276,7 +292,7 @@ int main(int argc, char* argv[]) {
 	cout << std::right << std::setw(8) << "EQ";
 	cout << std::right << std::setw(8) << "W1>W2";
 	cout << std::right << std::setw(8) << "W1<W2";
-	cout << std::right << std::setw(8) << "UNCL";
+	//cout << std::right << std::setw(8) << "UNCL";
 	cout << std::right << std::setw(8) << "NOREL";
 	cout << "\n\n";
 	for (witness_comparison comparison : comparisons) {
@@ -307,7 +323,7 @@ int main(int argc, char* argv[]) {
 		cout << std::right << std::setw(8) << comparison.eq;
 		cout << std::right << std::setw(8) << comparison.prior;
 		cout << std::right << std::setw(8) << comparison.posterior;
-		cout << std::right << std::setw(8) << comparison.uncl;
+		//cout << std::right << std::setw(8) << comparison.uncl;
 		cout << std::right << std::setw(8) << comparison.norel;
 		cout << "\n";
 	}

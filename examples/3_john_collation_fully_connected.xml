@@ -543,6 +543,7 @@
 								<arc from="a" to="af1" />
 								<arc from="a" to="af2" />
 								<arc from="a" to="ao" />
+								<arc from="a" to="?" />
 								<arc from="?" to="b" />
 								<arc from="?" to="c" />
 								<arc from="?" to="d" />
@@ -629,6 +630,7 @@
 								<arc from="a" to="b" />
 								<arc from="a" to="c" />
 								<arc from="a" to="d" />
+								<arc from="a" to="?" />
 								<arc from="?" to="d2" />
 							</graph>
 						</app>
@@ -1150,6 +1152,7 @@
 								<node n="c" />
 								<node n="?" />
 								<arc from="a" to="b" />
+								<arc from="a" to="?" />
 								<arc from="?" to="c" />
 							</graph>
 						</app>
@@ -1970,6 +1973,7 @@
 								<node n="d" />
 								<node n="?" />
 								<arc from="a" to="b" />
+								<arc from="a" to="?" />
 								<arc from="?" to="c" />
 								<arc from="?" to="d" />
 							</graph>
@@ -2014,6 +2018,7 @@
 								<node n="d" />
 								<node n="?" />
 								<arc from="a" to="b" />
+								<arc from="a" to="?" />
 								<arc from="?" to="c" />
 								<arc from="?" to="d" />
 							</graph>
@@ -2048,6 +2053,7 @@
 								<node n="e" />
 								<node n="?" />
 								<arc from="a" to="af" />
+								<arc from="a" to="?" />
 								<arc from="?" to="b" />
 								<arc from="?" to="c" />
 								<arc from="?" to="d" />
@@ -2102,6 +2108,7 @@
 								<node n="d" />
 								<node n="e" />
 								<node n="?" />
+								<arc from="a" to="?" />
 								<arc from="?" to="b" />
 								<arc from="?" to="c" />
 								<arc from="?" to="d" />
@@ -2192,6 +2199,7 @@
 								<node n="?" />
 								<arc from="a" to="b" />
 								<arc from="a" to="c" />
+								<arc from="a" to="?" />
 								<arc from="c" to="cf" />
 								<arc from="c" to="d" />
 								<arc from="?" to="e" />
@@ -2480,6 +2488,7 @@
 								<node n="c" />
 								<node n="?" />
 								<arc from="a" to="b" />
+								<arc from="a" to="?" />
 								<arc from="?" to="c" />
 							</graph>
 						</app>

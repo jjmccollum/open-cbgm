@@ -29,12 +29,10 @@ variation_unit::variation_unit() {
 }
 
 /**
- * Constructs a variation unit from an <app/> XML element and its numerical index.
+ * Constructs a variation unit from an <app/> XML element.
  * A set of strings indicating reading types that should be treated as substantive is also expected.
  */
-variation_unit::variation_unit(unsigned int variation_unit_index, const pugi::xml_node & xml, const set<string> & distinct_reading_types) {
-	//Populate the index:
-	index = variation_unit_index;
+variation_unit::variation_unit(const pugi::xml_node & xml, const set<string> & distinct_reading_types) {
 	//Populate the ID, if one is specified:
 	id = xml.attribute("xml:id") ? xml.attribute("xml:id").value() : (xml.attribute("id") ? xml.attribute("id").value() : (xml.attribute("n") ? xml.attribute("n").value() : ""));
 	//Populate the label:
@@ -355,13 +353,6 @@ variation_unit::~variation_unit() {
 }
 
 /**
- * Returns the numerical index of this variation unit.
- */
-unsigned int variation_unit::get_index() const {
-	return index;
-}
-
-/**
  * Returns the ID of this variation_unit.
  */
 string variation_unit::get_id() const {
@@ -440,13 +431,25 @@ void variation_unit::calculate_textual_flow_for_witness(const witness & w) {
 	//If the witness is extant, then attempt to find an ancestor within the connectivity limit that agrees with it:
 	if (extant) {
 		con = 0;
+		list<string> wit_rdgs = reading_support.at(wit_id);
 		for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
 			//If we reach the connectivity limit, then exit the loop early:
 			if (con == connectivity) {
 				break;
 			}
 			//If this potential ancestor agrees with the current witness here, then we're done:
-			if (w.get_agreements_for_witness(potential_ancestor_id).contains(index)) {
+			bool agree = false;
+			if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
+				list<string> potential_ancestor_rdgs = reading_support.at(potential_ancestor_id);
+				for (string wit_rdg : wit_rdgs) {
+					for (string potential_ancestor_rdg : potential_ancestor_rdgs) {
+						if (wit_rdg == potential_ancestor_rdg) {
+							agree = true;
+						}
+					}
+				}
+			}
+			if (agree) {
 				textual_flow_ancestor_id = potential_ancestor_id;
 				type = ambiguous ? flow_type::AMBIGUOUS : flow_type::EQUAL;
 				break;
@@ -460,7 +463,7 @@ void variation_unit::calculate_textual_flow_for_witness(const witness & w) {
 	if (textual_flow_ancestor_id.empty()) {
 		con = 0;
 		for (string potential_ancestor_id : w.get_potential_ancestor_ids()) {
-			if (reading_support.find(textual_flow_ancestor_id) != reading_support.end()) {
+			if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
 				textual_flow_ancestor_id = potential_ancestor_id;
 				break;
 			}
@@ -480,16 +483,14 @@ void variation_unit::calculate_textual_flow_for_witness(const witness & w) {
 }
 
 /**
- * Given a map of witness IDs to witnesses, constructs the textual flow diagram for this variation_unit
- * and modifies each witness's set of textual flow ancestors.
+ * Given a list of witnesses, constructs the textual flow diagram for this variation_unit.
  */
-void variation_unit::calculate_textual_flow(const unordered_map<string, witness> & witnesses_by_id) {
+void variation_unit::calculate_textual_flow(const list<witness> & witnesses) {
 	graph.vertices = list<textual_flow_vertex>();
 	graph.edges = list<textual_flow_edge>();
 	//Add a node for each witness:
-	for (pair<string, witness> kv : witnesses_by_id) {
-		witness w = kv.second;
-		calculate_textual_flow_for_witness(w);
+	for (witness wit : witnesses) {
+		calculate_textual_flow_for_witness(wit);
 	}
 	return;
 }
@@ -517,10 +518,10 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 			out << " [label=\"" << wit_id << "\"]";
 		}
 		else if (v.extant && v.ambiguous) {
-			out << " [label=\"" << wit_id << "\", shape=circle, peripheries=2]";
+			out << " [label=\"" << wit_id << "\", shape=ellipse, peripheries=2]";
 		}
 		else {
-			out << " [label=\"" << wit_id << "\", color=gray, shape=circle, style=dashed]";
+			out << " [label=\"" << wit_id << "\", color=gray, shape=ellipse, style=dashed]";
 		}
 		out << ";\n";
 	}
@@ -542,7 +543,7 @@ void variation_unit::textual_flow_diagram_to_dot(ostream & out) {
 		out << " [";
 		if (e.connectivity > 0) {
 			//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
-			out << "label=\"" << (e.connectivity + 1) << "\", ";
+			out << "label=\"" << (e.connectivity + 1) << "\", fontsize=10, ";
 		}
 		if (e.type == flow_type::CHANGE) {
 			//Highlight changes in readings in blue:
@@ -597,7 +598,7 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(const string & rdg_
 		//Then draw its vertex:
 		out << "\t" << wit_index;
 		if (v.ambiguous) {
-			out << " [label=\"" << wit_id << "\", shape=circle, peripheries=2]";
+			out << " [label=\"" << wit_id << "\", shape=ellipse, peripheries=2]";
 		}
 		else {
 			out << " [label=\"" << wit_id << "\"]";
@@ -633,10 +634,10 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(const string & rdg_
 		out << "\t" << wit_index;
 		if (ancestor_readings.size() > 1) {
 			//The nearest extant ancestor has an ambiguous reading:
-			out << " [label=\"" << ancestor_reading << "\", color=blue, shape=circle, peripheries=2, type=dashed]";
+			out << " [label=\"" << ancestor_reading << "\", color=blue, shape=ellipse, peripheries=2, type=dashed]";
 		}
 		else {
-			out << " [label=\"" << ancestor_reading << ": " << ancestor_id << "\", color=blue, shape=circle, type=dashed]";
+			out << " [label=\"" << ancestor_reading << ": " << ancestor_id << "\", color=blue, shape=ellipse, type=dashed]";
 		}
 		out << ";\n";
 	}
@@ -665,7 +666,7 @@ void variation_unit::textual_flow_diagram_for_reading_to_dot(const string & rdg_
 		out << " [";
 		if (e.connectivity > 0) {
 			//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
-			out << "label=\"" << (e.connectivity + 1) << "\", ";
+			out << "label=\"" << (e.connectivity + 1) << "\", fontsize=10, ";
 		}
 		if (e.type == flow_type::CHANGE) {
 			//Highlight changes in readings in blue:
@@ -740,13 +741,14 @@ void variation_unit::textual_flow_diagram_for_changes_to_dot(ostream & out) {
 			out << "\t\t" << wit_index;
 			if (reading_support[wit_id].size() > 1) {
 				//The witness is ambiguous:
-				out << " [label=\"" << wit_id << "\", shape=circle, peripheries=2]";
+				out << " [label=\"" << wit_id << "\", shape=ellipse, peripheries=2]";
 			}
 			else {
-				out << " [label=\"" << wit_id << "\", shape=circle]";
+				out << " [label=\"" << wit_id << "\"]";
 			}
 			out << ";\n";
 		}
+		out << "\t}\n";
 	}
 	//Finally, add the "CHANGE" edges:
 	for (textual_flow_edge e : graph.edges) {
@@ -763,11 +765,12 @@ void variation_unit::textual_flow_diagram_for_changes_to_dot(ostream & out) {
 		out << " [";
 		if (e.connectivity > 0) {
 			//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
-			out << "label=\"" << (e.connectivity + 1) << "\", ";
+			out << "label=\"" << (e.connectivity + 1) << "\", fontsize=10, ";
 		}
 		//Highlight changes in readings in blue:
 		out << "color=blue";
 		out << "];\n";
 	}
+	out << "}" << endl;
 	return;
 }

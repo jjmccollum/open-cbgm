@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <list>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -23,24 +24,29 @@ global_stemma::global_stemma() {
 }
 
 /**
- * Constructs a global stemma from a map of witnesses keyed by ID.
+ * Constructs a global stemma from a list of witnesses.
  * The witnesses are assumed to have their lists of global stemma ancestor populated.
  */
-global_stemma::global_stemma(const unordered_map<string, witness> & witnesses_by_id) {
+global_stemma::global_stemma(const list<witness> & witnesses) {
 	graph.vertices = list<global_stemma_vertex>();
 	graph.edges = list<global_stemma_edge>();
+	//Create a map of the witnesses, keyed by ID:
+	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
+	for (witness wit : witnesses) {
+		string wit_id = wit.get_id();
+		witnesses_by_id[wit_id] = wit;
+	}
 	//Create a vertex for each witness:
-	for (pair<string, witness> kv : witnesses_by_id) {
-		string wit_id = kv.first;
+	for (witness wit : witnesses) {
+		string wit_id = wit.get_id();
 		global_stemma_vertex v;
 		v.id = wit_id;
 		graph.vertices.push_back(v);
 	}
 	//Now that each witness has its global stemma ancestors determined,
 	//retrieve the ancestors in their optimal substemmata and add the appropriate edges:
-	for (pair<string, witness> kv : witnesses_by_id) {
-		string wit_id = kv.first;
-		witness wit = kv.second;
+	for (witness wit : witnesses) {
+		string wit_id = wit.get_id();
 		//Skip any witnesses with no global stemma ancestors (such as the Ausgangstext and highly lacunose witnesses):
 		list<string> global_stemma_ancestors = wit.get_global_stemma_ancestors();
 		if (global_stemma_ancestors.empty()) {
@@ -56,7 +62,7 @@ global_stemma::global_stemma(const unordered_map<string, witness> & witnesses_by
 		}
 		//Now, add an edge for each ancestor:
 		for (string ancestor_id : global_stemma_ancestors) {
-			witness ancestor = witnesses_by_id.at(ancestor_id);
+			witness ancestor = witnesses_by_id[ancestor_id];
 			global_stemma_edge e;
 			e.ancestor = ancestor_id;
 			e.descendant = wit_id;

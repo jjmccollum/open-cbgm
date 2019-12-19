@@ -9,7 +9,7 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_map>
+#include <list>
 
 #include "witness.h"
 
@@ -34,7 +34,7 @@ private:
 	global_stemma_graph graph;
 public:
 	global_stemma();
-	global_stemma(const unordered_map<string, witness> & witnesses_by_id);
+	global_stemma(const list<witness> & witnesses);
 	virtual ~global_stemma();
 	global_stemma_graph get_graph() const;
 	void to_dot(ostream & out);

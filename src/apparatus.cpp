@@ -1,5 +1,5 @@
 /*
- * Apparatus.cpp
+ * apparatus.cpp
  *
  *  Created on: Oct 24, 2019
  *      Author: jjmccollum
@@ -39,7 +39,7 @@ apparatus::apparatus(const pugi::xml_node & xml, const set<string> & substantive
 	variation_units = vector<variation_unit>();
 	for (pugi::xpath_node app_path : xml.select_nodes("descendant::app")) {
 		pugi::xml_node app = app_path.node();
-		variation_unit vu = variation_unit(variation_units.size(), app, substantive_reading_types);
+		variation_unit vu = variation_unit(app, substantive_reading_types);
 		variation_units.push_back(vu);
 	}
 }

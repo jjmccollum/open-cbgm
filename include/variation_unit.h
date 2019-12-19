@@ -45,7 +45,6 @@ class witness;
 
 class variation_unit {
 private:
-	unsigned int index=0;
 	string id;
 	string label;
 	list<string> readings;
@@ -55,9 +54,8 @@ private:
 	textual_flow_graph graph;
 public:
 	variation_unit();
-	variation_unit(unsigned int variation_unit_index, const pugi::xml_node & xml, const set<string> & substantive_reading_types);
+	variation_unit(const pugi::xml_node & xml, const set<string> & substantive_reading_types);
 	virtual ~variation_unit();
-	unsigned int get_index() const;
 	string get_id() const;
 	string get_label() const;
 	list<string> get_readings() const;
@@ -66,7 +64,7 @@ public:
 	local_stemma get_local_stemma() const;
 	textual_flow_graph get_textual_flow_diagram() const;
 	void calculate_textual_flow_for_witness(const witness & w);
-	void calculate_textual_flow(const unordered_map<string, witness> & witnesses_by_id);
+	void calculate_textual_flow(const list<witness> & witnesses);
 	void textual_flow_diagram_to_dot(ostream & out);
 	void textual_flow_diagram_for_reading_to_dot(const string & rdg_id, ostream & out);
 	void textual_flow_diagram_for_changes_to_dot(ostream & out);

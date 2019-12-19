@@ -11,7 +11,6 @@
 #include <string>
 #include <list>
 #include <set>
-#include <unordered_map>
 
 #include "pugixml.h"
 #include "roaring.hh"
@@ -32,7 +31,7 @@ struct witness_comparison {
 	int eq; //number of agreements in variation units where the primary witness is extant
 	int prior; //number of variation units where the primary witness has a prior reading
 	int posterior; //number of variation units where the primary witness has a posterior reading
-	int uncl; //number of variation units where both witnesses have different readings, but either's could explain that of the other
+	//int uncl; //number of variation units where both witnesses have different readings, but either's could explain that of the other
 	int norel; //number of variation units where the primary witness has a reading unrelated to that of the secondary witness
 };
 
@@ -102,7 +101,7 @@ int main(int argc, char* argv[]) {
 	//Parse the positional arguments:
 	int index = optind;
 	if (argc <= index + 1) {
-		cout << "Error: At least 2 positional arguments (input_xml and witness_1) are required." << endl;
+		cerr << "Error: At least 2 positional arguments (input_xml and witness_1) are required." << endl;
 		exit(1);
 	}
 	//The first positional argument is the XML file:
@@ -120,7 +119,7 @@ int main(int argc, char* argv[]) {
 	}
 	//The primary witness's ID should not occur again in this set:
 	if (secondary_wit_ids.find(primary_wit_id) != secondary_wit_ids.end()) {
-		cout << "Error: the primary witness ID should not be included in the list of secondary witness." << endl;
+		cerr << "Error: the primary witness ID should not be included in the list of secondary witness." << endl;
 		exit(1);
 	}
 	//Using the input flags, populate a set of reading types to be treated as distinct:
@@ -141,7 +140,7 @@ int main(int argc, char* argv[]) {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml);
 	if (!result) {
-		cout << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
+		cerr << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
 	}
 	pugi::xml_node tei_node = doc.child("TEI");
@@ -159,7 +158,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	if (!primary_wit_exists) {
-		cout << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
+		cerr << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
 		exit(1);
 	}
 	//If the user has specified a set of desired secondary witnesses or a minimum extant readings threshold,
@@ -195,8 +194,8 @@ int main(int argc, char* argv[]) {
 	}
 	//Then initialize the primary witness:
 	witness primary_wit = witness(primary_wit_id, list_wit, app);
-	//Then populate a map of secondary witnesses, keyed by ID:
-	unordered_map<string, witness> secondary_witnesses_by_id = unordered_map<string, witness>();
+	//Then populate a list of secondary witnesses:
+	list<witness> secondary_witnesses = list<witness>();
 	for (string secondary_wit_id : list_wit) {
 		//Skip the primary witness:
 		if (secondary_wit_id == primary_wit_id) {
@@ -205,8 +204,8 @@ int main(int argc, char* argv[]) {
 		//Initialize the secondary witness relative to the primary witness:
 		list<string> secondary_list_wit = list<string>({primary_wit_id, secondary_wit_id});
 		witness secondary_wit = witness(secondary_wit_id, secondary_list_wit, app);
-		//Add it to the map:
-		secondary_witnesses_by_id[secondary_wit_id] = secondary_wit;
+		//Add it to the list:
+		secondary_witnesses.push_back(secondary_wit);
 	}
 	cout << "Calculating genealogical relationships between witness " << primary_wit_id;
 	if (secondary_wit_ids.empty()) {
@@ -226,22 +225,23 @@ int main(int argc, char* argv[]) {
 	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
 	list<witness_comparison> comparisons = list<witness_comparison>();
 	Roaring primary_extant = primary_wit.get_explained_readings_for_witness(primary_wit_id);
-	for (pair<string, witness> kv : secondary_witnesses_by_id) {
-		string secondary_wit_id = kv.first;
-		witness secondary_wit = kv.second;
+	for (witness secondary_wit : secondary_witnesses) {
+		string secondary_wit_id = secondary_wit.get_id();
 		Roaring secondary_extant = secondary_wit.get_explained_readings_for_witness(secondary_wit_id);
 		Roaring mutually_extant = primary_extant & secondary_extant;
 		Roaring agreements = primary_wit.get_agreements_for_witness(secondary_wit_id);
 		Roaring primary_explained_by_secondary = primary_wit.get_explained_readings_for_witness(secondary_wit_id);
 		Roaring secondary_explained_by_primary = secondary_wit.get_explained_readings_for_witness(primary_wit_id);
-		Roaring mutually_explained = primary_explained_by_secondary & secondary_explained_by_primary;
+		//Roaring mutually_explained = primary_explained_by_secondary & secondary_explained_by_primary;
 		witness_comparison comparison;
 		comparison.id = secondary_wit_id;
 		comparison.pass = mutually_extant.cardinality();
 		comparison.eq = agreements.cardinality();
-		comparison.prior = (secondary_explained_by_primary ^ mutually_explained).cardinality();
-		comparison.posterior = (primary_explained_by_secondary ^ mutually_explained).cardinality();
-		comparison.uncl = (mutually_explained ^ agreements).cardinality();
+		comparison.prior = (secondary_explained_by_primary ^ agreements).cardinality();
+		comparison.posterior = (primary_explained_by_secondary ^ agreements).cardinality();
+		//comparison.prior = (secondary_explained_by_primary ^ mutually_explained).cardinality();
+		//comparison.posterior = (primary_explained_by_secondary ^ mutually_explained).cardinality();
+		//comparison.uncl = (mutually_explained ^ agreements).cardinality();
 		comparison.norel = comparison.pass - comparison.eq - comparison.prior - comparison.posterior;
 		comparison.perc = comparison.pass > 0 ? (100 * float(comparison.eq) / float(comparison.pass)) : 0;
 		comparison.dir = comparison.prior > comparison.posterior ? -1 : (comparison.posterior > comparison.prior ? 1 : 0);
@@ -249,7 +249,7 @@ int main(int argc, char* argv[]) {
 	}
 	//Sort the list of comparisons from highest number of agreements to lowest:
 	comparisons.sort([](const witness_comparison & wc1, const witness_comparison & wc2) {
-		return wc1.perc > wc2.perc;
+		return wc1.perc > wc2.perc ? true : (wc1.perc < wc2.perc ? false : false);
 	});
 	cout << "Genealogical comparisons for W1 = " << primary_wit_id << ":";
 	cout << "\n\n";
@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
 	cout << std::right << std::setw(8) << "EQ";
 	cout << std::right << std::setw(8) << "W1>W2";
 	cout << std::right << std::setw(8) << "W1<W2";
-	cout << std::right << std::setw(8) << "UNCL";
+	//cout << std::right << std::setw(8) << "UNCL";
 	cout << std::right << std::setw(8) << "NOREL";
 	cout << "\n\n";
 	for (witness_comparison comparison : comparisons) {
@@ -271,7 +271,7 @@ int main(int argc, char* argv[]) {
 		cout << std::right << std::setw(8) << comparison.eq;
 		cout << std::right << std::setw(8) << comparison.prior;
 		cout << std::right << std::setw(8) << comparison.posterior;
-		cout << std::right << std::setw(8) << comparison.uncl;
+		//cout << std::right << std::setw(8) << comparison.uncl;
 		cout << std::right << std::setw(8) << comparison.norel;
 		cout << "\n";
 	}

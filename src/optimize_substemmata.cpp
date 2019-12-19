@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
 	//Parse the positional arguments:
 	int index = optind;
 	if (argc <= index + 1) {
-		cout << "Error: 2 positional arguments (input_xml and witness) are required." << endl;
+		cerr << "Error: 2 positional arguments (input_xml and witness) are required." << endl;
 		exit(1);
 	}
 	//The first positional argument is the XML file:
@@ -142,12 +142,12 @@ int main(int argc, char* argv[]) {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml);
 	if (!result) {
-		cout << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
+		cerr << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
 	}
 	pugi::xml_node tei_node = doc.child("TEI");
 	if (!tei_node) {
-		cout << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
+		cerr << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
 	apparatus app = apparatus(tei_node, distinct_reading_types);
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	if (!primary_wit_exists) {
-		cout << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
+		cerr << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
 		exit(1);
 	}
 	//If the user has specified a minimum extant readings threshold,
@@ -185,8 +185,8 @@ int main(int argc, char* argv[]) {
 	}
 	//Then initialize the primary witness:
 	witness primary_wit = witness(primary_wit_id, list_wit, app);
-	//Then populate a map of secondary witnesses, keyed by ID:
-	unordered_map<string, witness> secondary_witnesses_by_id = unordered_map<string, witness>();
+	//Then populate a list of secondary witnesses, keyed by ID:
+	list<witness> secondary_witnesses = list<witness>();
 	for (string secondary_wit_id : list_wit) {
 		//Skip the primary witness:
 		if (secondary_wit_id == primary_wit_id) {
@@ -195,12 +195,12 @@ int main(int argc, char* argv[]) {
 		//Initialize the secondary witness relative to the primary witness:
 		list<string> secondary_list_wit = list<string>({primary_wit_id, secondary_wit_id});
 		witness secondary_wit = witness(secondary_wit_id, secondary_list_wit, app);
-		//Add it to the map:
-		secondary_witnesses_by_id[secondary_wit_id] = secondary_wit;
+		//Add it to the list:
+		secondary_witnesses.push_back(secondary_wit);
 	}
 	cout << "Finding optimal substemmata for witness " << primary_wit_id << "..." << endl;
 	//Populate the primary witness's list of potential ancestors:
-	primary_wit.set_potential_ancestor_ids(secondary_witnesses_by_id);
+	primary_wit.set_potential_ancestor_ids(secondary_witnesses);
 	//If this witness has no potential ancestors, then let the user know:
 	if (primary_wit.get_potential_ancestor_ids().empty()) {
 		cout << "The witness with ID " << primary_wit_id << " has no potential ancestors. This may be because it is too fragmentary or because it has equal priority to the Ausgangstext according to local stemmata." << endl;

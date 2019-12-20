@@ -34,6 +34,16 @@
 *.out
 *.app
 
+# Python scripts
+py/
+
+# autotools byproducts
+autom4te.cache/
+config.log
+config.status
+configure
+Makefile
+
 # Generated directories
 local/
 flow/

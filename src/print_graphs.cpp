@@ -5,9 +5,10 @@
  *      Author: jjmccollum
  */
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <iostream>
 #include <fstream>
-#include <experimental/filesystem>
 #include <string>
 #include <list>
 #include <vector>
@@ -24,7 +25,19 @@
 #include "local_stemma.h"
 
 using namespace std;
-namespace fs = std::experimental::filesystem;
+
+/**
+ * Creates a directory with the given name.
+ * The return value will be 0 if successful, and 1 otherwise.
+ */
+int create_dir(const string & dir) {
+	#ifdef _WIN32
+		return _mkdir(dir.c_str());
+	#else
+		umask(0); //this is done to ensure that the newly created directory will have exactly the permissions we specify below
+		return mkdir(dir.c_str(), 0755);
+	#endif
+}
 
 /**
  * Prints the short usage message.
@@ -146,15 +159,12 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 	apparatus app = apparatus(tei_node, distinct_reading_types);
-	//Get the current working directory's path:
-	fs::path cwd = fs::current_path();
 	//If specified, print all local stemmata:
 	if (local) {
 		cout << "Printing all local stemmata..." << endl;
 		//Create the directory to write files to:
-		fs::path local_dir = fs::path(cwd);
-		local_dir.append("local");
-		fs::create_directory(local_dir);
+		string local_dir = "local";
+		create_dir(local_dir);
 		int vu_ind = 0;
 		for (variation_unit & vu : app.get_variation_units()) {
 			string filename;
@@ -168,8 +178,7 @@ int main(int argc, char* argv[]) {
 			}
 			filename += "-local-stemma.dot";
 			//Complete the path to this file:
-			fs::path filepath = fs::path(local_dir);
-			filepath.append(filename);
+			string filepath = local_dir + "/" + filename;
 			//Open a filestream:
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
@@ -222,9 +231,8 @@ int main(int argc, char* argv[]) {
 	if (flow) {
 		cout << "Printing all complete textual flow diagrams..." << endl;
 		//Create the directory to write files to:
-		fs::path flow_dir = fs::path(cwd);
-		flow_dir.append("flow");
-		fs::create_directory(flow_dir);
+		string flow_dir = "flow";
+		create_dir(flow_dir);
 		int vu_ind = 0;
 		for (variation_unit vu : vus) {
 			string filename;
@@ -238,8 +246,7 @@ int main(int argc, char* argv[]) {
 			}
 			filename += "-textual-flow.dot";
 			//Complete the path to this file:
-			fs::path filepath = fs::path(flow_dir);
-			filepath.append(filename);
+			string filepath = flow_dir = "/" + filename;
 			//Open a filestream:
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
@@ -252,9 +259,8 @@ int main(int argc, char* argv[]) {
 	if (attestations) {
 		cout << "Printing all coherence in attestations textual flow diagrams..." << endl;
 		//Create the directory to write files to:
-		fs::path attestations_dir = fs::path(cwd);
-		attestations_dir.append("attestations");
-		fs::create_directory(attestations_dir);
+		string attestations_dir = "attestations";
+		create_dir(attestations_dir);
 		int vu_ind = 0;
 		for (variation_unit vu : vus) {
 			for (string rdg : vu.get_readings()) {
@@ -270,8 +276,7 @@ int main(int argc, char* argv[]) {
 				filename += "R" + rdg; // prefix the reading with "R"
 				filename += "-coherence-attestations.dot";
 				//Complete the path to this file:
-				fs::path filepath = fs::path(attestations_dir);
-				filepath.append(filename);
+				string filepath = attestations_dir + "/" + filename;
 				//Open a filestream:
 				fstream dot_file;
 				dot_file.open(filepath, ios::out);
@@ -285,9 +290,8 @@ int main(int argc, char* argv[]) {
 	if (variants) {
 		cout << "Printing all coherence in variant passages textual flow diagrams..." << endl;
 		//Create the directory to write files to:
-		fs::path variants_dir = fs::path(cwd);
-		variants_dir.append("variants");
-		fs::create_directory(variants_dir);
+		string variants_dir = "variants";
+		create_dir(variants_dir);
 		int vu_ind = 0;
 		for (variation_unit vu : vus) {
 			string filename;
@@ -301,8 +305,7 @@ int main(int argc, char* argv[]) {
 			}
 			filename += "-coherence-variants.dot";
 			//Complete the path to this file:
-			fs::path filepath = fs::path(variants_dir);
-			filepath.append(filename);
+			string filepath = variants_dir + "/" + filename;
 			//Open a filestream:
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
@@ -328,13 +331,11 @@ int main(int argc, char* argv[]) {
 	if (global) {
 		cout << "Printing global stemma..." << endl;
 		//Create the directory to write files to:
-		fs::path global_dir = fs::path(cwd);
-		global_dir.append("global");
-		fs::create_directory(global_dir);
+		string global_dir = "global";
+		create_dir(global_dir);
 		string filename = "global-stemma.dot";
 		//Complete the path to this file:
-		fs::path filepath = fs::path(global_dir);
-		filepath.append(filename);
+		string filepath = global_dir + "/" + filename;
 		//Open a filestream:
 		fstream dot_file;
 		dot_file.open(filepath, ios::out);

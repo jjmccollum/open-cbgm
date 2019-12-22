@@ -1,0 +1,19 @@
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      compiler: g++
+    - os: osx
+      compiler: clang++
+    - os: windows
+      compiler: g++
+      before_install:
+        - choco install cygwin
+        - C:\\cygwin64\\cygwinsetup.exe -q -P autoconf,make
+
+script:
+  - ./autogen.sh #run autoconf to generate configure script based on platform features
+  - ./configure #run generated configure script, which in turn will generate a platform-specific Makefile
+  - make #build the project using the generated Makefile
+  - make check #run unit tests

@@ -1,10 +1,8 @@
 #!/bin/sh
 
-# bootstrap.sh
+# autogen.sh
 #
-# This is the bootstrapping script to auto-generate a configure
-# script for checking build environments, etc.
-#
+# This script will auto-generate a configure script for checking build environments.
 
 rm -f config.cache aclocal.m4
 aclocal #create m4 environment for autotools to use

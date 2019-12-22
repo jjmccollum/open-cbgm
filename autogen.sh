@@ -7,4 +7,4 @@
 rm -f config.cache aclocal.m4
 aclocal #create m4 environment for autotools to use
 autoconf #generate configure script
-#automake --add-missing #generate Makefile
+#don't call automake as we already have a simple template in Makefile.in

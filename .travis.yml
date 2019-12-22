@@ -3,11 +3,11 @@ language: cpp
 matrix:
   include:
     - os: linux
-      compiler: g++
+      compiler: gcc
     - os: osx
-      compiler: clang++
+      compiler: clang
     - os: windows
-      compiler: g++
+      compiler: gcc
       before_install:
         - choco install cygwin
         - C:\\cygwin64\\cygwinsetup.exe -q -P autoconf,make

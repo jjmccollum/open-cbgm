@@ -10,7 +10,7 @@ AC_LANG(C++)
 AC_PROG_CXX
 
 # Checks for support for standard header files:
-AC_CHECK_HEADERS([float.h inttypes.h limits.h malloc.h stddef.h stdint.h stdlib.h string.h wchar.h], [], [AC_MSG_ERROR(Could not use standard headers)])
+AC_CHECK_HEADERS([stdlib.h stdio.h getopt.h string.h wchar.h float.h stdint.h inttypes.h limits.h stddef.h], [], [AC_MSG_ERROR(Could not use standard headers)])
 
 # Check for typedefs, structures, and compiler characteristics:
 AC_C_INLINE

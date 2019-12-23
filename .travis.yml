@@ -13,7 +13,7 @@ matrix:
         - C:\\tools\\cygwin\\cygwinsetup.exe -q -P autoconf,make
 
 script:
-  - ./autogen.sh #run autoconf to generate configure script based on platform features
-  - ./configure #run generated configure script, which in turn will generate a platform-specific Makefile
+  - sh ./autogen.sh #run autoconf to generate configure script based on platform features
+  - sh ./configure #run generated configure script, which in turn will generate a platform-specific Makefile
   - make #build the project using the generated Makefile
   - make check #run unit tests

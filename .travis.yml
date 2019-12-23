@@ -11,6 +11,7 @@ matrix:
       before_install:
         - choco install cygwin
         - C:\\tools\\cygwin\\cygwinsetup.exe -q -P autoconf,make
+        - export PATH=/cygdrive/c/tools/cygwin/bin:$PATH
 
 script:
   - ./autogen.sh #run autoconf to generate configure script based on platform features

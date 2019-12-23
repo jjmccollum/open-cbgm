@@ -397,7 +397,7 @@ local_stemma variation_unit::get_local_stemma() const {
 /**
  * Returns the textual flow diagram of this variation unit.
  */
-textual_flow_graph variation_unit::get_textual_flow_diagram() const {
+textual_flow_graph variation_unit::get_graph() const {
 	return graph;
 }
 

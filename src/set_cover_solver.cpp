@@ -219,7 +219,7 @@ bool set_cover_solver::is_any_branch_feasible() const {
 set_cover_solution set_cover_solver::get_trivial_solution() const {
 	set_cover_solution trivial_solution;
 	trivial_solution.rows = list<set_cover_row>();
-	trivial_solution.cost = target.cardinality();
+	trivial_solution.cost = target.cardinality() + 1; //this should be larger than any row's cost
 	for (set_cover_row row : rows) {
 		if (target.isSubset(row.bits) && row.cost < trivial_solution.cost) {
 			trivial_solution.rows = list<set_cover_row>({row});

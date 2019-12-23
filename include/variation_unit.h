@@ -62,7 +62,7 @@ public:
 	unordered_map<string, list<string>> get_reading_support() const;
 	int get_connectivity() const;
 	local_stemma get_local_stemma() const;
-	textual_flow_graph get_textual_flow_diagram() const;
+	textual_flow_graph get_graph() const;
 	void calculate_textual_flow_for_witness(const witness & w);
 	void calculate_textual_flow(const list<witness> & witnesses);
 	void textual_flow_diagram_to_dot(ostream & out);

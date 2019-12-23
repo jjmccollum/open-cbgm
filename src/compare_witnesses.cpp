@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
 				//This will happen if a long option is being parsed; just move on:
 				break;
 			default:
-				cout << "Error: invalid argument." << endl;
+				cerr << "Error: invalid argument." << endl;
 				usage();
 				exit(1);
 		}

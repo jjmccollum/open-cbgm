@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+	<teiHeader>
+		<sourceDesc>
+			<listWit>
+				<witness n="A" />
+				<witness n="B" />
+				<witness n="C" />
+				<witness n="D" />
+				<witness n="E" />
+			</listWit>
+		</sourceDesc>
+	</teiHeader>
+	<text xml:lang="GRC">
+		<body>
+			<div type="book" n="B00">
+				<div type="chapter" n="B00K0">
+					<ab n="B00K0V0">
+						<!-- Simple local stemma with two readings and a clear relationship -->
+						<app n="B00K0V0U2">
+							<label>Test 0:0/2</label>
+							<rdg n="a" wit="A B C" />
+							<rdg n="b" wit="D E" />
+							<fs>
+								<f name="connectivity">
+									<numeric value="5" />
+								</f>
+							</fs>
+							<graph type="directed">
+								<node n="a" />
+								<node n="b" />
+								<arc from="a" to="b" />
+							</graph>
+						</app>
+						<!-- Local stemma with four readings and depth 2 -->
+						<app n="B00K0V0U4">
+							<label>Test 0:0/4</label>
+							<rdg n="a" wit="A B" />
+							<rdg n="b" wit="C" />
+							<rdg n="c" wit="D" />
+							<rdg n="d" wit="E" />
+							<fs>
+								<f name="connectivity">
+									<numeric value="5" />
+								</f>
+							</fs>
+							<graph type="directed">
+								<node n="a" />
+								<node n="b" />
+								<node n="c" />
+								<node n="d" />
+								<arc from="a" to="b" />
+								<arc from="a" to="c" />
+								<arc from="c" to="d" />
+							</graph>
+						</app>
+						<!-- Local stemma with defective and orthographic subvariants -->
+						<app n="B00K0V0U6">
+							<label>Test 0:0/6</label>
+							<rdg n="a" wit="A" />
+							<rdg n="b" wit="B" />
+							<rdg n="bf" type="defective" wit="C" />
+							<rdg n="c" wit="D" />
+							<rdg n="co" type="defective" wit="E" />
+							<fs>
+								<f name="connectivity">
+									<numeric value="5" />
+								</f>
+							</fs>
+							<graph type="directed">
+								<node n="a" />
+								<node n="b" />
+								<node n="bf" />
+								<node n="c" />
+								<node n="co" />
+								<arc from="a" to="b" />
+								<arc from="a" to="c" />
+								<arc from="b" to="bf" />
+								<arc from="c" to="co" />
+							</graph>
+						</app>
+						<!-- Local stemma where the Ausgangstext could be one of two readings, there is a split attestation for one reading, and one witness is lacunose -->
+						<app n="B00K0V0U8">
+							<label>Test 0:0/8</label>
+							<rdg n="a" wit="A" />
+							<rdg n="b" wit="A B" />
+							<rdg n="c" wit="D" />
+							<rdg n="c2" type="split" wit="C" />
+							<fs>
+								<f name="connectivity">
+									<numeric value="5" />
+								</f>
+							</fs>
+							<graph type="directed">
+								<node n="a" />
+								<node n="b" />
+								<node n="c" />
+								<node n="c2" />
+								<arc from="a" to="c" />
+								<arc from="b" to="c2" />
+							</graph>
+						</app>
+					</ab>
+				</div>
+			</div>
+		</body>
+	</text>
+</TEI>

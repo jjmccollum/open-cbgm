@@ -10,7 +10,7 @@ matrix:
       compiler: gcc
       before_install:
         - choco install cygwin
-        - C:\\cygwin64\\cygwinsetup.exe -q -P autoconf,make
+        - C:\\tools\\cygwin\\cygwinsetup.exe -q -P autoconf,make
 
 script:
   - ./autogen.sh #run autoconf to generate configure script based on platform features

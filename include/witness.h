@@ -37,8 +37,8 @@ public:
 	bool pregenealogical_comp(const witness & w1, const witness & w2);
 	list<string> get_potential_ancestor_ids() const;
 	void set_potential_ancestor_ids(const list<witness> & witnesses);
-	list<string> get_global_stemma_ancestors() const;
-	void set_global_stemma_ancestors();
+	list<string> get_global_stemma_ancestor_ids() const;
+	void set_global_stemma_ancestor_ids();
 };
 
 #endif /* WITNESS_H */

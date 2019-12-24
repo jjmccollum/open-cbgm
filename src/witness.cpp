@@ -219,7 +219,7 @@ void witness::set_potential_ancestor_ids(const list<witness> & witnesses) {
 /**
  * Returns this witness's list of global stemma ancestor IDs.
  */
-list<string> witness::get_global_stemma_ancestors() const {
+list<string> witness::get_global_stemma_ancestor_ids() const {
 	return global_stemma_ancestor_ids;
 }
 
@@ -227,7 +227,7 @@ list<string> witness::get_global_stemma_ancestors() const {
  * Identifies the witnesses found in the optimal substemma for this witness.
  * The results are stored in this witness's global_stemma_ancestor_ids list.
  */
-void witness::set_global_stemma_ancestors() {
+void witness::set_global_stemma_ancestor_ids() {
 	global_stemma_ancestor_ids = list<string>();
 	//Populate a vector of set cover rows using the explained readings bitmaps for this witness's potential ancestors:
 	vector<set_cover_row> rows = vector<set_cover_row>();

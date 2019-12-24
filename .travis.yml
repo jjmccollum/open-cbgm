@@ -9,9 +9,29 @@ matrix:
     - os: windows
       compiler: gcc
       before_install:
-        - choco install cygwin
-        - C:\\tools\\cygwin\\cygwinsetup.exe -q -P autoconf,make
-        - export PATH=C:\\tools\\cygwin\\bin:$PATH
+      #  - choco install cygwin
+      #  - C:\\tools\\cygwin\\cygwinsetup.exe -q -P autoconf,make
+      #  - export PATH=C:\\tools\\cygwin\\bin:$PATH
+        ## Following https://docs.travis-ci.com/user/reference/windows/, install MSYS2
+        - [[ ! -f C:/tools/msys64/msys2_shell.cmd ]] && rm -rf C:/tools/msys64 #remove any existing obsolete versions of MSYS
+        - choco uninstall -y mingw #uninstall the pre-installed copy of MinGW to prevent conflicts
+        - choco upgrade --no-progress -y msys2 #install MSYS2
+        - export msys2='cmd //C RefreshEnv.cmd '
+        - export msys2+='& set MSYS=winsymlinks:nativestrict '
+        - export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
+        - export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
+        - export msys2+=" -msys2 -c \$\* --"
+        - $msys2 pacman --sync --noconfirm --needed mingw-w64-x86_64-toolchain
+        ## Install more MSYS2 packages from https://packages.msys2.org/base here
+        - taskkill //IM gpg-agent.exe //F  # https://travis-ci.community/t/4967
+        - export PATH=/C/tools/msys64/mingw64/bin:$PATH #so we can call build commands from the working directory
+        - export MAKE=mingw32-make  #so autotools can find it
+      before_cache:
+        - $msys2 pacman --sync --clean --noconfirm
+      cache:
+        - directories:
+          - $HOME/AppData/Local/Temp/chocolatey
+          - /C/tools/msys64
 
 script:
   - autoconf #run autoconf to generate configure script based on platform features

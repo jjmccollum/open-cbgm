@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <list>
+#include <vector>
 #include <set>
 #include <map>
 #include <unordered_map>
@@ -18,6 +19,7 @@
 #include "roaring.hh"
 #include "pugixml.h"
 #include "global_stemma.h"
+#include "textual_flow.h"
 #include "witness.h"
 #include "set_cover_solver.h"
 #include "apparatus.h"
@@ -511,125 +513,6 @@ void autotest::run() {
 		for (witness & wit : witnesses) {
 			wit.set_potential_ancestor_ids(witnesses);
 		}
-		/**
-		 * Unit test variation_unit_calculate_textual_flow
-		 */
-		current_unit = "variation_unit_calculate_textual_flow";
-		if (target_test.empty() || target_test == current_unit) {
-			//Initialize a container for module-wide test results:
-			unit_test u_test;
-			u_test.name = current_unit;
-			u_test.passed = false;
-			u_test.msg = "";
-			//Run the test:
-			try {
-				//Generate the textual flow diagram using the list of witnesses:
-				vu.calculate_textual_flow(witnesses);
-				//Check that the diagram has the correct number of vertices:
-				unsigned int expected_n_vertices = 5;
-				unsigned int expected_n_edges = 4;
-				textual_flow_graph graph = vu.get_graph();
-				unsigned int n_vertices = graph.vertices.size();
-				unsigned int n_edges = graph.edges.size();
-				if (n_vertices != expected_n_vertices) {
-					u_test.msg += "Expected graph.vertices.size() == " + to_string(expected_n_vertices) + ", got " + to_string(n_vertices) + "\n";
-				}
-				if (n_edges != expected_n_edges) {
-					u_test.msg += "Expected graph.edges.size() == " + to_string(expected_n_edges) + ", got " + to_string(n_edges) + "\n";
-				}
-				if (u_test.msg.empty()) {
-					u_test.passed = true;
-				}
-			}
-			catch (const exception & e) {
-				u_test.msg += string(e.what()) + "\n";
-			}
-			mod_test.units.push_back(u_test);
-		}
-		/**
-		 * Unit test variation_unit_textual_flow_diagram_to_dot
-		 */
-		current_unit = "variation_unit_textual_flow_diagram_to_dot";
-		if (target_test.empty() || target_test == current_unit) {
-			//Initialize a container for module-wide test results:
-			unit_test u_test;
-			u_test.name = current_unit;
-			u_test.passed = false;
-			u_test.msg = "";
-			//Run the test:
-			try {
-				//Test .dot serialization of complete textual flow graph:
-				stringstream ss;
-				vu.textual_flow_diagram_to_dot(ss);
-				string out = ss.str();
-				if (out.empty()) {
-					u_test.msg += "The .dot serialization was empty.\n";
-				}
-				if (u_test.msg.empty()) {
-					u_test.passed = true;
-				}
-			}
-			catch (const exception & e) {
-				u_test.msg += string(e.what()) + "\n";
-			}
-			mod_test.units.push_back(u_test);
-		}
-		/**
-		 * Unit test variation_unit_textual_flow_diagram_for_reading_to_dot
-		 */
-		current_unit = "variation_unit_textual_flow_diagram_for_reading_to_dot";
-		if (target_test.empty() || target_test == current_unit) {
-			//Initialize a container for module-wide test results:
-			unit_test u_test;
-			u_test.name = current_unit;
-			u_test.passed = false;
-			u_test.msg = "";
-			//Run the test:
-			try {
-				//Test .dot serialization of coherence in attestations graph:
-				stringstream ss;
-				vu.textual_flow_diagram_for_reading_to_dot("b", ss);
-				string out = ss.str();
-				if (out.empty()) {
-					u_test.msg += "The .dot serialization was empty.\n";
-				}
-				if (u_test.msg.empty()) {
-					u_test.passed = true;
-				}
-			}
-			catch (const exception & e) {
-				u_test.msg += string(e.what()) + "\n";
-			}
-			mod_test.units.push_back(u_test);
-		}
-		/**
-		 * Unit test variation_unit_textual_flow_diagram_for_changes_to_dot
-		 */
-		current_unit = "variation_unit_textual_flow_diagram_for_changes_to_dot";
-		if (target_test.empty() || target_test == current_unit) {
-			//Initialize a container for module-wide test results:
-			unit_test u_test;
-			u_test.name = current_unit;
-			u_test.passed = false;
-			u_test.msg = "";
-			//Run the test:
-			try {
-				//Test .dot serialization of coherence in variant passages graph:
-				stringstream ss;
-				vu.textual_flow_diagram_for_changes_to_dot(ss);
-				string out = ss.str();
-				if (out.empty()) {
-					u_test.msg += "The .dot serialization was empty.\n";
-				}
-				if (u_test.msg.empty()) {
-					u_test.passed = true;
-				}
-			}
-			catch (const exception & e) {
-				u_test.msg += string(e.what()) + "\n";
-			}
-			mod_test.units.push_back(u_test);
-		}
 		lib_test.modules.push_back(mod_test);
 	}
 	/**
@@ -895,6 +778,512 @@ void autotest::run() {
 		}
 		lib_test.modules.push_back(mod_test);
 	}
+	/**
+	 * Module witness
+	 */
+	current_module = "witness";
+	if (target_module.empty() || target_module == current_module) {
+		//Initialize a container for module-wide test results:
+		module_test mod_test;
+		mod_test.name = current_module;
+		mod_test.units = list<unit_test>();
+		//Then proceed for each unit test:
+		string current_unit;
+		//Do pre-test work:
+		pugi::xml_document doc;
+		doc.load_file("examples/test.xml");
+		pugi::xml_node tei_node = doc.child("TEI");
+		set<string> distinct_reading_types = set<string>({"split"});
+		apparatus app = apparatus(tei_node, distinct_reading_types);
+		/**
+		 * Unit witness_constructor
+		 */
+		current_unit = "witness_constructor";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Construct a new witness with genealogical relationships to all other witnesses:
+				witness wit = witness("A", app);
+				//Check that the ID is correct:
+				string expected_id = "A";
+				string id = wit.get_id();
+				if (id != expected_id) {
+					u_test.msg += "Expected witness ID to be " + expected_id + ", but got " + id + "\n";
+				}
+				//Check that the size of the agreements map is correct:
+				unsigned int expected_agreements_by_witness_size = 5;
+				unsigned int agreements_by_witness_size = wit.get_agreements_by_witness().size();
+				if (expected_agreements_by_witness_size != agreements_by_witness_size) {
+					u_test.msg += "Expected agreements_by_witness.size() == " + to_string(expected_agreements_by_witness_size) + ", but got " + to_string(agreements_by_witness_size) + "\n";
+				}
+				//Check that the size of the genealogical relationship map is correct:
+				unsigned int expected_explained_readings_by_witness_size = 5;
+				unsigned int explained_readings_by_witness_size = wit.get_explained_readings_by_witness().size();
+				if (expected_explained_readings_by_witness_size != explained_readings_by_witness_size) {
+					u_test.msg += "Expected explained_readings_by_witness.size() == " + to_string(expected_explained_readings_by_witness_size) + ", but got " + to_string(explained_readings_by_witness_size) + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		/**
+		 * Unit witness_constructor_relative
+		 */
+		current_unit = "witness_constructor_relative";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Construct a new witness with genealogical relationships only to itself:
+				witness wit = witness("A", list<string>({"A"}), app);
+				//Check that the size of the agreements map is correct:
+				unsigned int expected_agreements_by_witness_size = 1;
+				unsigned int agreements_by_witness_size = wit.get_agreements_by_witness().size();
+				if (expected_agreements_by_witness_size != agreements_by_witness_size) {
+					u_test.msg += "Expected agreements_by_witness.size() == " + to_string(expected_agreements_by_witness_size) + ", but got " + to_string(agreements_by_witness_size) + "\n";
+				}
+				//Check that the size of the genealogical relationship map is correct:
+				unsigned int expected_explained_readings_by_witness_size = 1;
+				unsigned int explained_readings_by_witness_size = wit.get_explained_readings_by_witness().size();
+				if (expected_explained_readings_by_witness_size != explained_readings_by_witness_size) {
+					u_test.msg += "Expected explained_readings_by_witness.size() == " + to_string(expected_explained_readings_by_witness_size) + ", but got " + to_string(explained_readings_by_witness_size) + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		//Do more pre-test work:
+		witness wit = witness("B", app);
+		/**
+		 * Unit witness_get_agreements_for_witness
+		 */
+		current_unit = "witness_get_agreements_for_witness";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Check that the witness's agreements with A are correct:
+				Roaring expected_agreements = Roaring::bitmapOf(3, 0, 1, 3);
+				Roaring agreements = wit.get_agreements_for_witness("A");
+				if ((agreements ^ expected_agreements).cardinality() != 0) {
+					u_test.msg += "Expected agreements_for_witness(\"A\") == " + expected_agreements.toString() + ", but got " + agreements.toString() + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		/**
+		 * Unit witness_get_explained_readings_for_witness
+		 */
+		current_unit = "witness_get_explained_readings_for_witness";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Check that the witness's explained readings by A are correct:
+				Roaring expected_explained_readings = Roaring::bitmapOf(4, 0, 1, 2, 3);
+				Roaring explained_readings = wit.get_explained_readings_for_witness("A");
+				if ((explained_readings ^ expected_explained_readings).cardinality() != 0) {
+					u_test.msg += "Expected explained_readings_for_witness(\"A\") == " + expected_explained_readings.toString() + ", but got " + explained_readings.toString() + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		//Do more pre-test work:
+		wit = witness("C", app);
+		list<witness> witnesses = list<witness>();
+		for (string wit_id : app.get_list_wit()) {
+			witness other_wit = witness(wit_id, app);
+			witnesses.push_back(other_wit);
+		}
+		/**
+		 * Unit witness_set_potential_ancestor_ids
+		 */
+		current_unit = "witness_set_potential_ancestor_ids";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Check if a witness's potential ancestor list is correctly sorted and filtered:
+				wit.set_potential_ancestor_ids(witnesses);
+				vector<string> expected_potential_ancestor_ids = vector<string>({"B", "A"});
+				vector<string> potential_ancestor_ids = vector<string>();
+				for (string potential_ancestor_id : wit.get_potential_ancestor_ids()) {
+					potential_ancestor_ids.push_back(potential_ancestor_id);
+				}
+				unsigned int expected_potential_ancestor_ids_size = expected_potential_ancestor_ids.size();
+				unsigned int potential_ancestor_ids_size = potential_ancestor_ids.size();
+				if (potential_ancestor_ids_size != expected_potential_ancestor_ids_size) {
+					u_test.msg += "Expected potential_ancestor_ids.size() == " + to_string(expected_potential_ancestor_ids_size) + ", but got " + to_string(potential_ancestor_ids_size) + "\n";
+				}
+				else {
+					bool lists_equal = true;
+					for (unsigned int i = 0; i < expected_potential_ancestor_ids.size(); i++) {
+						if (potential_ancestor_ids[i] != expected_potential_ancestor_ids[i]) {
+							lists_equal = false;
+							break;
+						}
+					}
+					if (!lists_equal) {
+						u_test.msg += "Expected potential_ancestor_ids == [\"B\", \"A\"], but got ";
+						u_test.msg += "[";
+						for (string potential_ancestor_id : potential_ancestor_ids) {
+							if (potential_ancestor_id == potential_ancestor_ids.front()) {
+								u_test.msg += ", ";
+							}
+							u_test.msg += potential_ancestor_id;
+						}
+						u_test.msg += "]\n";
+					}
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		/**
+		 * Unit witness_set_global_stemma_ancestor_ids
+		 */
+		current_unit = "witness_set_global_stemma_ancestor_ids";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Check if a witness's global stemma ancestor list is correct:
+				wit.set_global_stemma_ancestor_ids();
+				vector<string> expected_global_stemma_ancestor_ids = vector<string>({"B"});
+				vector<string> global_stemma_ancestor_ids = vector<string>();
+				for (string global_stemma_ancestor_id : wit.get_global_stemma_ancestor_ids()) {
+					global_stemma_ancestor_ids.push_back(global_stemma_ancestor_id);
+				}
+				unsigned int expected_global_stemma_ancestor_ids_size = expected_global_stemma_ancestor_ids.size();
+				unsigned int global_stemma_ancestor_ids_size = global_stemma_ancestor_ids.size();
+				if (global_stemma_ancestor_ids_size != expected_global_stemma_ancestor_ids_size) {
+					u_test.msg += "Expected global_stemma_ancestor_ids.size() == " + to_string(expected_global_stemma_ancestor_ids_size) + ", but got " + to_string(global_stemma_ancestor_ids_size) + "\n";
+				}
+				else {
+					bool lists_equal = true;
+					for (unsigned int i = 0; i < expected_global_stemma_ancestor_ids.size(); i++) {
+						if (global_stemma_ancestor_ids[i] != expected_global_stemma_ancestor_ids[i]) {
+							lists_equal = false;
+							break;
+						}
+					}
+					if (!lists_equal) {
+						u_test.msg += "Expected global_stemma_ancestor_ids == [\"B\"], but got ";
+						u_test.msg += "[";
+						for (string global_stemma_ancestor_id : global_stemma_ancestor_ids) {
+							if (global_stemma_ancestor_id == global_stemma_ancestor_ids.front()) {
+								u_test.msg += ", ";
+							}
+							u_test.msg += global_stemma_ancestor_id;
+						}
+						u_test.msg += "]\n";
+					}
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		lib_test.modules.push_back(mod_test);
+	}
+	/**
+	 * Module textual_flow
+	 */
+	current_module = "textual_flow";
+	if (target_module.empty() || target_module == current_module) {
+		//Initialize a container for module-wide test results:
+		module_test mod_test;
+		mod_test.name = current_module;
+		mod_test.units = list<unit_test>();
+		//Then proceed for each unit test:
+		string current_unit;
+		//Do pre-test work:
+		pugi::xml_document doc;
+		doc.load_file("examples/test.xml");
+		pugi::xml_node tei_node = doc.child("TEI");
+		set<string> distinct_reading_types = set<string>({"split"});
+		apparatus app = apparatus(tei_node, distinct_reading_types);
+		variation_unit vu = app.get_variation_units()[3];
+		list<witness> witnesses = list<witness>();
+		for (string wit_id : app.get_list_wit()) {
+			witness wit = witness(wit_id, app);
+			witnesses.push_back(wit);
+		}
+		for (witness & wit : witnesses) {
+			wit.set_potential_ancestor_ids(witnesses);
+		}
+		/**
+		 * Unit textual_flow_constructor
+		 */
+		current_unit = "textual_flow_constructor";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Construct a textual flow instance:
+				textual_flow tf = textual_flow(vu, witnesses);
+				//Check that the diagram has the correct number of vertices:
+				unsigned int expected_n_vertices = 5;
+				unsigned int expected_n_edges = 4;
+				textual_flow_graph graph = tf.get_graph();
+				unsigned int n_vertices = graph.vertices.size();
+				unsigned int n_edges = graph.edges.size();
+				if (n_vertices != expected_n_vertices) {
+					u_test.msg += "Expected graph.vertices.size() == " + to_string(expected_n_vertices) + ", got " + to_string(n_vertices) + "\n";
+				}
+				if (n_edges != expected_n_edges) {
+					u_test.msg += "Expected graph.edges.size() == " + to_string(expected_n_edges) + ", got " + to_string(n_edges) + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		//Do more pre-test work:
+		textual_flow tf = textual_flow(vu, witnesses);
+		/**
+		 * Unit test textual_flow_textual_flow_diagram_to_dot
+		 */
+		current_unit = "textual_flow_textual_flow_diagram_to_dot";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Test .dot serialization of complete textual flow graph:
+				stringstream ss;
+				tf.textual_flow_to_dot(ss);
+				string out = ss.str();
+				if (out.empty()) {
+					u_test.msg += "The .dot serialization was empty.\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		/**
+		 * Unit test textual_flow_coherence_in_attestations_to_dot
+		 */
+		current_unit = "textual_flow_coherence_in_attestations_to_dot";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Test .dot serialization of coherence in attestations graph:
+				stringstream ss;
+				tf.coherence_in_attestations_to_dot("b", ss);
+				string out = ss.str();
+				if (out.empty()) {
+					u_test.msg += "The .dot serialization was empty.\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		/**
+		 * Unit test textual_flow_coherence_in_variant_passages_to_dot
+		 */
+		current_unit = "textual_flow_coherence_in_variant_passages_to_dot";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Test .dot serialization of coherence in variant passages graph:
+				stringstream ss;
+				tf.coherence_in_variant_passages_to_dot(ss);
+				string out = ss.str();
+				if (out.empty()) {
+					u_test.msg += "The .dot serialization was empty.\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		lib_test.modules.push_back(mod_test);
+	}
+	/**
+	 * Module global_stemma
+	 */
+	current_module = "global_stemma";
+	if (target_module.empty() || target_module == current_module) {
+		//Initialize a container for module-wide test results:
+		module_test mod_test;
+		mod_test.name = current_module;
+		mod_test.units = list<unit_test>();
+		//Then proceed for each unit test:
+		string current_unit;
+		//Do pre-test work:
+		pugi::xml_document doc;
+		doc.load_file("examples/test.xml");
+		pugi::xml_node tei_node = doc.child("TEI");
+		set<string> distinct_reading_types = set<string>({"split"});
+		apparatus app = apparatus(tei_node, distinct_reading_types);
+		list<witness> witnesses = list<witness>();
+		for (string wit_id : app.get_list_wit()) {
+			witness wit = witness(wit_id, app);
+			witnesses.push_back(wit);
+		}
+		for (witness & wit : witnesses) {
+			wit.set_potential_ancestor_ids(witnesses);
+			wit.set_global_stemma_ancestor_ids();
+		}
+		/**
+		 * Unit global_stemma_constructor
+		 */
+		current_unit = "global_stemma_constructor";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Construct a global stemma from a list of witnesses with optimized substemmata:
+				global_stemma gs = global_stemma(witnesses);
+				//Check that the graph is the size we expect:
+				unsigned int expected_n_vertices = 5;
+				unsigned int expected_n_edges = 4;
+				global_stemma_graph graph = gs.get_graph();
+				unsigned int n_vertices = graph.vertices.size();
+				unsigned int n_edges = graph.edges.size();
+				if (n_vertices != expected_n_vertices) {
+					u_test.msg += "Expected graph.vertices.size() == " + to_string(expected_n_vertices) + ", got " + to_string(n_vertices) + "\n";
+				}
+				if (n_edges != expected_n_edges) {
+					u_test.msg += "Expected graph.edges.size() == " + to_string(expected_n_edges) + ", got " + to_string(n_edges) + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		//Do more pre-test work:
+		global_stemma gs = global_stemma(witnesses);
+		/**
+		 * Unit global_stemma_to_dot
+		 */
+		current_unit = "global_stemma_to_dot";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Test .dot serialization:
+				stringstream ss;
+				gs.to_dot(ss);
+				string out = ss.str();
+				if (out.empty()) {
+					u_test.msg += "The .dot serialization was empty.\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		lib_test.modules.push_back(mod_test);
+	}
 }
 
 /**
@@ -951,17 +1340,19 @@ int main(int argc, char* argv[]) {
 		"apparatus",
 		"set_cover_solver",
 		"witness",
+		"textual_flow",
 		"global_stemma"
 	});
 	//Initialize the map of unit tests, keyed by parent module name:
 	map<string, list<string>> tests_by_module = map<string, list<string>>({
 		{"common", {"common_read_xml"}},
 		{"local_stemma", {"local_stemma_constructor", "local_stemma_constructor_collapse", "local_stemma_is_equal_or_prior", "local_stemma_to_dot"}},
-		{"variation_unit", {"variation_unit_constructor", "variation_unit_constructor_split_distinct", "variation_unit_calculate_textual_flow", "variation_unit_textual_flow_diagram_to_dot", "variation_unit_textual_flow_diagram_for_reading_to_dot", "variation_unit_textual_flow_diagram_for_changes_to_dot"}},
+		{"variation_unit", {"variation_unit_constructor", "variation_unit_constructor_split_distinct"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
 		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_trivial_solution", "set_cover_solver_get_greedy_solution"}},
-		{"witness", {}},
-		{"global_stemma", {}}
+		{"witness", {"witness_constructor", "witness_constructor_relative", "witness_get_agreements_for_witness", "witness_get_explained_readings_for_witness", "witness_set_potential_ancestor_ids", "witness_set_global_stemma_ancestor_ids"}},
+		{"textual_flow", {"textual_flow_constructor", "textual_flow_textual_flow_to_dot", "textual_flow_coherence_in_attestations_to_dot", "textual_flow_coherence_in_variant_passages_to_dot"}},
+		{"global_stemma", {"global_stemma_constructor", "global_stemma_to_dot"}}
 	});
 	//Initialize an autotest instance with these containers:
 	autotest at = autotest(modules, tests_by_module);

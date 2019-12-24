@@ -48,20 +48,20 @@ global_stemma::global_stemma(const list<witness> & witnesses) {
 	for (witness wit : witnesses) {
 		string wit_id = wit.get_id();
 		//Skip any witnesses with no global stemma ancestors (such as the Ausgangstext and highly lacunose witnesses):
-		list<string> global_stemma_ancestors = wit.get_global_stemma_ancestors();
-		if (global_stemma_ancestors.empty()) {
+		list<string> global_stemma_ancestor_ids = wit.get_global_stemma_ancestor_ids();
+		if (global_stemma_ancestor_ids.empty()) {
 			continue;
 		}
 		//Get the maximum number of agreements between this witness and its ancestors:
 		int max_agreements = 0;
-		for (string ancestor_id : global_stemma_ancestors) {
+		for (string ancestor_id : global_stemma_ancestor_ids) {
 			int agreements = wit.get_agreements_for_witness(ancestor_id).cardinality();
 			if (agreements > max_agreements) {
 				max_agreements = agreements;
 			}
 		}
 		//Now, add an edge for each ancestor:
-		for (string ancestor_id : global_stemma_ancestors) {
+		for (string ancestor_id : global_stemma_ancestor_ids) {
 			witness ancestor = witnesses_by_id[ancestor_id];
 			global_stemma_edge e;
 			e.ancestor = ancestor_id;

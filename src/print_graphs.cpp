@@ -19,6 +19,7 @@
 #include "pugixml.h"
 #include "roaring.hh"
 #include "global_stemma.h"
+#include "textual_flow.h"
 #include "witness.h"
 #include "apparatus.h"
 #include "variation_unit.h"
@@ -220,11 +221,12 @@ int main(int argc, char* argv[]) {
 		wit.set_potential_ancestor_ids(witnesses);
 	}
 	//If any type of textual flow diagrams are requested, then construct the textual flow diagrams for all variation units:
-	vector<variation_unit> vus = app.get_variation_units();
+	vector<textual_flow> tfs = vector<textual_flow>();
 	if (flow + attestations + variants > 0) {
 		cout << "Calculating textual flow for all variation units..." << endl;
-		for (variation_unit & vu : vus) {
-			vu.calculate_textual_flow(witnesses);
+		for (variation_unit vu : app.get_variation_units()) {
+			textual_flow tf = textual_flow(vu, witnesses);
+			tfs.push_back(tf);
 		}
 	}
 	//If specified, print all complete textual flow diagrams:
@@ -234,7 +236,7 @@ int main(int argc, char* argv[]) {
 		string flow_dir = "flow";
 		create_dir(flow_dir);
 		int vu_ind = 0;
-		for (variation_unit vu : vus) {
+		for (variation_unit vu : app.get_variation_units()) {
 			string filename;
 			//The filename base will be the ID of the variation unit, if it exists:
 			if (!vu.get_id().empty()) {
@@ -250,7 +252,8 @@ int main(int argc, char* argv[]) {
 			//Open a filestream:
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
-			vu.textual_flow_diagram_to_dot(dot_file);
+			textual_flow tf = tfs[vu_ind];
+			tf.textual_flow_to_dot(dot_file);
 			dot_file.close();
 			vu_ind++;
 		}
@@ -262,7 +265,7 @@ int main(int argc, char* argv[]) {
 		string attestations_dir = "attestations";
 		create_dir(attestations_dir);
 		int vu_ind = 0;
-		for (variation_unit vu : vus) {
+		for (variation_unit vu : app.get_variation_units()) {
 			for (string rdg : vu.get_readings()) {
 				string filename;
 				//The filename base will be the ID of the variation unit, if it exists:
@@ -280,7 +283,8 @@ int main(int argc, char* argv[]) {
 				//Open a filestream:
 				fstream dot_file;
 				dot_file.open(filepath, ios::out);
-				vu.textual_flow_diagram_for_reading_to_dot(rdg, dot_file);
+				textual_flow tf = tfs[vu_ind];
+				tf.coherence_in_attestations_to_dot(rdg, dot_file);
 				dot_file.close();
 			}
 			vu_ind++;
@@ -293,7 +297,7 @@ int main(int argc, char* argv[]) {
 		string variants_dir = "variants";
 		create_dir(variants_dir);
 		int vu_ind = 0;
-		for (variation_unit vu : vus) {
+		for (variation_unit vu : app.get_variation_units()) {
 			string filename;
 			//The filename base will be the ID of the variation unit, if it exists:
 			if (!vu.get_id().empty()) {
@@ -309,7 +313,8 @@ int main(int argc, char* argv[]) {
 			//Open a filestream:
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
-			vu.textual_flow_diagram_for_changes_to_dot(dot_file);
+			textual_flow tf = tfs[vu_ind];
+			tf.coherence_in_variant_passages_to_dot(dot_file);
 			dot_file.close();
 			vu_ind++;
 		}
@@ -323,7 +328,7 @@ int main(int argc, char* argv[]) {
 	for (witness & wit: witnesses) {
 		string wit_id = wit.get_id();
 		cout << "Optimizing substemmata for witness " << wit_id << "..." << endl;
-		wit.set_global_stemma_ancestors();
+		wit.set_global_stemma_ancestor_ids();
 	}
 	//Then initialize the global stemma:
 	global_stemma gs = global_stemma(witnesses);

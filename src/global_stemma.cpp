@@ -66,7 +66,7 @@ global_stemma::global_stemma(const list<witness> & witnesses) {
 			global_stemma_edge e;
 			e.ancestor = ancestor_id;
 			e.descendant = wit_id;
-			e.weight = float(wit.get_agreements_for_witness(ancestor_id).cardinality()) / float(max_agreements);
+			e.weight = wit.get_agreements_for_witness(ancestor_id).cardinality();
 			graph.edges.push_back(e);
 		}
 	}
@@ -116,7 +116,7 @@ void global_stemma::to_dot(ostream & out) {
 		float weight = e.weight;
 		out << "\t";
 		out << ancestor_index << " -> " << descendant_index;
-		out << " [penwidth=" << weight << ", arrowsize=" << weight << "]";
+		out << " [weight=" << weight << "]";
 		out << ";\n";
 	}
 	out << "}" << endl;

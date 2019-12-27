@@ -42,7 +42,7 @@ struct witness_comparison {
  * Prints the short usage message.
  */
 void usage() {
-	printf("usage: find_relatives [-h] [-t threshold] [--split] [--orth] [--def] input_xml witness passage\n\n");
+	printf("usage: find_relatives [-h] [-t threshold] [-r reading] [--split] [--orth] [--def] input_xml witness passage\n\n");
 	return;
 }
 
@@ -51,11 +51,12 @@ void usage() {
  */
 void help() {
 	usage();
-	printf("Get a table of genealogical relationships between the witness with the given ID and other witnesses, as specified by the user.\n\n");
+	printf("Get a table of genealogical relationships between the witness with the given ID and other witnesses at a given passage, as specified by the user.\n");
+	printf("Optionally, the user can optionally specify a reading ID for the given passage, in which case the output will be restricted to the witnesses preserving that reading.\n\n");
 	printf("optional arguments:\n");
 	printf("\t-h, --help: print usage manual\n");
 	printf("\t-t, --threshold: minimum extant readings threshold\n");
-	printf("\t-r, --reading: filter results for specific reading\n");
+	printf("\t-r, --reading: ID of desired variant reading\n");
 	printf("\t--split: treat split attestations as distinct readings\n");
 	printf("\t--orth: treat orthographic subvariants as distinct readings\n");
 	printf("\t--def: treat defective forms as distinct readings\n\n");
@@ -280,8 +281,27 @@ int main(int argc, char* argv[]) {
 			comparison.nr = -1;
 		}
 	}
-	cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << ":";
-	cout << "\n\n";
+	if (filter_reading.empty()) {
+		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " ";
+	}
+	else {
+		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " with reading " << filter_reading << " ";
+	}
+	//Get the readings supported by the primary witness:
+	if (reading_support.find(primary_wit_id) != reading_support.end()) {
+		cout << "(W1 RDG = ";
+		list<string> primary_wit_rdgs = reading_support.at(primary_wit_id);
+		for (string primary_wit_rdg : primary_wit_rdgs) {
+			if (primary_wit_rdg != primary_wit_rdgs.front()) {
+				cout << ", ";
+			}
+			cout << primary_wit_rdg;
+		}
+		cout << "):\n\n";
+	}
+	else {
+		cout << "(W1 is lacunose):\n\n";
+	}
 	cout << std::left << std::setw(8) << "W2";
 	cout << std::left << std::setw(4) << "DIR";
 	cout << std::right << std::setw(8) << "NR";
@@ -297,7 +317,7 @@ int main(int argc, char* argv[]) {
 	cout << "\n\n";
 	for (witness_comparison comparison : comparisons) {
 		string rdgs_str = "";
-		bool match = filter_reading == "" ? true : false;
+		bool match = filter_reading.empty() ? true : false;
 		for (string rdg : comparison.rdgs) {
 			if (rdg != comparison.rdgs.front()) {
 				rdgs_str += ", ";
@@ -310,7 +330,8 @@ int main(int argc, char* argv[]) {
 		if (!match) {
 			continue;
 		}
-		if (rdgs_str == "") {
+		//Handle lacunae:
+		if (rdgs_str.empty()) {
 			rdgs_str = "-";
 		}
 		cout << std::left << std::setw(8) << comparison.id;

@@ -113,8 +113,13 @@ int main(int argc, char* argv[]) {
 	//The remaining arguments are IDs of specific secondary witnesses to consider;
 	//if they are not specified, then we will include all witnesses:
 	set<string> secondary_wit_ids = set<string>();
+	list<string> secondary_wit_ids_ordered = list<string>();
 	for (int i = index; i < argc; i++) {
 		string secondary_wit_id = string(argv[i]);
+		//Add this entry to the ordered list if it hasn't already been added:
+		if (secondary_wit_ids.find(secondary_wit_id) == secondary_wit_ids.end()) {
+			secondary_wit_ids_ordered.push_back(secondary_wit_id);
+		}
 		secondary_wit_ids.insert(secondary_wit_id);
 	}
 	//The primary witness's ID should not occur again in this set:
@@ -213,8 +218,8 @@ int main(int argc, char* argv[]) {
 	}
 	else {
 		cout << " and witness(es) ";
-		for (string secondary_wit_id : secondary_wit_ids) {
-			if (secondary_wit_ids.find(secondary_wit_id) != secondary_wit_ids.begin()) {
+		for (string secondary_wit_id : secondary_wit_ids_ordered) {
+			if (secondary_wit_id != secondary_wit_ids_ordered.front()) {
 				cout << ", ";
 			}
 			cout << secondary_wit_id;

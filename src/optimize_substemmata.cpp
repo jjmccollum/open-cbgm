@@ -198,7 +198,12 @@ int main(int argc, char* argv[]) {
 		//Add it to the list:
 		secondary_witnesses.push_back(secondary_wit);
 	}
-	cout << "Finding optimal substemmata for witness " << primary_wit_id << "..." << endl;
+	if (fixed_ub < 0) {
+		cout << "Finding optimal substemmata for witness " << primary_wit_id << "..." << endl;
+	}
+	else {
+		cout << "Finding all substemmata for witness " << primary_wit_id << " with costs within " << fixed_ub << "..." << endl;
+	}
 	//Populate the primary witness's list of potential ancestors:
 	primary_wit.set_potential_ancestor_ids(secondary_witnesses);
 	//If this witness has no potential ancestors, then let the user know:

@@ -248,7 +248,7 @@ int main(int argc, char* argv[]) {
 			}
 			filename += "-textual-flow.dot";
 			//Complete the path to this file:
-			string filepath = flow_dir = "/" + filename;
+			string filepath = flow_dir + "/" + filename;
 			//Open a filestream:
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);

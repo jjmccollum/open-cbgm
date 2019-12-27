@@ -41,8 +41,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 	//Initialize the textual flow graph as empty:
 	graph.vertices = list<textual_flow_vertex>();
 	graph.edges = list<textual_flow_edge>();
-	//Get a copy of the variation unit's connectivity and reading support map:
-	int connectivity = vu.get_connectivity();
+	//Get a copy of the variation unit's reading support map:
 	unordered_map<string, list<string>> reading_support = vu.get_reading_support();
 	//Add vertices and edges for each witness in the input list:
 	for (witness wit : witnesses) {
@@ -54,7 +53,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		v.id = wit_id;
 		v.rdgs = wit_rdgs;
 		graph.vertices.push_back(v);
-		//If this witness has no potential ancestors (i.e., if it is the Ausgangstext),
+		//If this witness has no potential ancestors (i.e., if it has equal priority to the Ausgangstext),
 		//then there are no edges to add, and we can continue:
 		list<string> potential_ancestor_ids = wit.get_potential_ancestor_ids();
 		if (potential_ancestor_ids.empty()) {
@@ -290,7 +289,7 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 		list<string> ancestor_rdgs = v.rdgs;
 		string serialized = "";
 		for (string ancestor_rdg : ancestor_rdgs) {
-			if (ancestor_rdg == ancestor_rdgs.front()) {
+			if (ancestor_rdg != ancestor_rdgs.front()) {
 				serialized += ", ";
 			}
 			serialized += ancestor_rdg;

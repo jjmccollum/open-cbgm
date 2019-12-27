@@ -84,7 +84,7 @@ The autotools utilities are not natively supported on Windows, so installation w
 
 This will install Cygwin in the C:\tools\cygwin directory. Alternatively, you can download Cygwin from the official website (https://www.cygwin.com/) and install it at the location of your choice. For what follows, we will assume that Cygwin is installed at C:\tools\cygwin.
 
-(*TODO*: Need to figure out the remaining steps.)
+**(TODO: Need to figure out the remaining steps.)**
 
 Once these commands have executed, you should have all of the executable scripts added to the open-cbgm directory.
 
@@ -104,26 +104,26 @@ All of these scripts take the input collation XML file as a required command-lin
 
 To illustrate the difference, we present two versions of the local stemma for the variation unit at 3 John 1:4/22–26, one with split readings counted as distinct (i.e., using the argument `--split`), and the other with split readings and defective readings counted as distinct (i.e., using argument `--split --def`).
 
-![3 John 1:4/22–26, split readings distinct](https://jjmccollum.github.com/open-cbgm/images/B25K1V4U22-26-local-stemma-split.png)
-![3 John 1:4/22–26, split and defective readings distinct](https://jjmccollum.github.com/open-cbgm/images/B25K1V4U22-26-local-stemma-split-def.png)
+![3 John 1:4/22–26, split readings distinct](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-split.png)
+![3 John 1:4/22–26, split and defective readings distinct](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-split-def.png)
 
 ### Comparison of Witnesses
 
 The compare\_witnesses script is based on the "Comparison of Witnesses" module of the Genealogical Queries tool, but our implementation adds some flexibility. While the Genealogical Queries module only allows for the comparison of two witnesses at a time, compare\_witnesses can compare a given witness with any number of other specified witnesses. If our input XML collation file is the file example/3\_john\_collation.xml and we wanted to compare witness with ID 5 with the witnesses with IDs 03, 35, 88, 453, 1611, and 1739, then we would enter the following command from the open-cbgm directory:
 
-    ./compare\_witnesses examples/3\_john\_collation.xml 5 03 35 88 453 1611 1739
+    ./compare_witnesses examples/3_john_collation.xml 5 03 35 88 453 1611 1739
     
 The output of the script will resemble that of the Genealogical Queries module, but with additional rows in the comparison table. The rows are sorted in descending order of their PERC values (i.e., their percentage of agreement with the primary witness in the passages where both witnesses are extant).
 
-![Comparison of witness 5 with specified witnesses](https://jjmccollum.github.com/open-cbgm/images/compare_witnesses_5_03_35_88_453_1611_1739.png)
+![Comparison of witness 5 with specified witnesses](https://github.com/jjmccollum/open-cbgm/blob/master/images/compare_witnesses_5_03_35_88_453_1611_1739.png)
 
 We can go even further. If we do not specify any other witnesses explicitly, then the script will compare the one witness specified with all other witnesses taken from the collation. So the command
 
-    ./compare\_witnesses examples/3\_john\_collation.xml 5
+    ./compare_witnesses examples/3_john_collation.xml 5
     
 will return a table of genealogical comparisons between the witness with ID 5 and all other collated witnesses, as shown below.
 
-![Comparison of witness 5 with all other witnesses](https://jjmccollum.github.com/open-cbgm/images/compare_witnesses_5.png)
+![Comparison of witness 5 with all other witnesses](https://github.com/jjmccollum/open-cbgm/blob/master/images/compare_witnesses_5.png)
 
 Naturally, a comparison with all other witnesses will take longer to process than one with one or a few other witnesses, but the difference in practice is between three seconds and a fraction of a second.
 
@@ -131,19 +131,19 @@ Naturally, a comparison with all other witnesses will take longer to process tha
 
 The find\_relatives script is based on the "Comparison of Witnesses" module of the Genealogical Queries tool, but our implementation adds some flexibility. For a given witness and variation unit address, the script outputs a table of genealogical comparisons between the given witness and all other collated witnesses, just like the compare\_witnesses script does, but with an additional column indicating the readings of the other witnesses at the given variation unit. Following our earlier examples, if we want to list the relatives of witness 5 at 3 John 1:4/22–26 (the variation unit whose corresponding ID in the XML collation file is "B25K1V4U22-26"), then we would enter
 
-    ./find\_relatives examples/3\_john\_collation.xml 5 B25K1V4U22-26
+    ./find_relatives examples/3_john_collation.xml 5 B25K1V4U22-26
     
 This will produce an output like the one shown below.
 
-![Relatives of witness 5 at 3 John 1:4/22–26](https://jjmccollum.github.com/open-cbgm/images/find_relatives_5.png)
+![Relatives of witness 5 at 3 John 1:4/22–26](https://github.com/jjmccollum/open-cbgm/blob/master/images/find_relatives_5.png)
 
 If we want to filter the results for just those supporting reading d at this variation unit (which is how the Genealogical Queries module works by default), then we would add the optional argument `-r d` before the required arguments as follows:
 
-    ./find\_relatives examples/3\_john\_collation.xml -r d 5 B25K1V4U22-26
+    ./find_relatives examples/3_john_collation.xml -r d 5 B25K1V4U22-26
     
 This will produce the output shown below.
 
-![Relatives of witness 5 with reading d at 3 John 1:4/22–26](https://jjmccollum.github.com/open-cbgm/images/find_relatives_5_rdg_d.png)
+![Relatives of witness 5 with reading d at 3 John 1:4/22–26](https://github.com/jjmccollum/open-cbgm/blob/master/images/find_relatives_5_rdg_d.png)
 
 ### Substemma Optimization
 
@@ -151,19 +151,19 @@ In order to construct a global stemma, we need to isolate, for each witness, the
 
 To get the optimal substemma for witness 5 in 3 John, we would enter the following command:
 
-    ./optimize\_substemmata examples/3\_john\_collation.xml 5
+    ./optimize_substemmata examples/3_john_collation.xml 5
     
 This will produce the output displayed below.
 
-![Optimal substemma of witness 5 in 3 John](https://jjmccollum.github.com/open-cbgm/images/optimize_substemmata_5.png)
+![Optimal substemma of witness 5 in 3 John](https://github.com/jjmccollum/open-cbgm/blob/master/images/optimize_substemmata_5.png)
 
 This method is guaranteed to return a single substemma that is both feasible and optimal. In some cases, though, there may be multiple valid substemmata with the same cost, or there may be a valid substemma with a higher cost that we would consider preferable on other philological grounds. If we have an upper bound on the costs of substemmata we want to consider, then we can enumerate all feasible substemmata within that bound instead. For instance, if we want to consider all feasible substemmata for witness 5 with costs at or below 17, then we would use the optional argument `-b 17` before the required argument as follows:
 
-    ./optimize\_substemmata -b 17 examples/3\_john\_collation.xml 5
+    ./optimize_substemmata -b 17 examples/3_john_collation.xml 5
     
 This will produce an output like the one pictured below.
 
-![Substemmata of witness 5 with costs within 17 in 3 John](https://jjmccollum.github.com/open-cbgm/images/optimize_substemmata_5_bound_17.png)
+![Substemmata of witness 5 with costs within 17 in 3 John](https://github.com/jjmccollum/open-cbgm/blob/master/images/optimize_substemmata_5_bound_17.png)
 
 Be aware that specifying too high an upper bound may cause the procedure to take a long time.
 
@@ -180,15 +180,15 @@ All of this is accomplished with the print\_graphs script. It accepts the follow
 
 These arguments can be provided in any combination. If none of them is provided, then it is assumed that the user wants all graphs to be generated. So the command
 
-    ./print\_graphs examples/3\_john\_collation.xml
+    ./print_graphs examples/3_john_collation.xml
     
 will generate all graphs for the 3 John collation, while
 
-    ./print\_graphs --local examples/3\_john\_collation.xml
+    ./print_graphs --local examples/3_john_collation.xml
     
 will generate just the local stemma graphs, and
 
-    ./print\_graphs --flow --attestations --variants examples/3\_john\_collation.xml
+    ./print_graphs --flow --attestations --variants examples/3_john_collation.xml
     
 will generate all three types of textual flow diagrams.
 
@@ -201,19 +201,19 @@ will generate a PNG image file called B25K1V4U22-26-local-stemma.dot.png. (If yo
 Sample images of local stemmata have already been included at the beginning of the "Usage" section. For the sake of completeness, we have included sample images of the other types of graphs below.
 
 Complete textual flow diagram for 3 John 1:4/22–26:
-![3 John 1:4/22–26 complete textual flow diagram](https://jjmccollum.github.com/open-cbgm/images/B25K1V4U22-26-textual-flow.png)
+![3 John 1:4/22–26 complete textual flow diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-textual-flow.png)
 
 Coherence in attestations diagrams for all readings in 3 John 1:4/22–26 (substantive readings only):
-![3 John 1:4/22–26a coherence in attestations diagram](https://jjmccollum.github.com/open-cbgm/images/B25K1V4U22-26Ra-coherence-attestations.png)
-![3 John 1:4/22–26b coherence in attestations diagram](https://jjmccollum.github.com/open-cbgm/images/B25K1V4U22-26Rb-coherence-attestations.png)
-![3 John 1:4/22–26c coherence in attestations diagram](https://jjmccollum.github.com/open-cbgm/images/B25K1V4U22-26Rc-coherence-attestations.png)
-![3 John 1:4/22–26d coherence in attestations diagram](https://jjmccollum.github.com/open-cbgm/images/B25K1V4U22-26Rd-coherence-attestations.png)
+![3 John 1:4/22–26a coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Ra-coherence-attestations.png)
+![3 John 1:4/22–26b coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rb-coherence-attestations.png)
+![3 John 1:4/22–26c coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rc-coherence-attestations.png)
+![3 John 1:4/22–26d coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd-coherence-attestations.png)
 
 Coherence in variant passages diagram for 3 John 1:4/22–26:
-![3 John 1:4/22–26 coherence in variant passages diagram](https://jjmccollum.github.com/open-cbgm/images/B25K1V4U22-26-coherence-variants.png)
+![3 John 1:4/22–26 coherence in variant passages diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-coherence-variants.png)
 
 Complete global stemma for 3 John:
-![3 John 1:4/22–26a coherence in attestations diagram](https://jjmccollum.github.com/open-cbgm/images/global-stemma.png)
+![3 John 1:4/22–26a coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/global-stemma.png)
 
 ## Future Development
 

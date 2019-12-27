@@ -35,8 +35,8 @@ variation_unit::variation_unit() {
 variation_unit::variation_unit(const pugi::xml_node & xml, const set<string> & distinct_reading_types) {
 	//Populate the ID, if one is specified:
 	id = xml.attribute("xml:id") ? xml.attribute("xml:id").value() : (xml.attribute("id") ? xml.attribute("id").value() : (xml.attribute("n") ? xml.attribute("n").value() : ""));
-	//Populate the label:
-	label = (xml.child("label") && xml.child("label").text()) ? xml.child("label").text().get() : "";
+	//Populate the label, if one is specified (if not, use the ID):
+	label = (xml.child("label") && xml.child("label").text()) ? xml.child("label").text().get() : id;
 	//Populate the list of reading IDs and the witness-to-readings map,
 	//and for the local stemma, maintain a map of trivial subvariants to their nearest nontrivial parent readings:
 	readings = list<string>();

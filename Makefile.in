@@ -3,6 +3,9 @@ CXX := @CXX@ #compile (this will be set based on the platform in configuration)
 MV := mv -f #move
 RM := rm -f #remove
 
+#platform-dependent file suffixes
+EXEEXT := @EXEEXT@ #executable suffix (should be .exe for Windows, and nothing for everyone else
+
 all:
 #compiler flags
 CXXFLAGS := -O3 -Wall -I ./include -std=c++11
@@ -62,16 +65,16 @@ generated_dirs := \
 	global \
 
 #compile all executables from their implementation files, all linked objects, and external libraries:
-${programs} : % : src/%.cpp ${objects}
+${programs} : %${EXEEXT} : src/%.cpp ${objects}
 	${CXX} ${CXXFLAGS} -o $@ $< ${objects} ${libs}
 
-${tests} : % : %.cpp test/autotest.o ${objects} 
+${tests} : %${EXEEXT} : %.cpp test/autotest.o ${objects} 
 	${CXX} ${CXXFLAGS} -o $@ $< ${objects} ${libs}
 
 all: ${programs} ${tests} ${objects}
 
 check:
-	./test/autotest
+	./test/autotest${EXEEXT}
 
 .PHONY: clean #to prevent make from confusing the target for a file named "clean"
 

@@ -1,7 +1,7 @@
 # open-cbgm
 Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Based Genealogical Method
 
-[![Build Status](https://travis-ci.org/jjmccollum/open-cbgm.svg?branch=master)](https://travis-ci.org/jjmccollum/open-cbgm)
+[![Build Status](https://travis-ci.com/jjmccollum/open-cbgm.svg?token=nZWB24v9ybTTZm4tWaqm&branch=master)](https://travis-ci.com/jjmccollum/open-cbgm)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://choosealicense.com/licenses/mit/)
 
 ## About This Project

@@ -8,6 +8,8 @@ AC_LANG(C++)
 
 # Check for the C++ compiler used on this platform:
 AC_PROG_CXX
+# Check for the suffix for executable files (which, for Windows, must be .exe):
+AC_EXEEXT
 
 # Checks for support for standard header files:
 AC_CHECK_HEADERS([stdlib.h stdio.h getopt.h string.h wchar.h float.h stdint.h inttypes.h limits.h stddef.h], [], [AC_MSG_ERROR(Could not use standard headers)])
@@ -30,7 +32,6 @@ AC_FUNC_REALLOC
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([floor memmove memset select strchr strstr])
 
-# Initialize automake:
-#AM_INIT_AUTOMAKE
+# Output:
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

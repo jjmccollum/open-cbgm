@@ -5,13 +5,14 @@
  *      Author: jjmccollum
  */
 
-#include <getopt.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <list>
+#include <vector>
 #include <set>
 
+#include "cxxopts.h"
 #include "pugixml.h"
 #include "roaring.hh"
 #include "witness.h"
@@ -36,96 +37,80 @@ struct witness_comparison {
 };
 
 /**
- * Prints the short usage message.
- */
-void usage() {
-	printf("usage: compare_witnesses [-h] [-t threshold] [--split] [--orth] [--def] input_xml witness_1 [witness_2 ... witness_n]\n\n");
-	return;
-}
-
-/**
- * Prints the help message.
- */
-void help() {
-	usage();
-	printf("Get a table of genealogical relationships between the witness with the given ID and other witnesses, as specified by the user.\n\n");
-	printf("optional arguments:\n");
-	printf("\t-h, --help: print usage manual\n");
-	printf("\t-t, --threshold: minimum extant readings threshold\n");
-	printf("\t--split: treat split attestations as distinct readings\n");
-	printf("\t--orth: treat orthographic subvariants as distinct readings\n");
-	printf("\t--def: treat defective forms as distinct readings\n\n");
-	printf("positional arguments:\n");
-	printf("\tinput_xml: collation file in TEI XML format\n");
-	printf("\twitness_1: ID of the primary witness to be compared, as found in its <witness> element in the XML file\n");
-	printf("\twitness_2 ... witness_n: IDs of secondary witness to be compared to the primary witness (if not specified, then the primary witness will be compared to all other witnesses)\n\n");
-	return;
-}
-
-/**
  * Entry point to the script.
  */
 int main(int argc, char* argv[]) {
-	//Parse the command-line options:
-	int split = 0;
-	int orth = 0;
-	int def = 0;
+	//Read in the command-line options:
+	bool split = false;
+	bool orth = false;
+	bool def = false;
 	int threshold = 0;
-	const char* const short_opts = "ht:";
-	const option long_opts[] = {
-		{"split", no_argument, & split, 1},
-		{"orth", no_argument, & orth, 1},
-		{"def", no_argument, & def, 1},
-		{"threshold", required_argument, nullptr, 't'},
-		{"help", no_argument, nullptr, 'h'},
-		{nullptr, no_argument, nullptr, 0}
-	};
-	int opt;
-	while ((opt = getopt_long(argc, argv, short_opts, long_opts, NULL)) != -1) {
-		switch (opt) {
-			case 'h':
-				help();
-				return 0;
-			case 't':
-				threshold = atoi(optarg);
-				break;
-			case 0:
-				//This will happen if a long option is being parsed; just move on:
-				break;
-			default:
-				cerr << "Error: invalid argument." << endl;
-				usage();
-				exit(1);
-		}
-	}
-	//Parse the positional arguments:
-	int index = optind;
-	if (argc <= index + 1) {
-		cerr << "Error: At least 2 positional arguments (input_xml and witness_1) are required." << endl;
-		exit(1);
-	}
-	//The first positional argument is the XML file:
-	char * input_xml = argv[index];
-	index++;
-	//The next argument is the primary witness ID:
-	string primary_wit_id = string(argv[index]);
-	index++;
-	//The remaining arguments are IDs of specific secondary witnesses to consider;
-	//if they are not specified, then we will include all witnesses:
+	string input_xml = string();
+	string primary_wit_id = string();
 	set<string> secondary_wit_ids = set<string>();
-	list<string> secondary_wit_ids_ordered = list<string>();
-	for (int i = index; i < argc; i++) {
-		string secondary_wit_id = string(argv[i]);
-		//Add this entry to the ordered list if it hasn't already been added:
-		if (secondary_wit_ids.find(secondary_wit_id) == secondary_wit_ids.end()) {
-			secondary_wit_ids_ordered.push_back(secondary_wit_id);
+	list<string> secondary_wit_ids_ordered = list<string>(); //for printing purposes
+	try {
+		cxxopts::Options options("compare_witnesses", "Get a table of genealogical relationships between the witness with the given ID and other witnesses, as specified by the user.");
+		options.custom_help("[-h] [-t threshold] [--split] [--orth] [--def] input_xml witness [secondary_witnesses]");
+		//options.positional_help("").show_positional_help();
+		options.add_options("")
+				("h,help", "print this help")
+				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
+				("split", "treat split attestations as distinct readings", cxxopts::value<bool>())
+				("orth", "treat orthographic subvariants as distinct readings", cxxopts::value<bool>())
+				("def", "treat defective forms as distinct readings", cxxopts::value<bool>());
+		options.add_options("positional arguments")
+				("input_xml", "collation file in TEI XML format", cxxopts::value<string>())
+				("witness", "ID of the primary witness to be compared, as found in its <witness> element in the XML file", cxxopts::value<string>())
+				("secondary_witnesses", "IDs of secondary witness to be compared to the primary witness (if not specified, then the primary witness will be compared to all other witnesses)", cxxopts::value<vector<string>>());
+		options.parse_positional({"input_xml", "witness", "secondary_witnesses"});
+		auto args = options.parse(argc, argv);
+		//Print help documentation and exit if specified:
+		if (args.count("help")) {
+			cout << options.help({""}) << endl;
+			exit(0);
 		}
-		secondary_wit_ids.insert(secondary_wit_id);
+		//Parse the optional arguments:
+		if (args.count("t")) {
+			threshold = args["t"].as<int>();
+		}
+		if (args.count("split")) {
+			split = args["split"].as<bool>();
+		}
+		if (args.count("orth")) {
+			split = args["orth"].as<bool>();
+		}
+		if (args.count("def")) {
+			split = args["def"].as<bool>();
+		}
+		//Parse the positional arguments:
+		if (!args.count("input_xml") || !args.count("witness")) {
+			cerr << "Error: At least 2 positional arguments (input_xml and witness) are required." << endl;
+			exit(1);
+		}
+		else {
+			input_xml = args["input_xml"].as<string>();
+			primary_wit_id = args["witness"].as<string>();
+		}
+		if (args.count("secondary_witnesses")) {
+			vector<string> secondary_witnesses = args["secondary_witnesses"].as<vector<string>>();
+			for (string secondary_wit_id : secondary_witnesses) {
+				//The primary witness's ID should not occur again as a secondary witness:
+				if (secondary_wit_id == primary_wit_id) {
+					cerr << "Error: the primary witness ID should not be included in the list of secondary witnesses." << endl;
+					exit(1);
+				}
+				//Add this entry to the ordered list if it hasn't already been added:
+				if (secondary_wit_ids.find(secondary_wit_id) == secondary_wit_ids.end()) {
+					secondary_wit_ids_ordered.push_back(secondary_wit_id);
+				}
+				secondary_wit_ids.insert(secondary_wit_id);
+			}
+		}
 	}
-	//The primary witness's ID should not occur again in this set:
-	if (secondary_wit_ids.find(primary_wit_id) != secondary_wit_ids.end()) {
-		cerr << "Error: the primary witness ID should not be included in the list of secondary witness." << endl;
-		exit(1);
+	catch (const cxxopts::OptionException & e) {
+		cerr << "Error parsing options: " << e.what() << endl;
+		exit(-1);
 	}
 	//Using the input flags, populate a set of reading types to be treated as distinct:
 	set<string> distinct_reading_types = set<string>();
@@ -143,7 +128,7 @@ int main(int argc, char* argv[]) {
 	}
 	//Attempt to parse the input XML file as an apparatus:
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(input_xml);
+	pugi::xml_parse_result result = doc.load_file(input_xml.c_str());
 	if (!result) {
 		cerr << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
@@ -197,21 +182,6 @@ int main(int argc, char* argv[]) {
 	else {
 		list_wit = app.get_list_wit();
 	}
-	//Then initialize the primary witness:
-	witness primary_wit = witness(primary_wit_id, list_wit, app);
-	//Then populate a list of secondary witnesses:
-	list<witness> secondary_witnesses = list<witness>();
-	for (string secondary_wit_id : list_wit) {
-		//Skip the primary witness:
-		if (secondary_wit_id == primary_wit_id) {
-			continue;
-		}
-		//Initialize the secondary witness relative to the primary witness:
-		list<string> secondary_list_wit = list<string>({primary_wit_id, secondary_wit_id});
-		witness secondary_wit = witness(secondary_wit_id, secondary_list_wit, app);
-		//Add it to the list:
-		secondary_witnesses.push_back(secondary_wit);
-	}
 	cout << "Calculating genealogical relationships between witness " << primary_wit_id;
 	if (secondary_wit_ids.empty()) {
 		cout << " and all other witnesses...";
@@ -227,6 +197,21 @@ int main(int argc, char* argv[]) {
 		cout << "...";
 	}
 	cout << endl;
+	//Then initialize the primary witness:
+	witness primary_wit = witness(primary_wit_id, list_wit, app);
+	//Then populate a list of secondary witnesses:
+	list<witness> secondary_witnesses = list<witness>();
+	for (string secondary_wit_id : list_wit) {
+		//Skip the primary witness:
+		if (secondary_wit_id == primary_wit_id) {
+			continue;
+		}
+		//Initialize the secondary witness relative to the primary witness:
+		list<string> secondary_list_wit = list<string>({primary_wit_id, secondary_wit_id});
+		witness secondary_wit = witness(secondary_wit_id, secondary_list_wit, app);
+		//Add it to the list:
+		secondary_witnesses.push_back(secondary_wit);
+	}
 	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
 	list<witness_comparison> comparisons = list<witness_comparison>();
 	Roaring primary_extant = primary_wit.get_explained_readings_for_witness(primary_wit_id);

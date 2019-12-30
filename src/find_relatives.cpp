@@ -5,14 +5,15 @@
  *      Author: jjmccollum
  */
 
-#include <getopt.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <list>
+#include <vector>
 #include <set>
 #include <unordered_map>
 
+#include "cxxopts.h"
 #include "pugixml.h"
 #include "roaring.hh"
 #include "witness.h"
@@ -39,89 +40,71 @@ struct witness_comparison {
 };
 
 /**
- * Prints the short usage message.
- */
-void usage() {
-	printf("usage: find_relatives [-h] [-t threshold] [-r reading] [--split] [--orth] [--def] input_xml witness passage\n\n");
-	return;
-}
-
-/**
- * Prints the help message.
- */
-void help() {
-	usage();
-	printf("Get a table of genealogical relationships between the witness with the given ID and other witnesses at a given passage, as specified by the user.\n");
-	printf("Optionally, the user can optionally specify a reading ID for the given passage, in which case the output will be restricted to the witnesses preserving that reading.\n\n");
-	printf("optional arguments:\n");
-	printf("\t-h, --help: print usage manual\n");
-	printf("\t-t, --threshold: minimum extant readings threshold\n");
-	printf("\t-r, --reading: ID of desired variant reading\n");
-	printf("\t--split: treat split attestations as distinct readings\n");
-	printf("\t--orth: treat orthographic subvariants as distinct readings\n");
-	printf("\t--def: treat defective forms as distinct readings\n\n");
-	printf("positional arguments:\n");
-	printf("\tinput_xml: collation file in TEI XML format\n");
-	printf("\twitness: ID of the witness whose relatives are desired, as found in its <witness> element in the XML file\n");
-	printf("\tpassage: ID or index (0-based) of the variation unit at which relatives' readings are desired\n");
-	return;
-}
-
-/**
  * Entry point to the script.
  */
 int main(int argc, char* argv[]) {
-	//Parse the command-line options:
-	int split = 0;
-	int orth = 0;
-	int def = 0;
+	//Read in the command-line options:
+	bool split = false;
+	bool orth = false;
+	bool def = false;
 	int threshold = 0;
-	string filter_reading = "";
-	const char* const short_opts = "ht:r:";
-	const option long_opts[] = {
-		{"split", no_argument, & split, 1},
-		{"orth", no_argument, & orth, 1},
-		{"def", no_argument, & def, 1},
-		{"threshold", required_argument, nullptr, 't'},
-		{"reading", required_argument, nullptr, 'r'},
-		{"help", no_argument, nullptr, 'h'},
-		{nullptr, no_argument, nullptr, 0}
-	};
-	int opt;
-	while ((opt = getopt_long(argc, argv, short_opts, long_opts, NULL)) != -1) {
-		switch (opt) {
-			case 'h':
-				help();
-				return 0;
-			case 't':
-				threshold = atoi(optarg);
-				break;
-			case 'r':
-				filter_reading = optarg;
-				break;
-			case 0:
-				//This will happen if a long option is being parsed; just move on:
-				break;
-			default:
-				cerr << "Error: invalid argument." << endl;
-				usage();
-				exit(1);
+	string filter_reading = string();
+	string input_xml = string();
+	string primary_wit_id = string();
+	string vu_id = string();
+	try {
+		cxxopts::Options options("find_relatives", "Get a table of genealogical relationships between the witness with the given ID and other witnesses at a given passage, as specified by the user.\nOptionally, the user can optionally specify a reading ID for the given passage, in which case the output will be restricted to the witnesses preserving that reading.");
+		options.custom_help("[-h] [-t threshold] [-r reading] [--split] [--orth] [--def] input_xml witness passage");
+		//options.positional_help("").show_positional_help();
+		options.add_options("")
+				("h,help", "print this help")
+				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
+				("r,reading", "ID of desired variant reading", cxxopts::value<string>())
+				("split", "treat split attestations as distinct readings", cxxopts::value<bool>())
+				("orth", "treat orthographic subvariants as distinct readings", cxxopts::value<bool>())
+				("def", "treat defective forms as distinct readings", cxxopts::value<bool>());
+		options.add_options("positional")
+				("input_xml", "collation file in TEI XML format", cxxopts::value<string>())
+				("witness", "ID of the witness whose relatives are desired, as found in its <witness> element in the XML file", cxxopts::value<string>())
+				("passage", "ID or index (0-based) of the variation unit at which relatives' readings are desired", cxxopts::value<vector<string>>());
+		options.parse_positional({"input_xml", "witness", "passage"});
+		auto args = options.parse(argc, argv);
+		//Print help documentation and exit if specified:
+		if (args.count("help")) {
+			cout << options.help({""}) << endl;
+			exit(0);
+		}
+		//Parse the optional arguments:
+		if (args.count("t")) {
+			threshold = args["t"].as<int>();
+		}
+		if (args.count("r")) {
+			filter_reading = args["r"].as<string>();
+		}
+		if (args.count("split")) {
+			split = args["split"].as<bool>();
+		}
+		if (args.count("orth")) {
+			split = args["orth"].as<bool>();
+		}
+		if (args.count("def")) {
+			split = args["def"].as<bool>();
+		}
+		//Parse the positional arguments:
+		if (!args.count("input_xml") || !args.count("witness") || args.count("passage") != 1) {
+			cerr << "Error: 3 positional arguments (input_xml, witness, and passage) are required." << endl;
+			exit(1);
+		}
+		else {
+			input_xml = args["input_xml"].as<string>();
+			primary_wit_id = args["witness"].as<string>();
+			vu_id = args["passage"].as<vector<string>>()[0];
 		}
 	}
-	//Parse the positional arguments:
-	int index = optind;
-	if (argc <= index + 2) {
-		cerr << "Error: 3 positional arguments (input_xml, witness, and passage) are required." << endl;
-		exit(1);
+	catch (const cxxopts::OptionException & e) {
+		cerr << "Error parsing options: " << e.what() << endl;
+		exit(-1);
 	}
-	//The first positional argument is the XML file:
-	char * input_xml = argv[index];
-	index++;
-	//The next argument is the primary witness ID:
-	string primary_wit_id = string(argv[index]);
-	index++;
-	//The next argument is the variation unit ID or index:
-	string vu_id = string(argv[index]);
 	//Using the input flags, populate a set of reading types to be treated as distinct:
 	set<string> distinct_reading_types = set<string>();
 	if (split) {
@@ -138,7 +121,7 @@ int main(int argc, char* argv[]) {
 	}
 	//Attempt to parse the input XML file as an apparatus:
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(input_xml);
+	pugi::xml_parse_result result = doc.load_file(input_xml.c_str());
 	if (!result) {
 		cerr << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
@@ -217,6 +200,7 @@ int main(int argc, char* argv[]) {
 	else {
 		list_wit = app.get_list_wit();
 	}
+	cout << "Calculating genealogical relationships between witness " << primary_wit_id << " and all other witnesses..." << endl;
 	//Then initialize the primary witness:
 	witness primary_wit = witness(primary_wit_id, list_wit, app);
 	//Then populate a list of secondary witnesses:
@@ -232,7 +216,7 @@ int main(int argc, char* argv[]) {
 		//Add it to the list:
 		secondary_witnesses.push_back(secondary_wit);
 	}
-	cout << "Calculating relative comparisons for " << primary_wit_id << " at " << vu_label << "..." << endl;
+	cout << "Sorting relatives for " << primary_wit_id << " at " << vu_label << "..." << endl;
 	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
 	list<witness_comparison> comparisons = list<witness_comparison>();
 	unordered_map<string, list<string>> reading_support = vu.get_reading_support();

@@ -14,8 +14,8 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
-#include <getopt.h>
 
+#include "cxxopts.h"
 #include "pugixml.h"
 #include "roaring.hh"
 #include "global_stemma.h"
@@ -41,98 +41,85 @@ int create_dir(const string & dir) {
 }
 
 /**
- * Prints the short usage message.
- */
-void usage() {
-	printf("usage: print_graphs [-h] [-t threshold] [--split] [--orth] [--def] [--local] [--flow] [--attestations] [--variants] [--global] input_xml\n\n");
-	return;
-}
-
-/**
- * Prints the help message.
- */
-void help() {
-	usage();
-	printf("Prints diagrams of CBGM graphs to .dot output files. The output files will be organized in separate directories based on diagram type.\n\n");
-	printf("optional arguments:\n");
-	printf("\t-h, --help: print usage manual\n");
-	printf("\t-t, --threshold: minimum extant readings threshold\n");
-	printf("\t--split: treat split attestations as distinct readings\n");
-	printf("\t--orth: treat orthographic subvariants as distinct readings\n");
-	printf("\t--def: treat defective forms as distinct readings\n");
-	printf("\t--local: print local stemmata diagrams\n");
-	printf("\t--flow: print complete textual flow diagrams for all passages\n");
-	printf("\t--attestations: print coherence in attestation textual flow diagrams for all readings at all passages\n");
-	printf("\t--variants: print coherence at variant passages diagrams (i.e., textual flow diagrams restricted to flow between different readings) at all passages\n");
-	printf("\t--global: print global stemma diagram (this may take several minutes)\n\n");
-	printf("positional arguments:\n");
-	printf("\tinput_xml: collation file in TEI XML format\n");
-	return;
-}
-
-/**
  * Entry point to the script.
  */
 int main(int argc, char* argv[]) {
-	//Parse the command-line options:
-	int split = 0;
-	int orth = 0;
-	int def = 0;
+	//Read in the command-line options:
+	bool split = false;
+	bool orth = false;
+	bool def = false;
+	bool local = false;
+	bool flow = false;
+	bool attestations = false;
+	bool variants = false;
+	bool global = false;
 	int threshold = 0;
-	int local = 0;
-	int flow = 0;
-	int attestations = 0;
-	int variants = 0;
-	int global = 0;
-	const char* const short_opts = "ht:";
-	const option long_opts[] = {
-		{"split", no_argument, & split, 1},
-		{"orth", no_argument, & orth, 1},
-		{"def", no_argument, & def, 1},
-		{"threshold", required_argument, nullptr, 't'},
-		{"local", no_argument, & local, 1},
-		{"flow", no_argument, & flow, 1},
-		{"attestations", no_argument, & attestations, 1},
-		{"variants", no_argument, & variants, 1},
-		{"global", no_argument, & global, 1},
-		{"help", no_argument, nullptr, 'h'},
-		{nullptr, no_argument, nullptr, 0}
-	};
-	int opt;
-	while ((opt = getopt_long(argc, argv, short_opts, long_opts, NULL)) != -1) {
-		switch (opt) {
-			case 'h':
-				help();
-				return 0;
-			case 't':
-				threshold = atoi(optarg);
-				break;
-			case 0:
-				//This will happen if a long option is being parsed; just move on:
-				break;
-			default:
-				cerr << "Error: invalid argument." << endl;
-				usage();
-				exit(1);
+	string input_xml = string();
+	try {
+		cxxopts::Options options("print_graphs", "Prints diagrams of CBGM graphs to .dot output files. The output files will be organized in separate directories based on diagram type.");
+		options.custom_help("[-h] [-t threshold] [--split] [--orth] [--def] [--local] [--flow] [--attestations] [--variants] [--global] input_xml");
+		//options.positional_help("").show_positional_help();
+		options.add_options("")
+				("h,help", "print this help")
+				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
+				("split", "treat split attestations as distinct readings", cxxopts::value<bool>())
+				("orth", "treat orthographic subvariants as distinct readings", cxxopts::value<bool>())
+				("def", "treat defective forms as distinct readings", cxxopts::value<bool>())
+				("local", "print local stemmata diagrams", cxxopts::value<bool>())
+				("flow", "print complete textual flow diagrams for all passages", cxxopts::value<bool>())
+				("attestations", "print coherence in attestation textual flow diagrams for all readings at all passages", cxxopts::value<bool>())
+				("variants", "print coherence at variant passages diagrams (i.e., textual flow diagrams restricted to flow between different readings) at all passages", cxxopts::value<bool>())
+				("global", "print global stemma diagram (this may take a while)", cxxopts::value<bool>());
+		options.add_options("positional")
+				("input_xml", "collation file in TEI XML format", cxxopts::value<vector<string>>());
+		options.parse_positional({"input_xml"});
+		auto args = options.parse(argc, argv);
+		//Print help documentation and exit if specified:
+		if (args.count("help")) {
+			cout << options.help({""}) << endl;
+			exit(0);
+		}
+		//Parse the optional arguments:
+		if (args.count("t")) {
+			threshold = args["t"].as<int>();
+		}
+		if (args.count("split")) {
+			split = args["split"].as<bool>();
+		}
+		if (args.count("orth")) {
+			split = args["orth"].as<bool>();
+		}
+		if (args.count("def")) {
+			split = args["def"].as<bool>();
+		}
+		if (args.count("local")) {
+			local = args["local"].as<bool>();
+		}
+		if (args.count("flow")) {
+			flow = args["flow"].as<bool>();
+		}
+		if (args.count("attestations")) {
+			attestations = args["attestations"].as<bool>();
+		}
+		if (args.count("variants")) {
+			variants = args["variants"].as<bool>();
+		}
+		if (args.count("global")) {
+			global = args["global"].as<bool>();
+		}
+		//Parse the positional arguments:
+		if (args.count("input_xml") != 1) {
+			cerr << "Error: 1 positional argument (input_xml) is required." << endl;
+			exit(1);
+		}
+		else {
+			input_xml = args["input_xml"].as<vector<string>>()[0];
 		}
 	}
-	//If no graphs are specified for printing, then print all of them:
-	if (local + flow + attestations + variants + global == 0) {
-		local = 1;
-		flow = 1;
-		attestations = 1;
-		variants = 1;
-		global = 1;
+	catch (const cxxopts::OptionException & e) {
+		cerr << "Error parsing options: " << e.what() << endl;
+		exit(-1);
 	}
-	//Parse the positional arguments:
-	int index = optind;
-	if (argc <= index) {
-		cerr << "Error: 1 positional argument (input_xml) is required." << endl;
-		exit(1);
-	}
-	//The first positional argument is the XML file:
-	char * input_xml = argv[index];
-	index++;
 	//Using the input flags, populate a set of reading types to be treated as distinct:
 	set<string> distinct_reading_types = set<string>();
 	if (split) {
@@ -147,9 +134,17 @@ int main(int argc, char* argv[]) {
 		//Treat defective variants as distinct:
 		distinct_reading_types.insert("defective");
 	}
+	//If no graphs are specified for printing, then print all of them:
+	if (!(local || flow || attestations || variants || global)) {
+		local = true;
+		flow = true;
+		attestations = true;
+		variants = true;
+		global = true;
+	}
 	//Attempt to parse the input XML file as an apparatus:
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(input_xml);
+	pugi::xml_parse_result result = doc.load_file(input_xml.c_str());
 	if (!result) {
 		cerr << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
 		exit(1);
@@ -190,7 +185,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	//If no other flags are set, then we're done:
-	if (flow + attestations + variants + global == 0) {
+	if (!(flow || attestations || variants || global)) {
 		exit(0);
 	}
 	//If the user has specified a minimum extant readings threshold,
@@ -222,7 +217,7 @@ int main(int argc, char* argv[]) {
 	}
 	//If any type of textual flow diagrams are requested, then construct the textual flow diagrams for all variation units:
 	vector<textual_flow> tfs = vector<textual_flow>();
-	if (flow + attestations + variants > 0) {
+	if (!(flow || attestations || variants)) {
 		cout << "Calculating textual flow for all variation units..." << endl;
 		for (variation_unit vu : app.get_variation_units()) {
 			textual_flow tf = textual_flow(vu, witnesses);
@@ -320,7 +315,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	//If no other flags are set, then we're done:
-	if (global == 0) {
+	if (!global) {
 		exit(0);
 	}
 	//Otherwise, optimize the substemmata for all witnesses:

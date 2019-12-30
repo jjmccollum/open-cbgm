@@ -3,6 +3,7 @@ set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/include)
 
 # Add header files:
 set(HEADERS
+	${HEADERS_DIR}/cxxopts.h
 	${HEADERS_DIR}/roaring.h
 	${HEADERS_DIR}/roaring.hh
 	${HEADERS_DIR}/pugiconfig.h

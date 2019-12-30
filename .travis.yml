@@ -8,13 +8,10 @@ matrix:
       compiler: clang
 #    - os: windows
 #      compiler: gcc
-#      before_install:
-#        - choco install cygwin
-#        - C:\\tools\\cygwin\\cygwinsetup.exe -q -P autoconf,make
-#        - export PATH=C:\\tools\\cygwin\\bin:$PATH
 
 script:
-  - autoconf #run autoconf to generate configure script based on platform features
-  - ./configure #run generated configure script, which in turn will generate a platform-specific Makefile
-  - make #build the project using the generated Makefile
-  - make check #run unit tests
+  - mkdir -p build #create the directory to store the build in
+  - cd build #navigate into the directory
+  - cmake .. #invoke CMake, placing the build in the build directory
+  - make
+  - make test

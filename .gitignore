@@ -37,6 +37,10 @@
 # Python scripts
 py/
 
+# cmake byproducts
+build/
+test/config.h
+
 # autotools byproducts
 autom4te.cache/
 config.log

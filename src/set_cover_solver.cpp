@@ -409,7 +409,7 @@ void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 	subproblem_solver.branch_and_bound(subproblem_solutions);
 	//Sort the subproblem solutions in order of their costs, then cardinalities:
 	subproblem_solutions.sort([](const set_cover_solution & s1, const set_cover_solution & s2) {
-		return s1.cost < s2.cost ? true : (s1.cost > s2.cost ? false : (s1.rows.size() < s2.rows.size() ? true : (s1.rows.size() > s2.rows.size() ? false : true)));
+		return s1.cost < s2.cost ? true : (s1.cost > s2.cost ? false : (s1.rows.size() < s2.rows.size() ? true : (s1.rows.size() > s2.rows.size() ? false : false)));
 	});
 	//Then add the unique coverage rows found earlier to the subproblem solutions:
 	for (set_cover_solution subproblem_solution : subproblem_solutions) {

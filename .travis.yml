@@ -30,7 +30,7 @@ matrix:
         - ctest -C Debug #test using CTest
     #Windows, g++ and make via MinGW 
     - os: windows
-    - compiler: x86_64-w64-mingw32-gcc
+      compiler: x86_64-w64-mingw32-gcc
 #      env:
 #        - COMPILER="CC=x86_64-w64-mingw32-gcc && CXX=x86_64-w64-mingw32-g++"
       script:

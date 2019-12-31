@@ -35,6 +35,6 @@ matrix:
       script:
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory
-        - cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ .. #invoke CMake, placing the build in the build directory
+        - cmake -G "MinGW Makefiles" .. #invoke CMake, placing the build in the build directory
         - make #build using the generated Makefile
         - make test #test using the generated Makefile

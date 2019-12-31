@@ -5,6 +5,9 @@
  *      Author: jjmccollum
  */
 
+#ifdef _WIN32
+	#include <direct.h> //for Windows _mkdir() support
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <iostream>

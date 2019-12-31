@@ -30,10 +30,12 @@ matrix:
         - ctest -C Debug #test using CTest
     #Windows, g++ and make via MinGW 
     - os: windows
-      compiler: gcc
+    - compiler: x86_64-w64-mingw32-gcc
+#      env:
+#        - COMPILER="CC=x86_64-w64-mingw32-gcc && CXX=x86_64-w64-mingw32-g++"
       script:
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory
         - cmake .. #invoke CMake, placing the build in the build directory
-        - mingw32-make #build using the generated Makefile
-        - mingw32-make test #test using the generated Makefile
+        - make #build using the generated Makefile
+        - make test #test using the generated Makefile

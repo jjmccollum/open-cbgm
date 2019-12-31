@@ -29,12 +29,12 @@ matrix:
         - cmake --build . #build using CMake
         - ctest -C Debug #test using CTest
     #Windows, g++ and make via MinGW 
-    #TODO: We can do the build from the Makefile using mingw32-make, but we can't run test elegantly using a single command like "make test". 
-    #The best option is probably to install MinGW+MSYS, but this is more complicated.
-    - os: windows
-      script:
-        - mkdir build #create the directory to store the build in
-        - cd build #navigate into the directory
-        - cmake -DCMAKE_SH="CMAKE_SH-NOTFOUND" -G "MinGW Makefiles" .. #invoke CMake, placing the build in the build directory
-        - mingw32-make #build using the generated Makefile
-        - test/autotest #test manually
+    #TODO: cmake breaks when it tries to link the executables to the object library;
+    #I'm not sure yet why this only happens with the "MinGW Makefiles" generator.
+#    - os: windows
+#      script:
+#        - mkdir build #create the directory to store the build in
+#        - cd build #navigate into the directory
+#       - cmake -DCMAKE_SH="CMAKE_SH-NOTFOUND" -G "MinGW Makefiles" .. #invoke CMake, placing the build in the build directory
+#        - mingw32-make #build using the generated Makefile
+#        - test/autotest #test manually

@@ -31,7 +31,8 @@ matrix:
     #Windows, g++ and make via MinGW 
     - os: windows
       before_install:
-        - export MAKE=mingw32-make
+#        - export MAKE=mingw32-make
+        - export PATH=C/MinGW/bin:$PATH
       script:
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory

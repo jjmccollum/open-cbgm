@@ -30,6 +30,7 @@ matrix:
         - ctest -C Debug #test using CTest
     #Windows, g++ and make via MinGW 
     - os: windows
+      compiler: gcc
       script:
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory

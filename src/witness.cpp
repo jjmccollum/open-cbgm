@@ -183,7 +183,7 @@ bool witness::pregenealogical_comp(const witness & w1, const witness & w2) {
 	Roaring extant = explained_readings_by_witness.at(id);
 	float pregenealogical_similarity_to_w1 = float(agreements_with_w1.cardinality()) / float(extant.cardinality());
 	float pregenealogical_similarity_to_w2 = float(agreements_with_w2.cardinality()) / float(extant.cardinality());
-	return pregenealogical_similarity_to_w1 > pregenealogical_similarity_to_w2 ? true : (pregenealogical_similarity_to_w1 < pregenealogical_similarity_to_w2 ? false : true);
+	return pregenealogical_similarity_to_w1 > pregenealogical_similarity_to_w2 ? true : (pregenealogical_similarity_to_w1 < pregenealogical_similarity_to_w2 ? false : false);
 }
 
 /**

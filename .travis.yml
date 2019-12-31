@@ -2,21 +2,37 @@ language: cpp
 
 matrix:
   include:
+    #Linux, g++
     - os: linux
       compiler: gcc
+      script:
+        - mkdir build #create the directory to store the build in
+        - cd build #navigate into the directory
+        - cmake .. #invoke CMake, placing the build in the build directory
+        - make #build using the generated Makefile
+        - make test #test using the generated Makefile
+    #MacOS, clang
     - os: osx
       compiler: clang
+      script:
+        - mkdir build #create the directory to store the build in
+        - cd build #navigate into the directory
+        - cmake .. #invoke CMake, placing the build in the build directory
+        - make #build using the generated Makefile
+        - make test #test using the generated Makefile
+    #Windows, Visual Studio
     - os: windows
-
-script:
-  - mkdir -p build #create the directory to store the build in
-  - cd build #navigate into the directory
-  - cmake .. #invoke CMake, placing the build in the build directory
-  - |
-    if [ $TRAVIS_OS_NAME == "windows"]; then
-      cmake --build ./; #build the code using CMake
-      ctest -C Debug; #test the code in debug mode using CTest
-    else
-      make; #build the code using the generated Makefile
-      make test; #test the code using the generated Makefile
-    fi
+      script:
+        - mkdir build #create the directory to store the build in
+        - cd build #navigate into the directory
+        - cmake .. #invoke CMake, placing the build in the build directory
+        - cmake --build . #build using CMake
+        - ctest -C Debug #test using CTest
+    #Windows, g++ and make via MinGW 
+    - os: windows
+      script:
+        - mkdir build #create the directory to store the build in
+        - cd build #navigate into the directory
+        - cmake .. #invoke CMake, placing the build in the build directory
+        - mingw32-make #build using the generated Makefile
+        - mingw32-make test #test using the generated Makefile

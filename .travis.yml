@@ -6,12 +6,17 @@ matrix:
       compiler: gcc
     - os: osx
       compiler: clang
-#    - os: windows
-#      compiler: gcc
+    - os: windows
 
 script:
   - mkdir -p build #create the directory to store the build in
   - cd build #navigate into the directory
   - cmake .. #invoke CMake, placing the build in the build directory
-  - make
-  - make test
+  - |
+    if [ $TRAVIS_OS_NAME == "windows"]; then
+      cmake --build ./; #build the code using CMake
+      ctest -C Debug; #test the code in debug mode using CTest
+    else
+      make; #build the code using the generated Makefile
+      make test; #test the code using the generated Makefile
+    fi

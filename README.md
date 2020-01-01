@@ -14,7 +14,7 @@ To learn more about the CBGM, see Tommy Wasserman and Peter J. Gurry, _A New App
 
 ### Design Philosophy
 
-This is not the first software implementation of the CBGM. To our knowledge, the earliest software designed for this purpose is the Genealogical Queries tool developed by the INTF (http://intf.uni-muenster.de/cbgm2/GenQ.html). The underlying data is restricted to the Catholic Epistles, and both the collation data and the source code are inaccessible to the user. More recently, the INTF and the Cologne Center for eHumanities (CCeH) have made significant updates in a version used for Acts (https://ntg.cceh.uni-koeln.de/acts/ph4/). While this updated version is transparent with the collation data, the local stemmata are currently not editable, and the underlying code is not open-source. Most recently, Andrew Edmondson developed an open-source Python implementation of the CBGM (https://github.com/edmondac/CBGM, DOI 10.5281/zenodo.1296288), though his description implies that it is more intended for experimentation than for practical use: "It was designed for testing and changing the various algorithms and is not (therefore) the fastest user-facing package."
+This is not the first software implementation of the CBGM. To our knowledge, the earliest software designed for this purpose is the Genealogical Queries tool developed by the INTF (http://intf.uni-muenster.de/cbgm2/GenQ.html). The underlying data is restricted to the Catholic Epistles, and both the collation data and the source code are inaccessible to the user. More recently, the INTF and the Cologne Center for eHumanities (CCeH) have made significant updates in a version used for Acts (https://ntg.cceh.uni-koeln.de/acts/ph4/). While this updated version is transparent with the collation data, the local stemmata are currently not editable, and the underlying code is not open-source. Most recently, Andrew Edmondson developed an open-source Python implementation of the CBGM (https://github.com/edmondac/CBGM, [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1296288.svg)](https://doi.org/10.5281/zenodo.1296288)), but his implementation seems to have been tested only on a relatively small collation of John 6:21–24 (consisting of 30 witnesses and 41 variation units) and according to his own description, "It was designed for testing and changing the various algorithms and is not (therefore) the fastest user-facing package."
 
 In light of the strengths and shortcomings of its predecessors, the open-cbgm library was developed with the following desired features in mind:
 1. _open-source_: The code should be publicly available and free to be used and modified by anyone.
@@ -24,35 +24,60 @@ In light of the strengths and shortcomings of its predecessors, the open-cbgm li
 
 To achieve the goal of feature (1), we have made our entire codebase available under the permissive MIT License. None of the functionality "under the hood" is obfuscated, and any user with access to the input file can customize local stemmata and connectivity parameters. (Incidentally, this fulfills a desideratum for customizability expressed by Wasserman and Gurry, _A New Approach to Textual Criticism_, 119–120.)
 
-With respect to feature (2), our code makes use of only two external libraries: the pugixml lightweight XML-parsing library (https://github.com/zeux/pugixml) and the CRoaring compressed bitmap library (https://github.com/RoaringBitmap/CRoaring). The only input source for the software is an XML file encoding collation data; the size of the _ECM_ collation data for a single chapter of New Testament typically ranges between 100KB and 200KB. At this time, the software does not employ an external database for caching collation data, as it is not needed; nevertheless, we have endeavored to make the library modular enough to make it easy to incorporate such a feature. The outputs of the script are small .dot files (ranging from 4KB to 12KB each) containing rendering information for graphs.
+With respect to feature (2), our code makes use of only three external libraries: the cxxopts command-line argument parsing library (https://github.com/jarro2783/cxxopts), the pugixml XML-parsing library (https://github.com/zeux/pugixml), and the CRoaring compressed bitmap library (https://github.com/RoaringBitmap/CRoaring). The first two libraries were deliberately chosen for their lightweight nature, and the third was an easy choice for its excellent performance benchmarks. The only input source for the software is an XML file encoding collation data; the size of the _ECM_ collation data for a single chapter of New Testament typically ranges between 100KB and 200KB. At this time, the software does not employ an external database for caching collation data, as it is not needed; nevertheless, we have endeavored to make the library modular enough to make it easy to incorporate such a feature. The outputs of the script are small .dot files (ranging from 4KB to 12KB each) containing rendering information for graphs.
 
-For feature (3), we made performance-minded decisions at all levels of design. We chose the pugixml library to ensure that the software would parse potentially long XML input files quickly. Likewise, we used Roaring bitmaps from the CRoaring library to encode pregenealogical and genealogical relationships, both to leverage hardware accelerations for common computations involving those relationships and to ensure that performance would scale gracefully with the number of variation units covered in collation input files. We stored data keyed by witnesses in hash tables for efficient accesses on average. Due to combinatorial nature of the problem of substemma optimization, we implemented common heuristics known to be effective at solving similar types of problems in practice. As a result, the open-cbgm library can parse the _ECM_ collation of 3 John (consisting of 137 witnesses and 116 variation units), calculate the pre-genealogical and genealogical relationships between its witnesses, and generate a global stemma for the entire book in two-and-a-half minutes.
+For feature (3), we made performance-minded decisions at all levels of design. We chose the pugixml library to ensure that the software would parse potentially long XML input files quickly. Likewise, we used Roaring bitmaps from the CRoaring library to encode pregenealogical and genealogical relationships, both to leverage hardware accelerations for common computations involving those relationships and to ensure that performance would scale gracefully with the number of variation units covered in collation input files. We stored data keyed by witnesses in hash tables for efficient accesses on average. Due to combinatorial nature of the problem of substemma optimization, we implemented common heuristics known to be effective at solving similar types of problems in practice. As a result, the open-cbgm library can parse the _ECM_ collation of 3 John (consisting of 137 witnesses and 116 variation units), calculate the pre-genealogical and genealogical relationships between its witnesses, and generate a global stemma for the entire book in two-and-a-half minutes on a desktop computer.
 
-Finally, for feature (4), we ensured compliance with the XML standard of the Text Encoding Initiative (TEI) by designing the software to expect an input in TEI XML format used by the INTF and the International Greek New Testament Project (IGNTP) in their transcriptions and collations. We made this possible by encoding common features of the CBGM as additional TEI XML elements in the input collation file (e.g., the feature set <fs/> element for a variation unit's connectivity and the <graph/> element for its local stemma). The .dot format used to describe output graphs is the standard used by the graphviz visualization software (https://www.graphviz.org/), which is the standard for existing CBGM software.
+Finally, for feature (4), we ensured compliance with the XML standard of the Text Encoding Initiative (TEI) by designing the software to expect an input in the TEI XML format used by the INTF and the International Greek New Testament Project (IGNTP) in their transcriptions and collations. (For specific guidelines, see TEI Consortium, eds., _TEI P5: Guidelines for Electronic Text Encoding and Interchange_ 3.6.0, 16 July 2019, TEI Consortium, http://www.tei-c.org/Guidelines/P5/ \[accessed 1 January 2020\], and Myshrall, Amy C. and Kevern, Rachel and Houghton, H.A.G. \[2016\], _IGNTP Guidelines for the Transcription of Manuscripts using the Online Transcription Editor_, manual, International Greek New Testament Project, Birmingham \[Unpublished\].) We made this possible by encoding common features of the CBGM as additional TEI XML elements in the input collation file (e.g., the feature set `<fs/>` element for a variation unit's connectivity and the `<graph/>` element for its local stemma). An example for a variation unit in 3 John is shown below.
+
+```
+<app n="B25K1V1U2">
+    <label>3Jo 1:1/2</label>
+    <rdg n="a" wit="A Byz 01 03 018 020 025 044 049 0142 1 5 6 18 33 35 43 61 69 81 88 93 94 1180 181 206S 218 252 254 307 319 321 323 326 330 365 378 398 400 424 429 431 436 442 453 459 468 522 607 614 617 621 623 629 630 642 720 808 876 915 918 945 996 1067 1127 1175 1241 1243 1270 1292 1297 1359 1409 1448 1490 1501 1505 1523 1524 1563 1595 1609 1611 1661 1678 1718 1729 1735 1739 1751 1799 1827 1831 1832 1836 1837 1838 1842 1844 1845 1846 1852 1874 1875 1881 1890 2138 2147 2186 2200 2298 2344 2374 2412 2423 2464 2492 2541 2544 2652 2718 2774 2805 L596 L921 L938 L1141 L1281">ο</rdg>
+    <rdg n="b" wit="467 2243 2818" />
+    <fs>
+        <f name="connectivity">
+            <numeric value="10" />
+        </f>
+    </fs>
+    <graph type="directed">
+        <node n="a" />
+        <node n="b" />
+        <arc from="a" to="b" />
+    </graph>
+</app>
+```
+
+The .dot format used to describe output graphs is the standard used by the graphviz visualization software (https://www.graphviz.org/), which is the standard for existing CBGM software.
 
 ## Installation and Dependencies
 
-As mentioned above, the open-cbgm library uses two external libraries (pugixml and CRoaring), but because these libraries are compact, we have included the necessary headers and scripts in the library for convenience. With respect to graph outputs, the open-cbgm library does not generate image files directly; instead, for the sake of flexibility, it generates textual graph description files in .dot format, which can subsequently be converted to image files in a variety of formats using graphviz. Platform-specific instructions for installing graphviz are provided below, and directions on how to get image files from the .dot outputs can be found in the "Usage" section. 
+As mentioned above, the open-cbgm library uses three external libraries (cxxopts, pugixml, and CRoaring), but because these libraries are compact, we have included the necessary headers and scripts in the library for convenience. With respect to graph outputs, the open-cbgm library does not generate image files directly; instead, for the sake of flexibility, it generates textual graph description files in .dot format, which can subsequently be converted to image files in a variety of formats using graphviz. Platform-specific instructions for installing graphviz are provided below, and directions on how to get image files from the .dot outputs can be found in the "Usage" section.
 
-To begin setting up the library, you should download the Git repository. If you are operating from the command-line, you can do this with the command
+To begin setting up the library, you should clone the Git repository. To do this from the command-line, you'll need to install Git (https://git-scm.com/). To clone this repository from the command-line, use the command
 
     git clone git://github.com/jjmccollum/open-cbgm.git
 
-Next, you need to build to project. How you do this will depend on your operating system. We will handle the cases below.
+You should now have the contents of the repository in a directory called "open-cbgm." From the command-line, enter this directory with the command
+
+    cd open-cbgm
+
+From here, you need to build the project. The precise details of how to do this will depend on your operating system, but in all cases, you will need to have the CMake toolkit installed. We will provide platform-specific installation instructions below.
 
 ### Linux
 
-To do this, you will need to have the autotools utilities for generating the configure.sh script. If you are using Linux or MacOS, then you may already have these tools installed. If not, the installation can be done in a single command. On Debian variants of Linux, the command is
+To install CMake on Debian variants of Linux, the command is
 
-    sudo apt-get install automake autoconf
+    sudo apt-get install cmake
 
-Once you have autotools installed, you can complete the build with a few small lines. From the open-cbgm directory, enter the following commands:
+Once you have CMake installed, you can complete the build with a few small lines. From the open-cbgm directory, create a build directory to store the build, enter it, and complete the build using the following commands:
 
-    autoconf
-    ./configure
+    mkdir build
+    cd build
+    cmake ..
     make
     
-Once these commands have executed, you should have all of the executable scripts added to the open-cbgm directory.
+Once these commands have executed, you should have all of the executable scripts added to the open-cbgm/build/src directory.
 
 If graphviz is not installed on your system, then you can install it via the command
 
@@ -60,17 +85,18 @@ If graphviz is not installed on your system, then you can install it via the com
     
 ### MacOS
     
-The setup for MacOS is virtually identical to that of Linux. If you need to install autotools, it is recommended that you install the necessary packages with Homebrew (https://brew.sh/). If you are using Homebrew, simply enter the command
+The setup for MacOS is virtually identical to that of Linux. If you want to install CMake from the command-line, it is recommended that you install the necessary packages with Homebrew (https://brew.sh/). If you are using Homebrew, simply enter the command
 
-    brew install autoconf automake
+    brew install cmake
     
 Then, from the open-cbgm directory, enter the following commands:
 
-    autoconf
-    ./configure
+    mkdir build
+    cd build
+    cmake ..
     make
     
-Once these commands have executed, you should have all of the executable scripts added to the open-cbgm directory.
+Once these commands have executed, you should have all of the executable scripts added to the open-cbgm/build/src directory.
 
 If graphviz is not installed on your system, then you can install it via the command
 
@@ -78,15 +104,43 @@ If graphviz is not installed on your system, then you can install it via the com
 
 ### Windows
 
-The autotools utilities are not natively supported on Windows, so installation will take a few more steps. We recommend that you download Cygwin, a suite of GNU and open-source scripts that includes autotools. If you use the Chocolately package manager https://chocolatey.org/, then you can perform the installation from the command-line in a single command:
+If you want to install CMake from the command-line, it is recommended that you install it with the Chocolately package manager (https://chocolatey.org/). If you are using Chocolately, simply enter the command
 
-    choco install -y cygwin
+    choco install -y cmake
 
-This will install Cygwin in the C:\tools\cygwin directory. Alternatively, you can download Cygwin from the official website (https://www.cygwin.com/) and install it at the location of your choice. For what follows, we will assume that Cygwin is installed at C:\tools\cygwin.
+If you do this, you'll want to make sure that your `PATH` environment variable includes the path to CMake. Alternatively, you can download the CMake user interface from the official website (https://cmake.org/) and use that.
 
-**(TODO: Need to figure out the remaining steps.)**
+How you proceed from here depends on whether you compile the code using Microsoft Visual Studio or a suite of open-source tools like MinGW. You can install the Community version of Microsft Visual Studio 2019 for free by downloading it from https://visualstudio.microsoft.com/vs/, or you can install it from the command-line via
 
-Once these commands have executed, you should have all of the executable scripts added to the open-cbgm directory.
+    choco install -y visualstudio2019community
+    
+(Note that you will need to restart your computer after installing Visual Studio.) When you install Visual Studio, make sure you include the C++ Desktop Development workload necessary for building with CMake. If you install from the command-line using Chocolatey, you can do this with the command
+
+    choco install -y visualstudio2019-workload-nativedesktop
+
+You can install MinGW by downloading it from http://www.mingw.org/, or you can install it from the command-line via
+
+    choco install -y mingw
+    
+If you are compiling with Visual Studio, then from the open-cbgm directory, enter the following commands:
+
+    mkdir build
+    cd build
+    cmake ..
+    cmake --build .
+    
+Once these commands have executed, you should have all of the executable scripts added to the open-cbgm\\build\\src\\Debug directory. Note that they will have the Windows `.exe` suffix, unlike the executables on Linux and MacOS.
+
+If you are compiling with MinGW, then from the open-cbgm directory, enter the following commands:
+
+    mkdir build
+    cd build
+    cmake -DCMAKE_SH="CMAKE_SH-NOTFOUND" -G "MinGW Makefiles" ..
+    mingw32-make
+    
+Once these commands have executed, you should have all of the executable scripts added to the open-cbgm\\build\\src directory. Note that they will have the Windows `.exe` suffix, unlike the executables on Linux and MacOS.
+    
+**(TODO: Need to debug MinGW build!)**
 
 If graphviz is not installed on your system, then you can install it using Chocolately via the command
 
@@ -96,7 +150,7 @@ Alternatively, you can download the library from https://www.graphviz.org/ and i
 
 ## Usage
 
-When built, the open-cbgm library contains four executable scripts: compare\_witnesses, find\_relatives, optimize\_substemmata, and print\_graphs. The first two scripts correspond to modules with the same names in both versions of the INTF's Genealogical Queries tool. The third offers functionality that is offered only partially or not at all in the Genealogical Queries tool. The fourth generates graphs that can be displayed one variation unit at a time in the Genealogical Queries tool. We will provide usage examples and illustrations for each script in the subsections that follow.
+When built, the open-cbgm library contains four executable scripts: compare\_witnesses, find\_relatives, optimize\_substemmata, and print\_graphs. The first two scripts correspond to modules with the same names in both versions of the INTF's Genealogical Queries tool. The third offers functionality that is offered only partially or not at all in the Genealogical Queries tool. The fourth generates graphs that can be displayed one variation unit at a time in the Genealogical Queries tool. We will provide usage examples and illustrations for each script in the subsections that follow. For these examples, we assume that you have copied all four executables from their locations in the build directory to the main open-cbgm directory; you can do this by hand or on the command-line via the `cp` command. The example commands appear as they would be entered on Linux and MacOS; for Windows, add the `.exe` suffix to the executable.
 
 All of these scripts take the input collation XML file as a required command-line argument, and they all accept the following optional arguments related to processing it:
 - `-t` or `--threshold`, which will set a threshold of minimum extant passages for witnesses to be included from the collation. For example, the argument `-t 100` will filter out any witnesses extant in fewer than 100 passages.

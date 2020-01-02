@@ -55,18 +55,18 @@ global_stemma::global_stemma(const list<witness> & witnesses) {
 		//Get the maximum number of agreements between this witness and its ancestors:
 		int max_agreements = 0;
 		for (string ancestor_id : global_stemma_ancestor_ids) {
-			int agreements = wit.get_agreements_for_witness(ancestor_id).cardinality();
-			if (agreements > max_agreements) {
-				max_agreements = agreements;
-			}
+			genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(ancestor_id);
+			int agreements = comp.agreements.cardinality();
+			max_agreements = max(max_agreements, agreements);
 		}
 		//Now, add an edge for each ancestor:
 		for (string ancestor_id : global_stemma_ancestor_ids) {
-			witness ancestor = witnesses_by_id[ancestor_id];
+			witness ancestor = witnesses_by_id.at(ancestor_id);
+			genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(ancestor_id);
 			global_stemma_edge e;
 			e.ancestor = ancestor_id;
 			e.descendant = wit_id;
-			e.weight = wit.get_agreements_for_witness(ancestor_id).cardinality();
+			e.weight = comp.agreements.cardinality();
 			graph.edges.push_back(e);
 		}
 	}
@@ -103,7 +103,7 @@ void global_stemma::to_dot(ostream & out) {
 		id_to_index[wit_id] = id_to_index.size();
 		int index = id_to_index.at(wit_id);
 		out << "\t";
-		out << index << " [label=\"" << wit_id << "\"]";
+		out << index << " [label=\"" << wit_id << "\", shape=ellipse]";
 		out << ";\n";
 	}
 	//Add all of its edges:

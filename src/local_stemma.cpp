@@ -17,13 +17,35 @@
 using namespace std;
 
 /**
- * Recursive function for populating a transitive closure adjacency matrix given an adjacency list for a graph.
+ * Populates a given shortest paths map
+ * by performing breadth-first search on the given graph (in map-of-neighbors format).
  */
-void transitive_closure_dfs(const string & prior, const string & posterior, const map<string, list<string>> & adjacency_map, set<pair<string, string>> & closure_set) {
-	closure_set.insert(pair<string, string>(prior, posterior));
-	for (string next : adjacency_map.at(posterior)) {
-		if (closure_set.find(pair<string, string>(prior, next)) == closure_set.end()) {
-			transitive_closure_dfs(prior, next, adjacency_map, closure_set);
+void populate_shortest_paths(const map<string, list<string>> & adjacency_map, map<pair<string, string>, int> & shortest_paths) {
+	//Proceed for each vertex:
+	for (pair<string, list<string>> kv : adjacency_map) {
+		string s = kv.first;
+		//Initialize a queue of vertex IDs to process, starting with the current source vertex:
+		list<string> queue = list<string>({s});
+		//Add a shortest path of length 0 from the current source to itself:
+		shortest_paths[pair<string, string>(s, s)] = 0;
+		//Then proceed by breadth-first search:
+		while (!queue.empty()) {
+			//Pop off the vertex at the front of the queue:
+			string u = queue.front();
+			queue.pop_front();
+			//Get the length of the shortest path from the source to this vertex:
+			int dist = shortest_paths.at(pair<string, string>(s, u));
+			//Then proceed for each vertex adjacent to it:
+			for (string v : adjacency_map.at(u)) {
+				//Check if the path from the source to this vertex has already been processed:
+				pair<string, string> p = pair<string, string>(s, v);
+				if (shortest_paths.find(p) == shortest_paths.end()) {
+					//If it hasn't, then add its length to the shortest paths map:
+					shortest_paths[p] = dist + 1;
+					//Then add the vertex itself to the queue:
+					queue.push_back(v);
+				}
+			}
 		}
 	}
 	return;
@@ -96,13 +118,9 @@ local_stemma::local_stemma(const string & apparatus_label, const pugi::xml_node 
 	for (local_stemma_edge e : graph.edges) {
 		adjacency_map[e.prior].push_back(e.posterior);
 	}
-	//Now use depth-first traversal to populate the adjacency matrix of the transitive closure:
-	closure_set = set<pair<string, string>>();
-	for (local_stemma_vertex v : graph.vertices) {
-		string id = v.id;
-		//Recursively mark all vertices reachable from this one, including this vertex itself:
-		transitive_closure_dfs(id, id, adjacency_map, closure_set);
-	}
+	//Now use breadth-first traversal to populate the map of shortest paths:
+	shortest_paths = map<pair<string, string>, int>();
+	populate_shortest_paths(adjacency_map, shortest_paths);
 }
 
 /**
@@ -127,19 +145,25 @@ local_stemma_graph local_stemma::get_graph() const {
 }
 
 /**
- * Return the set of edges in the transitive closure of this local_stemma's graph.
+ * Return the map of shortest paths for this local_stemma's graph.
  */
-set<pair<string, string>> local_stemma::get_closure_set() const {
-	return closure_set;
+map<pair<string, string>, int> local_stemma::get_shortest_paths() const {
+	return shortest_paths;
 }
 
 /**
- * Given two reading indices, checks if they are equal
- * or if the first reading is prior to the second
- * (i.e., if the first reading is adjacent to the second in the transitive closure of the stemma graph).
+ * Given two reading IDs, checks if a path exists between them in the local stemma.
  */
-bool local_stemma::is_equal_or_prior(const string & r1, const string & r2) const {
-	return closure_set.find(pair<string, string>(r1, r2)) != closure_set.end();
+bool local_stemma::path_exists(const string & r1, const string & r2) const {
+	return shortest_paths.find(pair<string, string>(r1, r2)) != shortest_paths.end();
+}
+
+/**
+ * Given two reading IDs, returns the length of the shortest path between them in the local stemma.
+ * It is assumed that a path exists between the two readings.
+ */
+int local_stemma::get_shortest_path_length(const string & r1, const string & r2) const {
+	return shortest_paths.at(pair<string, string>(r1, r2));
 }
 
 /**

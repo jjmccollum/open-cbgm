@@ -280,9 +280,9 @@ void autotest::run() {
 		graph_node = app_node.child("graph");
 		local_stemma ls = local_stemma(label_text, graph_node, map<string, string>());
 		/**
-		 * Unit test local_stemma_is_equal_or_prior
+		 * Unit test local_stemma_path_exists
 		 */
-		current_unit = "local_stemma_is_equal_or_prior";
+		current_unit = "local_stemma_path_exists";
 		if (target_test.empty() || target_test == current_unit) {
 			//Initialize a container for module-wide test results:
 			unit_test u_test;
@@ -291,25 +291,64 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Test equality of readings:
-				if (!ls.is_equal_or_prior("a", "a")) {
-					u_test.msg += "For variation unit B00K0V0U4, is_equal_or_prior(\"a\", \"a\") == true is expected, but got false.";
+				//A path should exist from a reading to itself:
+				if (!ls.path_exists("a", "a")) {
+					u_test.msg += "For variation unit B00K0V0U4, expected path_exists(\"a\", \"a\") == true, got false\n";
 				}
 				//Test direct priority of readings:
-				if (!ls.is_equal_or_prior("a", "b")) {
-					u_test.msg += "For variation unit B00K0V0U4, is_equal_or_prior(\"a\", \"b\") == true is expected, but got false.";
+				if (!ls.path_exists("a", "b")) {
+					u_test.msg += "For variation unit B00K0V0U4, expected path_exists(\"a\", \"b\") == true, got false\n";
 				}
 				//Test transitive priority of readings:
-				if (!ls.is_equal_or_prior("a", "d")) {
-					u_test.msg += "For variation unit B00K0V0U4, is_equal_or_prior(\"a\", \"d\") == true is expected, but got false.";
+				if (!ls.path_exists("a", "d")) {
+					u_test.msg += "For variation unit B00K0V0U4, expected path_exists(\"a\", \"d\") == true, got false\n";
 				}
 				//Test posteriority of readings:
-				if (ls.is_equal_or_prior("c", "a")) {
-					u_test.msg += "For variation unit B00K0V0U4, is_equal_or_prior(\"c\", \"a\") == false is expected, but got true.";
+				if (ls.path_exists("c", "a")) {
+					u_test.msg += "For variation unit B00K0V0U4, expected path_exists(\"c\", \"a\") == false, got true\n";
 				}
 				//Test direct priority of readings:
-				if (ls.is_equal_or_prior("b", "c")) {
-					u_test.msg += "For variation unit B00K0V0U4, is_equal_or_prior(\"b\", \"c\") == false is expected, but got true.";
+				if (ls.path_exists("b", "c")) {
+					u_test.msg += "For variation unit B00K0V0U4, expected path_exists(\"b\", \"c\") == false, got true\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		/**
+		 * Unit test local_stemma_get_shortest_path_length
+		 */
+		current_unit = "local_stemma_get_shortest_path_length";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//The shortest path from a reading to itself should have length 0:
+				int expected_path_length = 0;
+				int path_length = ls.get_shortest_path_length("a", "a");
+				if (path_length != expected_path_length) {
+					u_test.msg += "For variation unit B00K0V0U4, expected get_shortest_path_length(\"a\", \"a\") == " + to_string(expected_path_length) + ", got " + to_string(path_length) + "\n";
+				}
+				//The shortest path from a reading to a directly posterior reading should have length 1:
+				expected_path_length = 1;
+				path_length = ls.get_shortest_path_length("a", "b");
+				if (path_length != expected_path_length) {
+					u_test.msg += "For variation unit B00K0V0U4, expected get_shortest_path_length(\"a\", \"b\") == " + to_string(expected_path_length) + ", got " + to_string(path_length) + "\n";
+				}
+				//The shortest path from a reading to a transitively posterior reading should have length greater than 1:
+				expected_path_length = 2;
+				path_length = ls.get_shortest_path_length("a", "d");
+				if (path_length != expected_path_length) {
+					u_test.msg += "For variation unit B00K0V0U4, expected get_shortest_path_length(\"a\", \"d\") == " + to_string(expected_path_length) + ", got " + to_string(path_length) + "\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -649,14 +688,14 @@ void autotest::run() {
 				unsigned int expected_unique_rows_size = 1;
 				unsigned int unique_rows_size = unique_rows.size();
 				if (unique_rows_size != expected_unique_rows_size) {
-					u_test.msg += "Expected unique_rows.size() == " + to_string(expected_unique_rows_size) + ", but got " + to_string(unique_rows_size) + "\n";
+					u_test.msg += "Expected unique_rows.size() == " + to_string(expected_unique_rows_size) + ", got " + to_string(unique_rows_size) + "\n";
 				}
 				else {
 					set_cover_row unique_row = unique_rows.front();
 					string expected_id = "C";
 					string id = unique_row.id;
 					if (id != expected_id) {
-						u_test.msg += "Expected unique row ID to be " + expected_id + ", but got " + id + "\n";
+						u_test.msg += "Expected unique row ID to be " + expected_id + ", got " + id + "\n";
 					}
 				}
 				if (u_test.msg.empty()) {
@@ -687,7 +726,7 @@ void autotest::run() {
 				unsigned int expected_solution_rows_size = 1;
 				unsigned int solution_rows_size = solution_rows.size();
 				if (solution_rows_size != expected_solution_rows_size) {
-					u_test.msg += "Expected trivial_solution.rows.size() == " + to_string(expected_solution_rows_size) + ", but got " + to_string(solution_rows_size) + "\n";
+					u_test.msg += "Expected trivial_solution.rows.size() == " + to_string(expected_solution_rows_size) + ", got " + to_string(solution_rows_size) + "\n";
 				}
 				else {
 					//That row should be row "C":
@@ -695,14 +734,14 @@ void autotest::run() {
 					string expected_id = "C";
 					string id = solution_row.id;
 					if (id != expected_id) {
-						u_test.msg += "Expected trivial solution ID to be " + expected_id + ", but got " + id + "\n";
+						u_test.msg += "Expected trivial solution ID to be " + expected_id + ", got " + id + "\n";
 					}
 				}
 				//Make sure the trivial solution has the correct cost:
 				int expected_cost = 4;
 				int cost = trivial_solution.cost;
 				if (cost != expected_cost) {
-					u_test.msg += "Expected trivial_solution.cost == " + to_string(expected_cost) + ", but got " + to_string(cost) + "\n";
+					u_test.msg += "Expected trivial_solution.cost == " + to_string(expected_cost) + ", got " + to_string(cost) + "\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -740,13 +779,13 @@ void autotest::run() {
 				unsigned int expected_solution_rows_size = 2;
 				unsigned int solution_rows_size = solution_rows.size();
 				if (solution_rows_size != expected_solution_rows_size) {
-					u_test.msg += "Expected greedy_solution.rows.size() == " + to_string(expected_solution_rows_size) + ", but got " + to_string(solution_rows_size) + "\n";
+					u_test.msg += "Expected greedy_solution.rows.size() == " + to_string(expected_solution_rows_size) + ", got " + to_string(solution_rows_size) + "\n";
 				}
 				//Make sure the greedy solution has the correct cost:
 				int expected_cost = 3;
 				int cost = greedy_solution.cost;
 				if (cost != expected_cost) {
-					u_test.msg += "Expected greedy_solution.cost == " + to_string(expected_cost) + ", but got " + to_string(cost) + "\n";
+					u_test.msg += "Expected greedy_solution.cost == " + to_string(expected_cost) + ", got " + to_string(cost) + "\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -794,19 +833,13 @@ void autotest::run() {
 				string expected_id = "A";
 				string id = wit.get_id();
 				if (id != expected_id) {
-					u_test.msg += "Expected witness ID to be " + expected_id + ", but got " + id + "\n";
+					u_test.msg += "Expected witness ID to be " + expected_id + ", got " + id + "\n";
 				}
-				//Check that the size of the agreements map is correct:
-				unsigned int expected_agreements_by_witness_size = 5;
-				unsigned int agreements_by_witness_size = wit.get_agreements_by_witness().size();
-				if (expected_agreements_by_witness_size != agreements_by_witness_size) {
-					u_test.msg += "Expected agreements_by_witness.size() == " + to_string(expected_agreements_by_witness_size) + ", but got " + to_string(agreements_by_witness_size) + "\n";
-				}
-				//Check that the size of the genealogical relationship map is correct:
-				unsigned int expected_explained_readings_by_witness_size = 5;
-				unsigned int explained_readings_by_witness_size = wit.get_explained_readings_by_witness().size();
-				if (expected_explained_readings_by_witness_size != explained_readings_by_witness_size) {
-					u_test.msg += "Expected explained_readings_by_witness.size() == " + to_string(expected_explained_readings_by_witness_size) + ", but got " + to_string(explained_readings_by_witness_size) + "\n";
+				//Check that the size of the genealogical_comparison map is correct:
+				unsigned int expected_genealogical_comparisons_size = 5;
+				unsigned int genealogical_comparisons_size = wit.get_genealogical_comparisons().size();
+				if (genealogical_comparisons_size != expected_genealogical_comparisons_size) {
+					u_test.msg += "Expected genealogical_comparisons.size() == " + to_string(expected_genealogical_comparisons_size) + ", got " + to_string(genealogical_comparisons_size) + "\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -831,17 +864,11 @@ void autotest::run() {
 			try {
 				//Construct a new witness with genealogical relationships only to itself:
 				witness wit = witness("A", list<string>({"A"}), app);
-				//Check that the size of the agreements map is correct:
-				unsigned int expected_agreements_by_witness_size = 1;
-				unsigned int agreements_by_witness_size = wit.get_agreements_by_witness().size();
-				if (expected_agreements_by_witness_size != agreements_by_witness_size) {
-					u_test.msg += "Expected agreements_by_witness.size() == " + to_string(expected_agreements_by_witness_size) + ", but got " + to_string(agreements_by_witness_size) + "\n";
-				}
-				//Check that the size of the genealogical relationship map is correct:
-				unsigned int expected_explained_readings_by_witness_size = 1;
-				unsigned int explained_readings_by_witness_size = wit.get_explained_readings_by_witness().size();
-				if (expected_explained_readings_by_witness_size != explained_readings_by_witness_size) {
-					u_test.msg += "Expected explained_readings_by_witness.size() == " + to_string(expected_explained_readings_by_witness_size) + ", but got " + to_string(explained_readings_by_witness_size) + "\n";
+				//Check that the size of the genealogical_comparison map is correct:
+				unsigned int expected_genealogical_comparisons_size = 1;
+				unsigned int genealogical_comparisons_size = wit.get_genealogical_comparisons().size();
+				if (genealogical_comparisons_size != expected_genealogical_comparisons_size) {
+					u_test.msg += "Expected genealogical_comparisons.size() == " + to_string(expected_genealogical_comparisons_size) + ", got " + to_string(genealogical_comparisons_size) + "\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -855,9 +882,9 @@ void autotest::run() {
 		//Do more pre-test work:
 		witness wit = witness("B", app);
 		/**
-		 * Unit witness_get_agreements_for_witness
+		 * Unit witness_get_genealogical_comparison_for_witness
 		 */
-		current_unit = "witness_get_agreements_for_witness";
+		current_unit = "witness_get_genealogical_comparison_for_witness";
 		if (target_test.empty() || target_test == current_unit) {
 			//Initialize a container for module-wide test results:
 			unit_test u_test;
@@ -866,38 +893,24 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
+				genealogical_comparison comp = wit.get_genealogical_comparison_for_witness("A");
 				//Check that the witness's agreements with A are correct:
 				Roaring expected_agreements = Roaring::bitmapOf(3, 0, 1, 3);
-				Roaring agreements = wit.get_agreements_for_witness("A");
+				Roaring agreements = comp.agreements;
 				if ((agreements ^ expected_agreements).cardinality() != 0) {
-					u_test.msg += "Expected agreements_for_witness(\"A\") == " + expected_agreements.toString() + ", but got " + agreements.toString() + "\n";
+					u_test.msg += "Expected agreements bitmap for A relative to B == " + expected_agreements.toString() + ", got " + agreements.toString() + "\n";
 				}
-				if (u_test.msg.empty()) {
-					u_test.passed = true;
-				}
-			}
-			catch (const exception & e) {
-				u_test.msg += string(e.what()) + "\n";
-			}
-			mod_test.units.push_back(u_test);
-		}
-		/**
-		 * Unit witness_get_explained_readings_for_witness
-		 */
-		current_unit = "witness_get_explained_readings_for_witness";
-		if (target_test.empty() || target_test == current_unit) {
-			//Initialize a container for module-wide test results:
-			unit_test u_test;
-			u_test.name = current_unit;
-			u_test.passed = false;
-			u_test.msg = "";
-			//Run the test:
-			try {
 				//Check that the witness's explained readings by A are correct:
 				Roaring expected_explained_readings = Roaring::bitmapOf(4, 0, 1, 2, 3);
-				Roaring explained_readings = wit.get_explained_readings_for_witness("A");
+				Roaring explained_readings = comp.explained;
 				if ((explained_readings ^ expected_explained_readings).cardinality() != 0) {
-					u_test.msg += "Expected explained_readings_for_witness(\"A\") == " + expected_explained_readings.toString() + ", but got " + explained_readings.toString() + "\n";
+					u_test.msg += "Expected explained readings bitmap for A relative to B == " + expected_explained_readings.toString() + ", got " + explained_readings.toString() + "\n";
+				}
+				//Check that the genealogical cost of A relative to B is correct:
+				int expected_cost = 1;
+				int cost = comp.cost;
+				if (cost != expected_cost) {
+					u_test.msg += "Expected genealogical cost for A relative to B == " + to_string(expected_cost) + ", got " + to_string(cost) + "\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -937,7 +950,7 @@ void autotest::run() {
 				unsigned int expected_potential_ancestor_ids_size = expected_potential_ancestor_ids.size();
 				unsigned int potential_ancestor_ids_size = potential_ancestor_ids.size();
 				if (potential_ancestor_ids_size != expected_potential_ancestor_ids_size) {
-					u_test.msg += "Expected potential_ancestor_ids.size() == " + to_string(expected_potential_ancestor_ids_size) + ", but got " + to_string(potential_ancestor_ids_size) + "\n";
+					u_test.msg += "Expected potential_ancestor_ids.size() == " + to_string(expected_potential_ancestor_ids_size) + ", got " + to_string(potential_ancestor_ids_size) + "\n";
 				}
 				else {
 					bool lists_equal = true;
@@ -948,7 +961,7 @@ void autotest::run() {
 						}
 					}
 					if (!lists_equal) {
-						u_test.msg += "Expected potential_ancestor_ids == [\"B\", \"A\"], but got ";
+						u_test.msg += "Expected potential_ancestor_ids == [\"B\", \"A\"], got ";
 						u_test.msg += "[";
 						for (string potential_ancestor_id : potential_ancestor_ids) {
 							if (potential_ancestor_id == potential_ancestor_ids.front()) {
@@ -990,7 +1003,7 @@ void autotest::run() {
 				unsigned int expected_global_stemma_ancestor_ids_size = expected_global_stemma_ancestor_ids.size();
 				unsigned int global_stemma_ancestor_ids_size = global_stemma_ancestor_ids.size();
 				if (global_stemma_ancestor_ids_size != expected_global_stemma_ancestor_ids_size) {
-					u_test.msg += "Expected global_stemma_ancestor_ids.size() == " + to_string(expected_global_stemma_ancestor_ids_size) + ", but got " + to_string(global_stemma_ancestor_ids_size) + "\n";
+					u_test.msg += "Expected global_stemma_ancestor_ids.size() == " + to_string(expected_global_stemma_ancestor_ids_size) + ", got " + to_string(global_stemma_ancestor_ids_size) + "\n";
 				}
 				else {
 					bool lists_equal = true;
@@ -1001,7 +1014,7 @@ void autotest::run() {
 						}
 					}
 					if (!lists_equal) {
-						u_test.msg += "Expected global_stemma_ancestor_ids == [\"B\"], but got ";
+						u_test.msg += "Expected global_stemma_ancestor_ids == [\"B\"], got ";
 						u_test.msg += "[";
 						for (string global_stemma_ancestor_id : global_stemma_ancestor_ids) {
 							if (global_stemma_ancestor_id == global_stemma_ancestor_ids.front()) {

@@ -199,14 +199,15 @@ int main(int argc, char* argv[]) {
 	//Using this list, populate a vector of set cover rows:
 	vector<set_cover_row> rows = vector<set_cover_row>();
 	for (string secondary_wit_id : primary_wit.get_potential_ancestor_ids()) {
+		genealogical_comparison comp = primary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
 		set_cover_row row;
 		row.id = secondary_wit_id;
-		row.bits = primary_wit.get_explained_readings_for_witness(secondary_wit_id);
-		row.cost = (primary_wit.get_explained_readings_for_witness(primary_wit_id) ^ primary_wit.get_agreements_for_witness(secondary_wit_id)).cardinality();
+		row.bits = comp.explained;
+		row.cost = comp.cost;
 		rows.push_back(row);
 	}
 	//Initialize the bitmap of the target set to be covered:
-	Roaring target = primary_wit.get_explained_readings_for_witness(primary_wit_id);
+	Roaring target = primary_wit.get_genealogical_comparison_for_witness(primary_wit_id).explained;
 	//Initialize the list of solutions to be populated:
 	list<set_cover_solution> solutions;
 	//Then populate it using the solver:

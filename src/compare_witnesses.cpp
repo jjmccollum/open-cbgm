@@ -214,24 +214,24 @@ int main(int argc, char* argv[]) {
 	}
 	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
 	list<witness_comparison> comparisons = list<witness_comparison>();
-	Roaring primary_extant = primary_wit.get_explained_readings_for_witness(primary_wit_id);
 	for (witness secondary_wit : secondary_witnesses) {
 		string secondary_wit_id = secondary_wit.get_id();
-		Roaring secondary_extant = secondary_wit.get_explained_readings_for_witness(secondary_wit_id);
+		genealogical_comparison primary_primary_comp = primary_wit.get_genealogical_comparison_for_witness(primary_wit_id);
+		genealogical_comparison primary_secondary_comp = primary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
+		genealogical_comparison secondary_primary_comp = secondary_wit.get_genealogical_comparison_for_witness(primary_wit_id);
+		genealogical_comparison secondary_secondary_comp = secondary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
+		Roaring primary_extant = primary_primary_comp.explained;
+		Roaring secondary_extant = secondary_secondary_comp.explained;
 		Roaring mutually_extant = primary_extant & secondary_extant;
-		Roaring agreements = primary_wit.get_agreements_for_witness(secondary_wit_id);
-		Roaring primary_explained_by_secondary = primary_wit.get_explained_readings_for_witness(secondary_wit_id);
-		Roaring secondary_explained_by_primary = secondary_wit.get_explained_readings_for_witness(primary_wit_id);
-		//Roaring mutually_explained = primary_explained_by_secondary & secondary_explained_by_primary;
+		Roaring agreements = primary_secondary_comp.agreements;
+		Roaring primary_explained_by_secondary = primary_secondary_comp.explained;
+		Roaring secondary_explained_by_primary = secondary_primary_comp.explained;
 		witness_comparison comparison;
 		comparison.id = secondary_wit_id;
 		comparison.pass = mutually_extant.cardinality();
 		comparison.eq = agreements.cardinality();
 		comparison.prior = (secondary_explained_by_primary ^ agreements).cardinality();
 		comparison.posterior = (primary_explained_by_secondary ^ agreements).cardinality();
-		//comparison.prior = (secondary_explained_by_primary ^ mutually_explained).cardinality();
-		//comparison.posterior = (primary_explained_by_secondary ^ mutually_explained).cardinality();
-		//comparison.uncl = (mutually_explained ^ agreements).cardinality();
 		comparison.norel = comparison.pass - comparison.eq - comparison.prior - comparison.posterior;
 		comparison.perc = comparison.pass > 0 ? (100 * float(comparison.eq) / float(comparison.pass)) : 0;
 		comparison.dir = comparison.prior > comparison.posterior ? -1 : (comparison.posterior > comparison.prior ? 1 : 0);
@@ -250,7 +250,6 @@ int main(int argc, char* argv[]) {
 	cout << std::right << std::setw(8) << "EQ";
 	cout << std::right << std::setw(8) << "W1>W2";
 	cout << std::right << std::setw(8) << "W1<W2";
-	//cout << std::right << std::setw(8) << "UNCL";
 	cout << std::right << std::setw(8) << "NOREL";
 	cout << "\n\n";
 	for (witness_comparison comparison : comparisons) {
@@ -261,7 +260,6 @@ int main(int argc, char* argv[]) {
 		cout << std::right << std::setw(8) << comparison.eq;
 		cout << std::right << std::setw(8) << comparison.prior;
 		cout << std::right << std::setw(8) << comparison.posterior;
-		//cout << std::right << std::setw(8) << comparison.uncl;
 		cout << std::right << std::setw(8) << comparison.norel;
 		cout << "\n";
 	}

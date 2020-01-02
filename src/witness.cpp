@@ -34,20 +34,22 @@ witness::witness() {
 witness::witness(const string & witness_id, const apparatus & app) {
 	//Set its ID:
 	id = witness_id;
-	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:
-	agreements_by_witness = unordered_map<string, Roaring>();
-	explained_readings_by_witness = unordered_map<string, Roaring>();
+	//Now populate the its map of genealogical_comparisons, keyed by witness ID:
+	genealogical_comparisons = unordered_map<string, genealogical_comparison>();
 	list<string> list_wit = app.get_list_wit();
 	for (string other_id : list_wit) {
-		Roaring equal_readings = Roaring(); //readings in the other witness equal to this witness's readings
-		Roaring equal_or_prior_readings = Roaring(); //readings in the other witness equal or prior to this witness's readings
+		//Initialize a genealogical_comparison data structure for this witness:
+		genealogical_comparison comp;
+		comp.agreements = Roaring(); //readings in the other witness equal to this witness's readings
+		comp.explained = Roaring(); //readings in the other witness equal or prior to this witness's readings
+		comp.cost = 0; //genealogical cost of the other witness relative to this witness
 		int variation_unit_index = 0;
 		for (variation_unit vu : app.get_variation_units()) {
 			//Get the indices of all readings supported by each of these witnesses at this variation unit
 			//(the Ausgangstext A may support more than one reading):
 			unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-			list<string> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support[witness_id] : list<string>();
-			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support[other_id] : list<string>();
+			list<string> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support.at(witness_id) : list<string>();
+			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support.at(other_id) : list<string>();
 			//If either witness's list is empty, then it is lacunose here,
 			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
 			if (readings_for_this.size() == 0 || readings_for_other.size() == 0) {
@@ -56,25 +58,26 @@ witness::witness(const string & witness_id, const apparatus & app) {
 			}
 			//Otherwise, loop through all pairs of readings:
 			local_stemma ls = vu.get_local_stemma();
-			bool is_equal = false;
-			bool is_equal_or_prior = false;
+			int shortest_path_length = -1;
 			for (string reading_for_this : readings_for_this) {
 				for (string reading_for_other : readings_for_other) {
-					is_equal |= (reading_for_this == reading_for_other);
-					is_equal_or_prior |= ls.is_equal_or_prior(reading_for_other, reading_for_this);
+					if (ls.path_exists(reading_for_other, reading_for_this)) {
+						int path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
+						shortest_path_length = shortest_path_length == -1 ? path_length : min(shortest_path_length, path_length);
+					}
 				}
 			}
-			if (is_equal) {
-				equal_readings.add(variation_unit_index);
-				equal_or_prior_readings.add(variation_unit_index);
-			}
-			else if (is_equal_or_prior) {
-				equal_or_prior_readings.add(variation_unit_index);
+			if (shortest_path_length > -1) {
+				comp.explained.add(variation_unit_index);
+				if (shortest_path_length == 0) {
+					comp.agreements.add(variation_unit_index);
+				}
+				comp.cost += shortest_path_length;
 			}
 			variation_unit_index++;
 		}
-		agreements_by_witness[other_id] = equal_readings;
-		explained_readings_by_witness[other_id] = equal_or_prior_readings;
+		//Add the completed genealogical_comparison to this witness's map:
+		genealogical_comparisons[other_id] = comp;
 	}
 }
 
@@ -85,19 +88,21 @@ witness::witness(const string & witness_id, const apparatus & app) {
 witness::witness(const string & witness_id, const list<string> & list_wit, const apparatus & app) {
 	//Set its ID:
 	id = witness_id;
-	//Now populate the its maps of agreements and explained readings, keyed by other witnesses:
-	agreements_by_witness = unordered_map<string, Roaring>();
-	explained_readings_by_witness = unordered_map<string, Roaring>();
+	//Now populate the its map of genealogical_comparisons, keyed by witness ID:
+	genealogical_comparisons = unordered_map<string, genealogical_comparison>();
 	for (string other_id : list_wit) {
-		Roaring equal_readings = Roaring(); //readings in the other witness equal to this witness's readings
-		Roaring equal_or_prior_readings = Roaring(); //readings in the other witness equal or prior to this witness's readings
+		//Initialize a genealogical_comparison data structure for this witness:
+		genealogical_comparison comp;
+		comp.agreements = Roaring(); //readings in the other witness equal to this witness's readings
+		comp.explained = Roaring(); //readings in the other witness equal or prior to this witness's readings
+		comp.cost = 0; //genealogical cost of the other witness relative to this witness
 		int variation_unit_index = 0;
 		for (variation_unit vu : app.get_variation_units()) {
 			//Get the indices of all readings supported by each of these witnesses at this variation unit
 			//(the Ausgangstext A may support more than one reading):
 			unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-			list<string> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support[witness_id] : list<string>();
-			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support[other_id] : list<string>();
+			list<string> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support.at(witness_id) : list<string>();
+			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support.at(other_id) : list<string>();
 			//If either witness's list is empty, then it is lacunose here,
 			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
 			if (readings_for_this.size() == 0 || readings_for_other.size() == 0) {
@@ -106,25 +111,26 @@ witness::witness(const string & witness_id, const list<string> & list_wit, const
 			}
 			//Otherwise, loop through all pairs of readings:
 			local_stemma ls = vu.get_local_stemma();
-			bool is_equal = false;
-			bool is_equal_or_prior = false;
+			int shortest_path_length = -1;
 			for (string reading_for_this : readings_for_this) {
 				for (string reading_for_other : readings_for_other) {
-					is_equal |= (reading_for_this == reading_for_other);
-					is_equal_or_prior |= ls.is_equal_or_prior(reading_for_other, reading_for_this);
+					if (ls.path_exists(reading_for_other, reading_for_this)) {
+						int path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
+						shortest_path_length = shortest_path_length == -1 ? path_length : min(shortest_path_length, path_length);
+					}
 				}
 			}
-			if (is_equal) {
-				equal_readings.add(variation_unit_index);
-				equal_or_prior_readings.add(variation_unit_index);
-			}
-			else if (is_equal_or_prior) {
-				equal_or_prior_readings.add(variation_unit_index);
+			if (shortest_path_length > -1) {
+				comp.explained.add(variation_unit_index);
+				if (shortest_path_length == 0) {
+					comp.agreements.add(variation_unit_index);
+				}
+				comp.cost += shortest_path_length;
 			}
 			variation_unit_index++;
 		}
-		agreements_by_witness[other_id] = equal_readings;
-		explained_readings_by_witness[other_id] = equal_or_prior_readings;
+		//Add the completed genealogical_comparison to this witness's map:
+		genealogical_comparisons[other_id] = comp;
 	}
 }
 
@@ -143,47 +149,27 @@ string witness::get_id() const {
 }
 
 /**
- * Returns the bitset representing the agreements of this witness with other witnesses,
- * keyed by the other witness's ID.
+ * Returns this witness's map of genealogical comparisons, keyed by witness ID.
  */
-unordered_map<string, Roaring> witness::get_agreements_by_witness() const {
-	return agreements_by_witness;
+unordered_map<string, genealogical_comparison> witness::get_genealogical_comparisons() const {
+	return genealogical_comparisons;
 }
 
 /**
- * Returns a map of bitsets representing the readings of this witness explained by other witnesses,
- * keyed by the other witness's ID.
+ * Returns a genealogical comparison between this witness and the witness with the given ID.
  */
-unordered_map<string, Roaring> witness::get_explained_readings_by_witness() const {
-	return explained_readings_by_witness;
+genealogical_comparison witness::get_genealogical_comparison_for_witness(const string & other_id) const {
+	return genealogical_comparisons.at(other_id);
 }
 
 /**
- * Returns a bitset indicating the units at which this witness agrees with the witness with the given ID.
+ * Gets the genealogical_comparisons for the two given witnesses relative to this witness
+ * and returns a boolean value indicating whether the cost of the first is less than the cost of the second.
  */
-Roaring witness::get_agreements_for_witness(const string & other_id) const {
-	return agreements_by_witness.at(other_id);
-}
-
-/**
- * Returns a bitset indicating which of this witness's readings are explained by the witness with the given ID.
- * If this witness's ID is the input, then the bitset indicates the units at which this witness is extant.
- */
-Roaring witness::get_explained_readings_for_witness(const string & other_id) const {
-	return explained_readings_by_witness.at(other_id);
-}
-
-/**
- * Computes the pregenealogical similarity of the two given witnesses to this witness
- * and returns a boolean value indicating whether the similarity to the first is greater than the similarity to the second.
- */
-bool witness::pregenealogical_comp(const witness & w1, const witness & w2) {
-	Roaring agreements_with_w1 = agreements_by_witness.at(w1.get_id());
-	Roaring agreements_with_w2 = agreements_by_witness.at(w2.get_id());
-	Roaring extant = explained_readings_by_witness.at(id);
-	float pregenealogical_similarity_to_w1 = float(agreements_with_w1.cardinality()) / float(extant.cardinality());
-	float pregenealogical_similarity_to_w2 = float(agreements_with_w2.cardinality()) / float(extant.cardinality());
-	return pregenealogical_similarity_to_w1 > pregenealogical_similarity_to_w2 ? true : (pregenealogical_similarity_to_w1 < pregenealogical_similarity_to_w2 ? false : false);
+bool witness::potential_ancestor_comp(const witness & w1, const witness & w2) const {
+	genealogical_comparison w1_comp = genealogical_comparisons.at(w1.get_id());
+	genealogical_comparison w2_comp = genealogical_comparisons.at(w2.get_id());
+	return w1_comp.cost < w2_comp.cost;
 }
 
 /**
@@ -195,22 +181,24 @@ list<string> witness::get_potential_ancestor_ids() const {
 
 /**
  * Given a list of witnesses, populates this witness's list of potential ancestor IDs,
- * sorting the other witnesses by their pregenealogical similarity with this witness
- * and filtering them based on their genealogical priority relative to this witness.
+ * sorting the other witnesses by genealogical cost relative to this witness
+ * and filtering out any witnesses not genealogically prior to this witness.
  */
 void witness::set_potential_ancestor_ids(const list<witness> & witnesses) {
 	potential_ancestor_ids = list<string>();
 	list<witness> wits = list<witness>(witnesses);
-	//Sort the input list by pregenealogical similarity to this witness:
-	wits.sort([this](witness & w1, witness & w2) {
-		return pregenealogical_comp(w1, w2);
+	//Sort the input list by genealogical cost relative to this witness:
+	wits.sort([this](const witness & w1, const witness & w2) {
+		return potential_ancestor_comp(w1, w2);
 	});
 	//Now iterate through the sorted list,
 	//copying over only the IDs of the witnesses that are genealogically prior to this witness:
 	for (witness wit : wits) {
-		string other_id = wit.get_id();
-		if (get_explained_readings_for_witness(other_id).cardinality() > wit.get_explained_readings_for_witness(id).cardinality()) {
-			potential_ancestor_ids.push_back(other_id);
+		string wit_id = wit.get_id();
+		genealogical_comparison comp = genealogical_comparisons.at(wit_id);
+		genealogical_comparison other_comp = wit.get_genealogical_comparison_for_witness(id);
+		if (comp.explained.cardinality() > other_comp.explained.cardinality()) {
+			potential_ancestor_ids.push_back(wit_id);
 		}
 	}
 	return;
@@ -229,17 +217,18 @@ list<string> witness::get_global_stemma_ancestor_ids() const {
  */
 void witness::set_global_stemma_ancestor_ids() {
 	global_stemma_ancestor_ids = list<string>();
-	//Populate a vector of set cover rows using the explained readings bitmaps for this witness's potential ancestors:
+	//Populate a vector of set cover rows using the explained readings bitmaps and genealogical costs of this witness's potential ancestors:
 	vector<set_cover_row> rows = vector<set_cover_row>();
-	for (string secondary_wit_id : potential_ancestor_ids) {
+	for (string wit_id : potential_ancestor_ids) {
+		genealogical_comparison comp = genealogical_comparisons.at(wit_id);
 		set_cover_row row;
-		row.id = secondary_wit_id;
-		row.bits = explained_readings_by_witness[secondary_wit_id];
-		row.cost = (explained_readings_by_witness[id] ^ agreements_by_witness[secondary_wit_id]).cardinality();
+		row.id = wit_id;
+		row.bits = comp.explained;
+		row.cost = comp.cost;
 		rows.push_back(row);
 	}
 	//Initialize the bitmap of the target set to be covered:
-	Roaring target = explained_readings_by_witness[id];
+	Roaring target = genealogical_comparisons.at(id).explained;
 	//Initialize the list of solutions to be populated:
 	list<set_cover_solution> solutions;
 	//Then populate it using the solver:

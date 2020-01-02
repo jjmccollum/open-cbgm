@@ -27,8 +27,9 @@ struct textual_flow_vertex {
 struct textual_flow_edge {
 	string ancestor;
 	string descendant;
-	int connectivity;
 	flow_type type;
+	int connectivity;
+	float strength;
 };
 struct textual_flow_graph {
 	list<textual_flow_vertex> vertices;

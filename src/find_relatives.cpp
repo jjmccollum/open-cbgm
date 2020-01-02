@@ -28,7 +28,7 @@ using namespace std;
 struct witness_comparison {
 	string id; //ID of the secondary witness
 	int dir; //-1 if primary witness is prior; 1 if posterior; 0 otherwise
-	int nr; //rank of the secondary witness as a potential ancestor of the primary witness
+	//int nr; //rank of the secondary witness as a potential ancestor of the primary witness
 	list<string> rdgs; //readings of the secondary witness at the given variation unit
 	int pass; //number of variation units where the primary witness is extant
 	float perc; //percentage of agreement in variation units where the primary witness is extant
@@ -220,15 +220,18 @@ int main(int argc, char* argv[]) {
 	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
 	list<witness_comparison> comparisons = list<witness_comparison>();
 	unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-	Roaring primary_extant = primary_wit.get_explained_readings_for_witness(primary_wit_id);
 	for (witness secondary_wit : secondary_witnesses) {
 		string secondary_wit_id = secondary_wit.get_id();
-		Roaring secondary_extant = secondary_wit.get_explained_readings_for_witness(secondary_wit_id);
+		genealogical_comparison primary_primary_comp = primary_wit.get_genealogical_comparison_for_witness(primary_wit_id);
+		genealogical_comparison primary_secondary_comp = primary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
+		genealogical_comparison secondary_primary_comp = secondary_wit.get_genealogical_comparison_for_witness(primary_wit_id);
+		genealogical_comparison secondary_secondary_comp = secondary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
+		Roaring primary_extant = primary_primary_comp.explained;
+		Roaring secondary_extant = secondary_secondary_comp.explained;
 		Roaring mutually_extant = primary_extant & secondary_extant;
-		Roaring agreements = primary_wit.get_agreements_for_witness(secondary_wit_id);
-		Roaring primary_explained_by_secondary = primary_wit.get_explained_readings_for_witness(secondary_wit_id);
-		Roaring secondary_explained_by_primary = secondary_wit.get_explained_readings_for_witness(primary_wit_id);
-		//Roaring mutually_explained = primary_explained_by_secondary & secondary_explained_by_primary;
+		Roaring agreements = primary_secondary_comp.agreements;
+		Roaring primary_explained_by_secondary = primary_secondary_comp.explained;
+		Roaring secondary_explained_by_primary = secondary_primary_comp.explained;
 		witness_comparison comparison;
 		comparison.id = secondary_wit_id;
 		comparison.rdgs = list<string>();
@@ -239,9 +242,6 @@ int main(int argc, char* argv[]) {
 		comparison.eq = agreements.cardinality();
 		comparison.prior = (secondary_explained_by_primary ^ agreements).cardinality();
 		comparison.posterior = (primary_explained_by_secondary ^ agreements).cardinality();
-		//comparison.prior = (secondary_explained_by_primary ^ mutually_explained).cardinality();
-		//comparison.posterior = (primary_explained_by_secondary ^ mutually_explained).cardinality();
-		//comparison.uncl = (mutually_explained ^ agreements).cardinality();
 		comparison.norel = comparison.pass - comparison.eq - comparison.prior - comparison.posterior;
 		comparison.perc = comparison.pass > 0 ? (100 * float(comparison.eq) / float(comparison.pass)) : 0;
 		comparison.dir = comparison.prior > comparison.posterior ? -1 : (comparison.posterior > comparison.prior ? 1 : 0);
@@ -251,6 +251,7 @@ int main(int argc, char* argv[]) {
 	comparisons.sort([](const witness_comparison & wc1, const witness_comparison & wc2) {
 		return wc1.perc > wc2.perc ? true : (wc1.perc < wc2.perc ? false : false);
 	});
+	/*
 	//Pass through the sorted list of comparison to assign ancestral ranks:
 	int nr = 1;
 	for (witness_comparison & comparison : comparisons) {
@@ -265,6 +266,7 @@ int main(int argc, char* argv[]) {
 			comparison.nr = -1;
 		}
 	}
+	*/
 	if (filter_reading.empty()) {
 		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " ";
 	}
@@ -288,8 +290,8 @@ int main(int argc, char* argv[]) {
 	}
 	cout << std::left << std::setw(8) << "W2";
 	cout << std::left << std::setw(4) << "DIR";
-	cout << std::right << std::setw(8) << "NR";
-	cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
+	//cout << std::right << std::setw(8) << "NR";
+	//cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
 	cout << std::left << std::setw(8) << "RDG";
 	cout << std::right << std::setw(8) << "PASS";
 	cout << std::right << std::setw(12) << "PERC";
@@ -320,8 +322,8 @@ int main(int argc, char* argv[]) {
 		}
 		cout << std::left << std::setw(8) << comparison.id;
 		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
-		cout << std::right << std::setw(8) << (comparison.nr > 0 ? to_string(comparison.nr) : "");
-		cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
+		//cout << std::right << std::setw(8) << (comparison.nr > 0 ? to_string(comparison.nr) : "");
+		//cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
 		cout << std::left << std::setw(8) << rdgs_str;
 		cout << std::right << std::setw(8) << comparison.pass;
 		cout << std::right << std::setw(11) << fixed << std::setprecision(3) << comparison.perc << "%";

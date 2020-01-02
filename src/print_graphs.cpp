@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
 	}
 	//If any type of textual flow diagrams are requested, then construct the textual flow diagrams for all variation units:
 	vector<textual_flow> tfs = vector<textual_flow>();
-	if (!(flow || attestations || variants)) {
+	if (flow || attestations || variants) {
 		cout << "Calculating textual flow for all variation units..." << endl;
 		for (variation_unit vu : app.get_variation_units()) {
 			textual_flow tf = textual_flow(vu, witnesses);

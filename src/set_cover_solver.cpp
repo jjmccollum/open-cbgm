@@ -7,8 +7,9 @@
 
 #include <string>
 #include <list>
-#include <vector>
 #include <stack>
+#include <vector>
+#include <unordered_map>
 
 #include "set_cover_solver.h"
 #include "roaring.hh"
@@ -30,12 +31,6 @@ set_cover_solver::set_cover_solver(const vector<set_cover_row> & _rows, const Ro
 	//Copy the input rows and target set:
 	rows = vector<set_cover_row>(_rows);
 	target = Roaring(_target);
-	//Initialize bitmaps representing rows included in the current solution and rows to be processed:
-	accepted = Roaring();
-	remaining = Roaring();
-	remaining.addRange(0, rows.size());
-	//Initialize a stack of branch-and-bound nodes:
-	nodes = stack<branch_and_bound_node>();
 }
 
 /**
@@ -46,12 +41,6 @@ set_cover_solver::set_cover_solver(const vector<set_cover_row> & _rows, const Ro
 	//Copy the input rows and target set:
 	rows = vector<set_cover_row>(_rows);
 	target = Roaring(_target);
-	//Initialize bitmaps representing rows included in the current solution and rows to be processed:
-	accepted = Roaring();
-	remaining = Roaring();
-	remaining.addRange(0, rows.size());
-	//Initialize a stack of branch-and-bound nodes:
-	nodes = stack<branch_and_bound_node>();
 	//Set the fixed upper bound:
 	fixed_ub = _fixed_ub;
 }
@@ -61,6 +50,23 @@ set_cover_solver::set_cover_solver(const vector<set_cover_row> & _rows, const Ro
  */
 set_cover_solver::~set_cover_solver() {
 
+}
+
+/**
+ * Given a bitmap representing a set of rows in a solution,
+ * returns a set cover solution data structure containing those rows.
+ */
+set_cover_solution set_cover_solver::get_solution_from_rows(const Roaring & solution_rows) const {
+	set_cover_solution solution;
+	solution.rows = list<set_cover_row>();
+	solution.cost = 0;
+	for (Roaring::const_iterator it = solution_rows.begin(); it != solution_rows.end(); it++) {
+		unsigned int row_ind = *it;
+		set_cover_row row = rows[row_ind];
+		solution.rows.push_back(row);
+		solution.cost += row.cost;
+	}
+	return solution;
 }
 
 /**
@@ -140,47 +146,13 @@ list<set_cover_row> set_cover_solver::get_unique_rows() const {
 }
 
 /**
- * Adds the next candidate solution node to the stack.
+ * Given a bitmap representing a set of rows,
+ * returns a boolean value indicating if that set of rows constitutes a feasible set cover solution.
  */
-void set_cover_solver::branch() {
-	//Update the target set using the current set of accepted rows:
-	Roaring uncovered = Roaring(target);
-	for (Roaring::const_iterator it = accepted.begin(); it != accepted.end(); it++) {
-		unsigned int row_ind = *it;
-		set_cover_row row = rows[row_ind];
-		uncovered ^= uncovered & row.bits;
-	}
-	//Find the first remaining row:
-	unsigned int next_row_ind = 0;
-	remaining.select(0, & next_row_ind);
-	//Add a node for it:
-	branch_and_bound_node next_node;
-	next_node.candidate_row = next_row_ind;
-	next_node.state = node_state::ACCEPT;
-	nodes.push(next_node);
-	return;
-}
-
-/**
- * Returns a lower bound on the cost of any solution that contains the current set of accepted rows.
- */
-int set_cover_solver::bound() const {
-	int bound = 0;
-	for (Roaring::const_iterator it = accepted.begin(); it != accepted.end(); it++) {
-		unsigned int row_ind = *it;
-		set_cover_row row = rows[row_ind];
-		bound += row.cost;
-	}
-	return bound;
-}
-
-/**
- * Returns a boolean value indicating if the current set of accepted rows constitutes a feasible set cover solution.
- */
-bool set_cover_solver::is_feasible() const {
+bool set_cover_solver::is_feasible(const Roaring & solution_rows) const {
 	//Check if the target set is covered by the accepted rows:
 	Roaring row_union = Roaring();
-	for (Roaring::const_iterator it = accepted.begin(); it != accepted.end(); it++) {
+	for (Roaring::const_iterator it = solution_rows.begin(); it != solution_rows.end(); it++) {
 		unsigned int row_ind = *it;
 		set_cover_row row = rows[row_ind];
 		row_union |= row.bits;
@@ -192,21 +164,27 @@ bool set_cover_solver::is_feasible() const {
 }
 
 /**
- * Returns a boolean value indicating if any solution containing the current set of accepted rows is feasible.
+ * Given a bitmap representing the rows included in a solution,
+ * does a backwards pass through the solution rows and removes any that are not necessary to the solution's feasibility.
  */
-bool set_cover_solver::is_any_branch_feasible() const {
-	//Check if the target set is covered by the accepted and remaining rows:
-	Roaring rows_in_branch = accepted | remaining;
-	Roaring row_union = Roaring();
-	for (Roaring::const_iterator it = rows_in_branch.begin(); it != rows_in_branch.end(); it++) {
-		unsigned int row_ind = *it;
+void set_cover_solver::remove_redundant_rows_from_solution(Roaring & solution_rows) const {
+	//Loop backwards through the set of solution row indices to remove the highest-cost redundant columns:
+	Roaring unprocessed_rows = Roaring(solution_rows);
+	while (unprocessed_rows.cardinality() > 0) {
+		//Get the highest-index (i.e., highest-cost) unprocessed row:
+		unsigned int row_ind = 0;
+		unprocessed_rows.select(unprocessed_rows.cardinality() - 1, & row_ind);
 		set_cover_row row = rows[row_ind];
-		row_union |= row.bits;
-		if (target.isSubset(row_union)) {
-			return true;
+		//Remove the row and check if it is redundant (i.e., if the reduced solution set without it is feasible):
+		solution_rows.remove(row_ind);
+		if (!is_feasible(solution_rows)) {
+			//If it isn't redundant, then add it back to the reduced row set:
+			solution_rows.add(row_ind);
 		}
+		//Pop this row from the back of the unprocessed set:
+		unprocessed_rows.remove(row_ind);
 	}
-	return false;
+	return;
 }
 
 /**
@@ -233,7 +211,7 @@ set_cover_solution set_cover_solver::get_trivial_solution() const {
  * Returns the set cover solution found by the basic greedy heuristic.
  */
 set_cover_solution set_cover_solver::get_greedy_solution() const {
-	Roaring initial_greedy_solution_candidates = Roaring();
+	Roaring greedy_solution_rows = Roaring();
 	Roaring uncovered = Roaring(target);
 	//Until the target is completely covered, choose the row with the lowest cost-to-coverage proportion:
 	while (uncovered.cardinality() > 0) {
@@ -249,44 +227,51 @@ set_cover_solution set_cover_solver::get_greedy_solution() const {
 				continue;
 			}
 			float density = float(cost) / float(coverage);
-			if (density < best_density && !initial_greedy_solution_candidates.contains(row_ind)) {
+			if (density < best_density && !greedy_solution_rows.contains(row_ind)) {
 				best_density = density;
 				best_row_ind = row_ind;
 			}
 			row_ind++;
 		}
-		//Add the best-found row to the solution, and remove its overlap with the target set from the target set:
-		initial_greedy_solution_candidates.add(best_row_ind);
+		//Add the best-found row to the initial solution, and remove its overlap with the target set from the target set:
+		greedy_solution_rows.add(best_row_ind);
 		set_cover_row best_row = rows[best_row_ind];
 		uncovered ^= uncovered & best_row.bits;
 	}
-	//Now loop backwards through the set of added row indices to remove the highest-cost redundant columns:
-	Roaring reduced_greedy_solution_candidates = Roaring(initial_greedy_solution_candidates);
-	set_cover_solution reduced_greedy_solution;
-	reduced_greedy_solution.cost = 0;
-	while (initial_greedy_solution_candidates.cardinality() > 0) {
-		//Get the highest-index (i.e., highest-cost) row:
-		unsigned int row_ind = 0;
-		initial_greedy_solution_candidates.select(initial_greedy_solution_candidates.cardinality() - 1, & row_ind);
+	//Now remove any redundant columns from this solution:
+	remove_redundant_rows_from_solution(greedy_solution_rows);
+	set_cover_solution greedy_solution = get_solution_from_rows(greedy_solution_rows);
+	return greedy_solution;
+}
+
+/**
+ * Given a bitmap representing rows remaining to be processed and a stack of branch-and-bound nodes,
+ * adds the a candidate solution node for the next row to the stack.
+ */
+void set_cover_solver::branch(const Roaring & remaining, stack<branch_and_bound_node> & nodes) {
+	//Find the first remaining row:
+	unsigned int next_row_ind = 0;
+	remaining.select(0, & next_row_ind);
+	//Add a node for it:
+	branch_and_bound_node node;
+	node.row = next_row_ind;
+	node.state = node_state::ACCEPT;
+	nodes.push(node);
+	return;
+}
+
+/**
+ * Given a bitmap of solution rows,
+ * returns a lower bound on the cost of any solution that contains those rows.
+ */
+int set_cover_solver::bound(const Roaring & solution_rows) const {
+	int bound = 0;
+	for (Roaring::const_iterator it = solution_rows.begin(); it != solution_rows.end(); it++) {
+		unsigned int row_ind = *it;
 		set_cover_row row = rows[row_ind];
-		//Check if it is redundant (i.e., if the other rows still in the reduced solution set can cover the original target set):
-		reduced_greedy_solution_candidates.remove(row_ind);
-		Roaring row_union = Roaring();
-		for (Roaring::const_iterator it = reduced_greedy_solution_candidates.begin(); it != reduced_greedy_solution_candidates.end(); it++) {
-			unsigned int other_row_ind = *it;
-			set_cover_row other_row = rows[other_row_ind];
-			row_union |= other_row.bits;
-		}
-		if (!target.isSubset(row_union)) {
-			//If it isn't redundant, then add it back to the set of candidates and include it in the reduced greedy solution:
-			reduced_greedy_solution_candidates.add(row_ind);
-			reduced_greedy_solution.rows.push_front(row);
-			reduced_greedy_solution.cost += row.cost;
-		}
-		//Pop this row from the back of the initial set:
-		initial_greedy_solution_candidates.remove(row_ind);
+		bound += row.cost;
 	}
-	return reduced_greedy_solution;
+	return bound;
 }
 
 /**
@@ -294,6 +279,14 @@ set_cover_solution set_cover_solver::get_greedy_solution() const {
  * If the set cover solver was constructed with a fixed upper bound, then this method will enumerate all solutions with costs within that bound.
  */
 void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
+	//Initialize a map of solution row set bitmaps, keyed by their serializations:
+	unordered_map<string, Roaring> distinct_row_sets = unordered_map<string, Roaring>();
+	//Initialize bitmaps representing rows included in the current solution and rows to be processed:
+	Roaring accepted = Roaring();
+	Roaring remaining = Roaring();
+	remaining.addRange(0, rows.size());
+	//Initialize a stack of branch-and-bound nodes:
+	stack<branch_and_bound_node> nodes = stack<branch_and_bound_node>();
 	//If no fixed upper bound is specified, then obtain a good initial upper bound quickly using the trivial solution and the greedy solution:
 	int ub = fixed_ub;
 	if (fixed_ub < 0) {
@@ -302,62 +295,65 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 		ub = min(trivial_solution.cost, greedy_solution.cost);
 	}
 	//Initialize the stack of branch and bound nodes with the first node:
-	branch();
+	branch(remaining, nodes);
 	//Then continue with branch and bound until there is nothing left to be processed:
 	while (!nodes.empty()) {
 		//Get the current node from the stack:
 		branch_and_bound_node & node = nodes.top();
 		//Adjust the set partitions to reflect the candidate solution representing by the current node:
-		unsigned int candidate_row = node.candidate_row;
+		unsigned int row = node.row;
 		if (node.state == node_state::ACCEPT) {
 			//Add the candidate row to the solution:
-			remaining.remove(candidate_row);
-			accepted.add(candidate_row);
+			remaining.remove(row);
+			accepted.add(row);
 			//Update its state:
 			node.state = node_state::REJECT;
 		}
 		else if (node.state == node_state::REJECT) {
 			//Exclude the candidate row from the solution:
-			accepted.remove(candidate_row);
+			accepted.remove(row);
 			//Update its state:
 			node.state = node_state::DONE;
 		}
 		else {
 			//We're done processing this node, and we can add its row back to the set of available rows:
-			remaining.add(candidate_row);
+			remaining.add(row);
 			nodes.pop();
 			continue;
 		}
-		//Lower-bound the cost of any solution under the current node:
-		int lb = bound();
-		//Check if this node represents a feasible solution:
-		if (is_feasible()) {
-			//If it is, then the lower bound we calculated is this solution's cost; check if it is within the current upper bound:
-			if (lb <= ub) {
-				//If it is within the upper bound, then add a solution to the list;
-				//if the upper bound is not fixed, then update the upper bound, as well:
+		//Check if current set of accepted rows represents a feasible solution:
+		if (is_feasible(accepted)) {
+			//If it does, then remove any redundant rows from the solution
+			//and calculate the cost of the solution:
+			Roaring solution_rows = Roaring(accepted);
+			remove_redundant_rows_from_solution(solution_rows);
+			int cost = bound(solution_rows);
+			//Check if this cost is within the current upper bound:
+			if (cost <= ub) {
+				//If it is, then add the solution row bitmap to the solution set:
+				string serialized = solution_rows.toString();
+				distinct_row_sets[serialized] = solution_rows;
+				//If the upper bound is not fixed, then update the upper bound, as well:
 				if (fixed_ub < 0) {
-					ub = lb;
+					ub = cost;
 				}
-				set_cover_solution solution;
-				solution.rows = list<set_cover_row>();
-				for (Roaring::const_iterator it = accepted.begin(); it != accepted.end(); it++) {
-					unsigned int row_ind = *it;
-					set_cover_row row = rows[row_ind];
-					solution.rows.push_back(row);
-				}
-				solution.cost = lb;
-				solutions.push_back(solution);
 			}
 		}
 		//If it is not, then check if there is any feasible solution under the current node:
-		else if (is_any_branch_feasible()) {
-			//If there is, then check if it could have a cost within the upper bound:
+		else if (is_feasible(accepted | remaining)) {
+			//Lower-bound the cost of any solution under the current node:
+			int lb = bound(accepted);
+			//If this lower bound is within the upper bound, then branch on this node:
 			if (lb <= ub) {
-				//If so, then branch on this node:
-				branch();
+				branch(remaining, nodes);
 			}
 		}
+	}
+	//For each distinct set of solution rows, add a set cover solution data structure to the solutions list:
+	for (pair<string, Roaring> kv : distinct_row_sets) {
+		Roaring solution_rows = kv.second;
+		set_cover_solution solution = get_solution_from_rows(solution_rows);
+		solutions.push_back(solution);
 	}
 	return;
 }
@@ -369,7 +365,7 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 	solutions = list<set_cover_solution>();
 	//If any column cannot be covered by the rows provided, then we're done:
-	if (!is_any_branch_feasible()) {
+	if (get_uncovered_columns().cardinality() > 0) {
 		return;
 	}
 	//If any rows uniquely cover one or more columns, then those rows must be set aside to be included in the solution:

@@ -14,6 +14,7 @@
 #include <unordered_set> //for large sets keyed by witnesses
 #include <map> //for small maps keyed by readings
 #include <unordered_map> //for large maps keyed by witnesses
+#include <limits>
 
 #include "pugixml.h"
 #include "roaring.hh"
@@ -61,16 +62,25 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		if (potential_ancestor_ids.empty()) {
 			continue;
 		}
-		//Otherwise, identify this witness's textual flow ancestor for this variation unit:
+		//Otherwise, proceed to identify this witness's textual flow ancestor for this variation unit:
 		string textual_flow_ancestor_id;
-		int con = 0;
+		int con = -1;
+		int con_value = -1; //connectivity rank only changes when this value changes
 		flow_type type = flow_type::NONE;
 		//If the witness is extant, then attempt to find an ancestor with an equal or prior reading:
 		if (!wit_rdgs.empty()) {
 			//If there is a potential ancestor within the connectivity limit that agrees with this witness,
 			//then it is the textual flow ancestor:
-			con = 0;
+			con = -1;
+			con_value = -1;
 			for (string potential_ancestor_id : potential_ancestor_ids) {
+				//Update the connectivity rank if the connectivity value changes:
+				genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
+				int agreements = comp.agreements.cardinality();
+				if (agreements != con_value) {
+					con_value = agreements;
+					con++;
+				}
 				//If we reach the connectivity limit, then exit the loop early:
 				if (con == connectivity) {
 					break;
@@ -92,14 +102,24 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 					type = wit_rdgs.size() > 1 ? flow_type::AMBIGUOUS : flow_type::EQUAL;
 					break;
 				}
-				//Otherwise, continue through the loop:
-				con++;
 			}
-			//If no textual flow ancestor that agrees with its reading has been found,
-			//then the first potential ancestor with a prior reading is its textual flow ancestor:
+			//Otherwise, if there is a potential ancestor within the connectivity limit that has a prior reading,
+			//then it is the textual flow ancestor:
 			if (textual_flow_ancestor_id.empty()) {
-				con = 0;
+				con = -1;
+				con_value = -1;
 				for (string potential_ancestor_id : potential_ancestor_ids) {
+					//Update the connectivity rank if the connectivity value changes:
+					genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
+					int agreements = comp.agreements.cardinality();
+					if (agreements != con_value) {
+						con_value = agreements;
+						con++;
+					}
+					//If we reach the connectivity limit, then exit the loop early:
+					if (con == connectivity) {
+						break;
+					}
 					//If this potential ancestor explains the current witness here, then we're done:
 					bool explained = false;
 					if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
@@ -111,32 +131,40 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 								}
 							}
 						}
-						textual_flow_ancestor_id = potential_ancestor_id;
-						break;
 					}
 					if (explained) {
 						textual_flow_ancestor_id = potential_ancestor_id;
 						type = flow_type::CHANGE;
 						break;
 					}
-					//Otherwise, continue through the loop:
-					con++;
 				}
 			}
 		}
 		//If the witness is lacunose at this variation unit,
 		//then the first extant potential ancestor is its textual flow ancestor:
 		else {
-			con = 0;
+			con = -1;
+			con_value = -1;
 			for (string potential_ancestor_id : potential_ancestor_ids) {
+				//Update the connectivity rank if the connectivity value changes:
+				genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
+				int agreements = comp.agreements.cardinality();
+				if (agreements != con_value) {
+					con_value = agreements;
+					con++;
+				}
 				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
 					textual_flow_ancestor_id = potential_ancestor_id;
 					type = flow_type::LOSS;
 					break;
 				}
-				//Otherwise, continue through the loop:
-				con++;
 			}
+		}
+		//If a textual flow ancestor has not been found
+		//because a witness has a reading with an unclear origin at this variation unit,
+		//then do not add an edge:
+		if (textual_flow_ancestor_id.empty()) {
+			continue;
 		}
 		//Calculate the strength of the textual flow from the textual flow ancestor to its descendant
 		//based on relative proportion of prior readings to extant readings:
@@ -194,7 +222,7 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit:
-	out << "\tlabel [shape=box, label=\"" << label << "\\nCon=" << connectivity << "\"];\n";
+	out << "\tlabel [shape=box, label=\"" << label << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
 	//Add all of the graph nodes, keeping track of their numerical indices:
 	unordered_map<string, int> id_to_index = unordered_map<string, int>();
 	for (textual_flow_vertex v : graph.vertices) {
@@ -202,7 +230,7 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 		string wit_id = v.id;
 		list<string> wit_rdgs = v.rdgs;
 		id_to_index[wit_id] = id_to_index.size();
-		int wit_index = id_to_index[wit_id];
+		int wit_index = id_to_index.at(wit_id);
 		//Serialize its readings list:
 		string serialized = "";
 		for (string wit_rdg : wit_rdgs) {
@@ -230,17 +258,8 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 	//Add all of the graph edges:
 	for (textual_flow_edge e : graph.edges) {
 		//Get the indices corresponding to the endpoints' IDs:
-		int ancestor_ind = id_to_index[e.ancestor];
-		int descendant_ind = id_to_index[e.descendant];
-		//Ambiguous changes are indicated by double-lined arrows;
-		//all other changes are indicated by single-lined arrows:
-		string edge_arrow = "";
-		if (e.type == flow_type::AMBIGUOUS) {
-			edge_arrow = " => ";
-		}
-		else {
-			edge_arrow = " -> ";
-		}
+		int ancestor_ind = id_to_index.at(e.ancestor);
+		int descendant_ind = id_to_index.at(e.descendant);
 		//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
 		string edge_label = "";
 		if (e.connectivity > 0) {
@@ -250,11 +269,14 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 		}
 		//Format the color based on the flow type:
 		string edge_color = "";
-		if (e.type == flow_type::EQUAL || e.type == flow_type::AMBIGUOUS) {
+		if (e.type == flow_type::EQUAL) {
 			edge_color = "color=black";
 		}
 		else if (e.type == flow_type::CHANGE) {
 			edge_color = "color=blue";
+		}
+		else if (e.type == flow_type::AMBIGUOUS) {
+			edge_color = "color=\"black:invis:black\"";
 		}
 		else if (e.type == flow_type::LOSS) {
 			edge_color = "color=gray";
@@ -280,7 +302,7 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 			edge_style = "penwidth=4.0";
 		}
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << edge_arrow << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
 	}
 	out << "}" << endl;
 	return;
@@ -296,7 +318,7 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit and the selected reading:
-	out << "\tlabel [shape=box, label=\"" << label << rdg << "\\nCon=" << connectivity << "\"];\n";
+	out << "\tlabel [shape=box, label=\"" << label << rdg << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
 	//Maintain a map of node IDs to numerical indices
 	//and a vector of vertex data structures:
 	unordered_map<string, int> id_to_index = unordered_map<string, int>();
@@ -389,15 +411,6 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 		//Otherwise, get the indices of the endpoints:
 		int ancestor_ind = id_to_index.at(ancestor_id);
 		int descendant_ind = id_to_index.at(descendant_id);
-		//Ambiguous changes are indicated by double-lined arrows;
-		//all other changes are indicated by single-lined arrows:
-		string edge_arrow = "";
-		if (e.type == flow_type::AMBIGUOUS) {
-			edge_arrow = " => ";
-		}
-		else {
-			edge_arrow = " -> ";
-		}
 		//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
 		string edge_label = "";
 		if (e.connectivity > 0) {
@@ -412,6 +425,9 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 		}
 		else if (e.type == flow_type::CHANGE) {
 			edge_color = "color=blue";
+		}
+		else if (e.type == flow_type::AMBIGUOUS) {
+			edge_color = "color=\"black:invis:black\"";
 		}
 		else if (e.type == flow_type::LOSS) {
 			edge_color = "color=gray";
@@ -437,7 +453,7 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 			edge_style = "penwidth=4.0";
 		}
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << edge_arrow << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
 	}
 	out << "}" << endl;
 	return;
@@ -452,7 +468,7 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out) {
 	//Add a line indicating that nodes do not have any shape:
 	out << "\tnode [shape=plaintext];\n";
 	//Add a box node indicating the label of this variation_unit:
-	out << "\tlabel [shape=box, label=\"" << label << "\\nCon=" << connectivity << "\"];\n";
+	out << "\tlabel [shape=box, label=\"" << label << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
 	//Maintain a map of node IDs to numerical indices
 	//and a vector of vertex data structures:
 	unordered_map<string, int> id_to_index = unordered_map<string, int>();
@@ -522,15 +538,6 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out) {
 		//Get the indices corresponding to the endpoints' IDs:
 		int ancestor_ind = id_to_index.at(e.ancestor);
 		int descendant_ind = id_to_index.at(e.descendant);
-		//Ambiguous changes are indicated by double-lined arrows;
-		//all other changes are indicated by single-lined arrows:
-		string edge_arrow = "";
-		if (e.type == flow_type::AMBIGUOUS) {
-			edge_arrow = " => ";
-		}
-		else {
-			edge_arrow = " -> ";
-		}
 		//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
 		string edge_label = "";
 		if (e.connectivity > 0) {
@@ -545,6 +552,9 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out) {
 		}
 		else if (e.type == flow_type::CHANGE) {
 			edge_color = "color=blue";
+		}
+		else if (e.type == flow_type::AMBIGUOUS) {
+			edge_color = "color=\"black:invis:black\"";
 		}
 		else if (e.type == flow_type::LOSS) {
 			edge_color = "color=gray";
@@ -570,7 +580,7 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out) {
 			edge_style = "penwidth=4.0";
 		}
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << edge_arrow << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
 	}
 	out << "}" << endl;
 	return;

@@ -12,6 +12,7 @@
 #include <set>
 #include <map> //for small maps keyed by readings
 #include <unordered_map> //for large maps keyed by witnesses
+#include <limits>
 
 #include "pugixml.h"
 #include "roaring.hh"
@@ -53,7 +54,7 @@ variation_unit::variation_unit(const pugi::xml_node & xml, const set<string> & d
 		//Get the reading's ID:
 		string rdg_id = rdg.attribute("n").value();
 		string rdg_text = rdg.text() ? rdg.text().get() : "";
-		//The reading can have 2^3 = 8 possible type combinations encode these in an integer:
+		//The reading can have 2^3 = 8 possible type combinations; encode these in an integer:
 		int rdg_type_code = 0;
 		const string type_string = rdg.attribute("type") ? rdg.attribute("type").value() : "";
 		char * type_chars = new char[type_string.length() + 1];
@@ -61,7 +62,6 @@ variation_unit::variation_unit(const pugi::xml_node & xml, const set<string> & d
 		const char delim[] = " ";
 		char * type_token = strtok(type_chars, delim);
 		while (type_token) {
-			//Strip each reference of the "#" character and add the resulting ID to the witnesses set:
 			string rdg_type = string(type_token);
 			if (rdg_type == "defective") {
 				rdg_type_code += 1;
@@ -328,11 +328,15 @@ variation_unit::variation_unit(const pugi::xml_node & xml, const set<string> & d
 			reading_support[wit].push_back(current_rdg);
 		}
 	}
-	//Set the connectivity value:
+	//Set the connectivity value, using MAX_INT as a default for absolute connectivity:
+	connectivity = numeric_limits<int>::max();
+	//If there is a connectivity feature with a <numeric> child that has a "value" attribute that parses to an int, then use that value:
 	pugi::xpath_node numeric_path = xml.select_node("fs/f[@name=\"connectivity\"]/numeric");
 	if (numeric_path) {
 		pugi::xml_node numeric = numeric_path.node();
-		connectivity = numeric.attribute("value") ? numeric.attribute("value").as_int() : connectivity;
+		if (numeric.attribute("value") && numeric.attribute("value").as_int()) {
+			connectivity = numeric.attribute("value").as_int();
+		}
 	}
 	//Initialize the local stemma graph:
 	pugi::xml_node stemma_node = xml.child("graph");

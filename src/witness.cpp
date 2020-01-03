@@ -164,12 +164,12 @@ genealogical_comparison witness::get_genealogical_comparison_for_witness(const s
 
 /**
  * Gets the genealogical_comparisons for the two given witnesses relative to this witness
- * and returns a boolean value indicating whether the cost of the first is less than the cost of the second.
+ * and returns a boolean value indicating whether the number of agreements with the first is greater than the number of agreements with the second.
  */
 bool witness::potential_ancestor_comp(const witness & w1, const witness & w2) const {
 	genealogical_comparison w1_comp = genealogical_comparisons.at(w1.get_id());
 	genealogical_comparison w2_comp = genealogical_comparisons.at(w2.get_id());
-	return w1_comp.cost < w2_comp.cost;
+	return w1_comp.agreements.cardinality() > w2_comp.agreements.cardinality();
 }
 
 /**
@@ -187,7 +187,7 @@ list<string> witness::get_potential_ancestor_ids() const {
 void witness::set_potential_ancestor_ids(const list<witness> & witnesses) {
 	potential_ancestor_ids = list<string>();
 	list<witness> wits = list<witness>(witnesses);
-	//Sort the input list by genealogical cost relative to this witness:
+	//Sort the input list by number of agreements with this witness:
 	wits.sort([this](const witness & w1, const witness & w2) {
 		return potential_ancestor_comp(w1, w2);
 	});
@@ -217,7 +217,7 @@ list<string> witness::get_global_stemma_ancestor_ids() const {
  */
 void witness::set_global_stemma_ancestor_ids() {
 	global_stemma_ancestor_ids = list<string>();
-	//Populate a vector of set cover rows using the explained readings bitmaps and genealogical costs of this witness's potential ancestors:
+	//Populate a vector of set cover rows using genealogical_comparisons for this witness's potential ancestors, sorted by increasing costs:
 	vector<set_cover_row> rows = vector<set_cover_row>();
 	for (string wit_id : potential_ancestor_ids) {
 		genealogical_comparison comp = genealogical_comparisons.at(wit_id);
@@ -227,6 +227,9 @@ void witness::set_global_stemma_ancestor_ids() {
 		row.cost = comp.cost;
 		rows.push_back(row);
 	}
+	sort(begin(rows), end(rows), [](const set_cover_row & r1, const set_cover_row & r2) {
+		return r1.cost < r2.cost;
+	});
 	//Initialize the bitmap of the target set to be covered:
 	Roaring target = genealogical_comparisons.at(id).explained;
 	//Initialize the list of solutions to be populated:

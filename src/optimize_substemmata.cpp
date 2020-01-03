@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
 		cout << "The witness with ID " << primary_wit_id << " has no potential ancestors. This may be because it is too fragmentary or because it has equal priority to the Ausgangstext according to local stemmata." << endl;
 		exit(0);
 	}
-	//Using this list, populate a vector of set cover rows:
+	//Using this list, populate a vector of set cover rows, sorted by increasing costs:
 	vector<set_cover_row> rows = vector<set_cover_row>();
 	for (string secondary_wit_id : primary_wit.get_potential_ancestor_ids()) {
 		genealogical_comparison comp = primary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
@@ -206,6 +206,9 @@ int main(int argc, char* argv[]) {
 		row.cost = comp.cost;
 		rows.push_back(row);
 	}
+	sort(begin(rows), end(rows), [](const set_cover_row & r1, const set_cover_row & r2) {
+		return r1.cost < r2.cost;
+	});
 	//Initialize the bitmap of the target set to be covered:
 	Roaring target = primary_wit.get_genealogical_comparison_for_witness(primary_wit_id).explained;
 	//Initialize the list of solutions to be populated:

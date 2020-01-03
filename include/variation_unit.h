@@ -14,6 +14,7 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <limits>
 
 #include "pugixml.h"
 #include "local_stemma.h"
@@ -27,7 +28,7 @@ private:
 	string label;
 	list<string> readings;
 	unordered_map<string, list<string>> reading_support;
-	int connectivity = 10;
+	int connectivity = numeric_limits<int>::max(); //absolute connectivity by default
 	local_stemma stemma;
 public:
 	variation_unit();

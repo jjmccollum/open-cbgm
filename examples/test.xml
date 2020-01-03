@@ -34,14 +34,15 @@
 						</app>
 						<!-- Local stemma with four readings and depth 2 -->
 						<app n="B00K0V0U4">
-							<label>Test 0:0/4</label>
+							<!-- Test with no label -->
 							<rdg n="a" wit="A B" />
 							<rdg n="b" wit="C" />
 							<rdg n="c" wit="D" />
 							<rdg n="d" wit="E" />
+							<!-- Test explicit "absolute" connectivity -->
 							<fs>
 								<f name="connectivity">
-									<numeric value="5" />
+									<numeric value="absolute" />
 								</f>
 							</fs>
 							<graph type="directed">
@@ -61,12 +62,8 @@
 							<rdg n="b" wit="B" />
 							<rdg n="bf" type="defective" wit="C" />
 							<rdg n="c" wit="D" />
-							<rdg n="co" type="defective" wit="E" />
-							<fs>
-								<f name="connectivity">
-									<numeric value="5" />
-								</f>
-							</fs>
+							<rdg n="co" type="orthographic" wit="E" />
+							<!-- Test default connectivity value -->
 							<graph type="directed">
 								<node n="a" />
 								<node n="b" />

@@ -28,7 +28,7 @@ With respect to feature (2), our code makes use of only three external libraries
 
 For feature (3), we made performance-minded decisions at all levels of design. We chose the pugixml library to ensure that the software would parse potentially long XML input files quickly. Likewise, we used Roaring bitmaps from the CRoaring library to encode pregenealogical and genealogical relationships, both to leverage hardware accelerations for common computations involving those relationships and to ensure that performance would scale gracefully with the number of variation units covered in collation input files. We stored data keyed by witnesses in hash tables for efficient accesses on average. Due to combinatorial nature of the problem of substemma optimization, we implemented common heuristics known to be effective at solving similar types of problems in practice. As a result, the open-cbgm library can parse the _ECM_ collation of 3 John (consisting of 137 witnesses and 116 variation units), calculate the pre-genealogical and genealogical relationships between its witnesses, and generate a global stemma for the entire book in two-and-a-half minutes on a desktop computer.
 
-Finally, for feature (4), we ensured compliance with the XML standard of the Text Encoding Initiative (TEI) by designing the software to expect an input in the TEI XML format used by the INTF and the International Greek New Testament Project (IGNTP) in their transcriptions and collations. (For specific guidelines, see TEI Consortium, eds., _TEI P5: Guidelines for Electronic Text Encoding and Interchange_ 3.6.0, 16 July 2019, TEI Consortium, http://www.tei-c.org/Guidelines/P5/ \[accessed 1 January 2020\], and Myshrall, Amy C. and Kevern, Rachel and Houghton, H.A.G. \[2016\], _IGNTP Guidelines for the Transcription of Manuscripts using the Online Transcription Editor_, manual, International Greek New Testament Project, Birmingham \[Unpublished\].) We made this possible by encoding common features of the CBGM as additional TEI XML elements in the input collation file (e.g., the feature set `<fs/>` element for a variation unit's connectivity and the `<graph/>` element for its local stemma). An example for a variation unit in 3 John is shown below.
+Finally, for feature (4), we ensured compliance with the XML standard of the Text Encoding Initiative (TEI) by designing the software to expect an input in the TEI XML format used by the INTF and the International Greek New Testament Project (IGNTP) in their transcriptions and collations. (For specific guidelines, see TEI Consortium, eds. \[2019\], _TEI P5: Guidelines for Electronic Text Encoding and Interchange (version 3.6.0)_, manual, TEI Consortium, http://www.tei-c.org/Guidelines/P5/ \[accessed 1 January 2020\], and Houghton, H.A.G. \[2016\], _IGNTP Guidelines for XML Transcriptions of New Testament Manuscripts (version 1.5)_, manual, International Greek New Testament Project \[unpublished\].) We made this possible by encoding common features of the CBGM as additional TEI XML elements in the input collation file (e.g., the feature set `<fs/>` element for a variation unit's connectivity and the `<graph/>` element for its local stemma). An example for a variation unit in 3 John is shown below.
 
 ```
 <app n="B25K1V1U2">
@@ -127,9 +127,9 @@ If you are compiling with Visual Studio, then from the open-cbgm directory, ente
     mkdir build
     cd build
     cmake ..
-    cmake --build .
+    cmake --build . --config Release
     
-Once these commands have executed, you should have all of the executable scripts added to the open-cbgm\\build\\src\\Debug directory. Note that they will have the Windows `.exe` suffix, unlike the executables on Linux and MacOS.
+Once these commands have executed, you should have all of the executable scripts added to the open-cbgm\\build\\src\\Release directory. Note that they will have the Windows `.exe` suffix, unlike the executables on Linux and MacOS.
 
 If you are compiling with MinGW, then from the open-cbgm directory, enter the following commands:
 

@@ -127,9 +127,9 @@ If you are compiling with Visual Studio, then from the open-cbgm directory, ente
     mkdir build
     cd build
     cmake ..
-    cmake --build .
+    cmake --build . --config Release
     
-Once these commands have executed, you should have all of the executable scripts added to the open-cbgm\\build\\src\\Debug directory. Note that they will have the Windows `.exe` suffix, unlike the executables on Linux and MacOS.
+Once these commands have executed, you should have all of the executable scripts added to the open-cbgm\\build\\src\\Release directory. Note that they will have the Windows `.exe` suffix, unlike the executables on Linux and MacOS.
 
 If you are compiling with MinGW, then from the open-cbgm directory, enter the following commands:
 

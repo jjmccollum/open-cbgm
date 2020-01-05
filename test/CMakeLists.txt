@@ -28,7 +28,7 @@ target_compile_features(autotest PRIVATE cxx_std_11)
 
 # Register executables as tests:
 #add_test(NAME common_read_xml COMMAND autotest)
-add_test(NAME common_read_xml COMMAND autotest "-t common_read_xml")
+add_test(common_read_xml autotest "-t common_read_xml")
 add_test(NAME local_stemma_constructor_1 COMMAND autotest "-t local_stemma_constructor_1")
 add_test(NAME local_stemma_constructor_2 COMMAND autotest "-t local_stemma_constructor_2")
 add_test(NAME local_stemma_path_exists COMMAND autotest "-t local_stemma_path_exists")

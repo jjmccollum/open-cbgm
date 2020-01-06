@@ -139,8 +139,6 @@ If you are compiling with MinGW, then from the open-cbgm directory, enter the fo
     mingw32-make
     
 Once these commands have executed, you should have all of the executable scripts added to the open-cbgm\\build\\src directory. Note that they will have the Windows `.exe` suffix, unlike the executables on Linux and MacOS.
-    
-**(TODO: Need to debug MinGW build!)**
 
 If graphviz is not installed on your system, then you can install it using Chocolately via the command
 
@@ -217,7 +215,7 @@ This method is guaranteed to return a single substemma that is both feasible and
     
 This will produce an output like the one pictured below.
 
-![Substemmata of witness 5 with costs within 17 in 3 John](https://github.com/jjmccollum/open-cbgm/blob/master/images/optimize_substemmata_5_bound_17.png)
+![Substemmata of witness 5 with costs within 10 in 3 John](https://github.com/jjmccollum/open-cbgm/blob/master/images/optimize_substemmata_5_bound_10.png)
 
 Be aware that specifying too high an upper bound may cause the procedure to take a long time.
 

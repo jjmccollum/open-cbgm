@@ -217,18 +217,20 @@ list<string> witness::get_global_stemma_ancestor_ids() const {
  */
 void witness::set_global_stemma_ancestor_ids() {
 	global_stemma_ancestor_ids = list<string>();
-	//Populate a vector of set cover rows using genealogical_comparisons for this witness's potential ancestors, sorted by increasing costs:
+	//Populate a vector of set cover rows using genealogical_comparisons for this witness's potential ancestors:
 	vector<set_cover_row> rows = vector<set_cover_row>();
 	for (string wit_id : potential_ancestor_ids) {
 		genealogical_comparison comp = genealogical_comparisons.at(wit_id);
 		set_cover_row row;
 		row.id = wit_id;
-		row.bits = comp.explained;
+		row.agreements = comp.agreements;
+		row.explained = comp.explained;
 		row.cost = comp.cost;
 		rows.push_back(row);
 	}
+	//Sort this vector by increasing cost and decreasing number of agreements:
 	sort(begin(rows), end(rows), [](const set_cover_row & r1, const set_cover_row & r2) {
-		return r1.cost < r2.cost;
+		return r1.cost < r2.cost ? true : (r1.cost > r2.cost ? false : (r1.agreements.cardinality() > r2.agreements.cardinality()));
 	});
 	//Initialize the bitmap of the target set to be covered:
 	Roaring target = genealogical_comparisons.at(id).explained;

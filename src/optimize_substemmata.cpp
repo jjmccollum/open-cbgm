@@ -12,6 +12,7 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <limits>
 
 #include "cxxopts.h"
 #include "pugixml.h"
@@ -25,11 +26,11 @@ using namespace std;
 
 /**
  * Given a list of set cover solutions (assumed to be sorted from lowest cost to highest),
- * prints the corresponding best-found substemmata for the primary witness, along with their costs.
+ * prints the corresponding best-found substemmata for the primary witness, along with their costs and number of agreements with the primary witness.
  */
 void print_substemmata(const list<set_cover_solution> & solutions) {
 	//Print the header row first:
-	cout << std::left << std::setw(64) << "SUBSTEMMA" << std::right << std::setw(8) << "COST" << "\n\n";
+	cout << std::left << std::setw(48) << "SUBSTEMMA" << std::right << std::setw(8) << "COST" << std::right << std::setw(8) << "AGREE" << "\n\n";
 	for (set_cover_solution solution : solutions) {
 		string solution_str = "";
 		for (set_cover_row row : solution.rows) {
@@ -38,7 +39,9 @@ void print_substemmata(const list<set_cover_solution> & solutions) {
 			}
 			solution_str += row.id;
 		}
-		cout << std::left << std::setw(64) << solution_str << std::right << std::setw(8) << solution.cost;
+		cout << std::left << std::setw(48) << solution_str;
+		cout << std::right << std::setw(8) << solution.cost;
+		cout << std::right << std::setw(8) << solution.agreements;
 		cout << "\n";
 	}
 	cout << endl;
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]) {
 	bool orth = false;
 	bool def = false;
 	int threshold = 0;
-	int fixed_ub = -1;
+	float fixed_ub = numeric_limits<float>::infinity();
 	string input_xml = string();
 	string primary_wit_id = string();
 	try {
@@ -64,7 +67,7 @@ int main(int argc, char* argv[]) {
 		options.add_options("")
 				("h,help", "print this help")
 				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
-				("b,bound", "fixed upper bound on substemmata cost; if specified, list all substemmata with costs within this bound", cxxopts::value<int>())
+				("b,bound", "fixed upper bound on substemmata cost; if specified, list all substemmata with costs within this bound", cxxopts::value<float>())
 				("split", "treat split attestations as distinct readings", cxxopts::value<bool>())
 				("orth", "treat orthographic subvariants as distinct readings", cxxopts::value<bool>())
 				("def", "treat defective forms as distinct readings", cxxopts::value<bool>());
@@ -83,7 +86,7 @@ int main(int argc, char* argv[]) {
 			threshold = args["t"].as<int>();
 		}
 		if (args.count("b")) {
-			fixed_ub = args["b"].as<int>();
+			fixed_ub = args["b"].as<float>();
 		}
 		if (args.count("split")) {
 			split = args["split"].as<bool>();
@@ -183,7 +186,7 @@ int main(int argc, char* argv[]) {
 		//Add it to the list:
 		secondary_witnesses.push_back(secondary_wit);
 	}
-	if (fixed_ub < 0) {
+	if (fixed_ub == numeric_limits<float>::infinity()) {
 		cout << "Finding optimal substemmata for witness " << primary_wit_id << "..." << endl;
 	}
 	else {
@@ -196,31 +199,33 @@ int main(int argc, char* argv[]) {
 		cout << "The witness with ID " << primary_wit_id << " has no potential ancestors. This may be because it is too fragmentary or because it has equal priority to the Ausgangstext according to local stemmata." << endl;
 		exit(0);
 	}
-	//Using this list, populate a vector of set cover rows, sorted by increasing costs:
+	//Using this list, populate a vector of set cover rows:
 	vector<set_cover_row> rows = vector<set_cover_row>();
 	for (string secondary_wit_id : primary_wit.get_potential_ancestor_ids()) {
 		genealogical_comparison comp = primary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
 		set_cover_row row;
 		row.id = secondary_wit_id;
-		row.bits = comp.explained;
+		row.agreements = comp.agreements;
+		row.explained = comp.explained;
 		row.cost = comp.cost;
 		rows.push_back(row);
 	}
+	//Sort this vector by increasing cost and decreasing number of agreements:
 	sort(begin(rows), end(rows), [](const set_cover_row & r1, const set_cover_row & r2) {
-		return r1.cost < r2.cost;
+		return r1.cost < r2.cost ? true : (r1.cost > r2.cost ? false : (r1.agreements.cardinality() > r2.agreements.cardinality()));
 	});
 	//Initialize the bitmap of the target set to be covered:
 	Roaring target = primary_wit.get_genealogical_comparison_for_witness(primary_wit_id).explained;
 	//Initialize the list of solutions to be populated:
 	list<set_cover_solution> solutions;
 	//Then populate it using the solver:
-	set_cover_solver solver = fixed_ub >= 0 ? set_cover_solver(rows, target, fixed_ub) : set_cover_solver(rows, target);
+	set_cover_solver solver = fixed_ub < numeric_limits<float>::infinity() ? set_cover_solver(rows, target, fixed_ub) : set_cover_solver(rows, target);
 	solver.solve(solutions);
 	//If the solution set is empty, then find out why:
 	if (solutions.empty()) {
 		//If the set cover problem is infeasible, then inform the user of the variation units corresponding to the uncovered columns:
 		Roaring uncovered_columns = solver.get_uncovered_columns();
-		if (uncovered_columns.cardinality() > 0) {
+		if (!uncovered_columns.isEmpty()) {
 			cout << "The witness with ID " << primary_wit_id << " cannot be explained by any of its potential ancestors at the following variation units: ";
 			vector<variation_unit> vus = app.get_variation_units();
 			for (Roaring::const_iterator it = uncovered_columns.begin(); it != uncovered_columns.end(); it++) {
@@ -235,7 +240,7 @@ int main(int argc, char* argv[]) {
 			exit(0);
 		}
 		//If a fixed upper bound was specified, and no solution was found, then tell the user to raise the upper bound:
-		if (fixed_ub >= 0) {
+		if (fixed_ub < numeric_limits<float>::infinity()) {
 			cout << "No substemma exists with a cost below " << fixed_ub << "; try again with a higher bound or without specifying a fixed upper bound." << endl;
 			cout << "Alternatively, if any local stemma is not connected, then it may be the source of an unexplained reading in this witness." << endl;
 			exit(0);

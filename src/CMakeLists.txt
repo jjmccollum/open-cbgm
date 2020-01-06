@@ -1,22 +1,6 @@
 #Specify headers directory:
 set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/include)
 
-# Add header files:
-set(HEADERS
-	${HEADERS_DIR}/cxxopts.h
-	${HEADERS_DIR}/roaring.h
-	${HEADERS_DIR}/roaring.hh
-	${HEADERS_DIR}/pugiconfig.h
-	${HEADERS_DIR}/pugixml.h
-	${HEADERS_DIR}/local_stemma.h
-	${HEADERS_DIR}/variation_unit.h
-	${HEADERS_DIR}/apparatus.h
-	${HEADERS_DIR}/set_cover_solver.h
-	${HEADERS_DIR}/witness.h
-	${HEADERS_DIR}/textual_flow.h
-	${HEADERS_DIR}/global_stemma.h
-)
-
 # Add object source files:
 set(SOURCES 
 	roaring.c
@@ -33,7 +17,7 @@ set(SOURCES
 # Combine the object source files into an object library:
 # TODO: We could allow the user to specify on the command line if a STATIC or SHARED library is desired instead,
 # to facilitate incorporating the core modules into their own projects.
-add_library(objects OBJECT ${SOURCES} ${HEADERS})
+add_library(objects OBJECT ${SOURCES})
 
 # Point the build targets to their include directories:
 target_include_directories(objects PRIVATE ${HEADERS_DIR})

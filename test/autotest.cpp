@@ -720,17 +720,20 @@ void autotest::run() {
 		vector<set_cover_row> rows = vector<set_cover_row>();
 		set_cover_row row_a;
 		row_a.id = "A";
-		row_a.bits = Roaring::bitmapOf(3, 0, 2, 3);
+		row_a.agreements = Roaring::bitmapOf(0);
+		row_a.explained = Roaring::bitmapOf(3, 0, 2, 3);
 		row_a.cost = 3;
 		rows.push_back(row_a);
 		set_cover_row row_b;
 		row_b.id = "B";
-		row_b.bits = Roaring::bitmapOf(2, 0, 3);
+		row_b.agreements = Roaring::bitmapOf(0);
+		row_b.explained = Roaring::bitmapOf(2, 0, 3);
 		row_b.cost = 2;
 		rows.push_back(row_b);
 		set_cover_row row_c;
 		row_c.id = "C";
-		row_c.bits = Roaring::bitmapOf(4, 0, 1, 2, 3);
+		row_a.agreements = Roaring::bitmapOf(0);
+		row_c.explained = Roaring::bitmapOf(4, 0, 1, 2, 3);
 		row_c.cost = 4;
 		rows.push_back(row_c);
 		//Then proceed for each unit test:
@@ -773,18 +776,15 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Make sure that unique coverage rows are correctly identified:
-				list<set_cover_row> unique_rows = scs.get_unique_rows();
+				Roaring unique_rows = scs.get_unique_rows();
 				unsigned int expected_unique_rows_size = 1;
-				unsigned int unique_rows_size = unique_rows.size();
+				unsigned int unique_rows_size = unique_rows.cardinality();
 				if (unique_rows_size != expected_unique_rows_size) {
-					u_test.msg += "Expected unique_rows.size() == " + to_string(expected_unique_rows_size) + ", got " + to_string(unique_rows_size) + "\n";
+					u_test.msg += "Expected unique_rows.cardinality() == " + to_string(expected_unique_rows_size) + ", got " + to_string(unique_rows_size) + "\n";
 				}
 				else {
-					set_cover_row unique_row = unique_rows.front();
-					string expected_id = "C";
-					string id = unique_row.id;
-					if (id != expected_id) {
-						u_test.msg += "Expected unique row ID to be " + expected_id + ", got " + id + "\n";
+					if (!unique_rows.contains(2)) {
+						u_test.msg += "Expected unique_rows.contains(2) == true, got false\n";
 					}
 				}
 				if (u_test.msg.empty()) {
@@ -827,8 +827,8 @@ void autotest::run() {
 					}
 				}
 				//Make sure the trivial solution has the correct cost:
-				int expected_cost = 4;
-				int cost = trivial_solution.cost;
+				float expected_cost = 4;
+				float cost = trivial_solution.cost;
 				if (cost != expected_cost) {
 					u_test.msg += "Expected trivial_solution.cost == " + to_string(expected_cost) + ", got " + to_string(cost) + "\n";
 				}
@@ -845,7 +845,8 @@ void autotest::run() {
 		rows.pop_back(); //remove row C, which is a trivial solution
 		set_cover_row row_d;
 		row_d.id = "D";
-		row_d.bits = Roaring::bitmapOf(3, 1, 2, 3);
+		row_d.agreements = Roaring::bitmapOf(2, 1, 2);
+		row_d.explained = Roaring::bitmapOf(3, 1, 2, 3);
 		row_d.cost = 1;
 		rows.push_back(row_d);
 		scs = set_cover_solver(rows, target);
@@ -871,8 +872,8 @@ void autotest::run() {
 					u_test.msg += "Expected greedy_solution.rows.size() == " + to_string(expected_solution_rows_size) + ", got " + to_string(solution_rows_size) + "\n";
 				}
 				//Make sure the greedy solution has the correct cost:
-				int expected_cost = 3;
-				int cost = greedy_solution.cost;
+				float expected_cost = 3;
+				float cost = greedy_solution.cost;
 				if (cost != expected_cost) {
 					u_test.msg += "Expected greedy_solution.cost == " + to_string(expected_cost) + ", got " + to_string(cost) + "\n";
 				}
@@ -905,9 +906,9 @@ void autotest::run() {
 		set<string> distinct_reading_types = set<string>({"split"});
 		apparatus app = apparatus(tei_node, distinct_reading_types);
 		/**
-		 * Unit witness_constructor
+		 * Unit witness_constructor_1
 		 */
-		current_unit = "witness_constructor";
+		current_unit = "witness_constructor_1";
 		if (target_test.empty() || target_test == current_unit) {
 			//Initialize a container for module-wide test results:
 			unit_test u_test;
@@ -940,9 +941,9 @@ void autotest::run() {
 			mod_test.units.push_back(u_test);
 		}
 		/**
-		 * Unit witness_constructor_relative
+		 * Unit witness_constructor_2
 		 */
-		current_unit = "witness_constructor_relative";
+		current_unit = "witness_constructor_2";
 		if (target_test.empty() || target_test == current_unit) {
 			//Initialize a container for module-wide test results:
 			unit_test u_test;
@@ -1070,6 +1071,8 @@ void autotest::run() {
 			}
 			mod_test.units.push_back(u_test);
 		}
+		//Do more pre-test work:
+		wit.set_potential_ancestor_ids(witnesses);
 		/**
 		 * Unit witness_set_global_stemma_ancestor_ids
 		 */
@@ -1385,32 +1388,38 @@ int main(int argc, char* argv[]) {
 	bool list_tests = false;
 	string target_module = string();
 	string target_test = string();
-	cxxopts::Options options("autotest", "usage: autotest [-h] [--list-modules] [--list-tests] [-m module] [-t test]");
-	options.custom_help("Runs unit tests for the library. If specified, runs specific tests or tests for specific modules.");
-	options.add_options("")
-			("h,help", "print this help")
-			("list-modules", "lists all modules to be tested")
-			("list-tests", "lists all unit tests")
-			("m,module", "name of specific module to test")
-			("t,test", "name of specific test to run");
-	auto result = options.parse(argc, argv);
-	//Print help documentation and exit if specified:
-	if (result.count("help")) {
-		cout << options.help({"optional arguments"}) << endl;
-		exit(0);
+	try {
+		cxxopts::Options options("autotest", "Runs unit tests for the library. If specified, runs specific tests or tests for specific modules.");
+		options.custom_help("[-h] [--list-modules] [--list-tests] [-m module] [-t test]");
+		options.add_options("")
+				("h,help", "print this help")
+				("list-modules", "lists all modules to be tested", cxxopts::value<bool>())
+				("list-tests", "lists all unit tests", cxxopts::value<bool>())
+				("m,module", "name of specific module to test", cxxopts::value<string>())
+				("t,test", "name of specific test to run", cxxopts::value<string>());
+		auto result = options.parse(argc, argv);
+		//Print help documentation and exit if specified:
+		if (result.count("help")) {
+			cout << options.help({""}) << endl;
+			exit(0);
+		}
+		//Parse the optional arguments:
+		if (result.count("list_modules")) {
+			list_modules = result["list_modules"].as<bool>();
+		}
+		if (result.count("list_tests")) {
+			list_tests = result["list_tests"].as<bool>();
+		}
+		if (result.count("m")) {
+			target_module = result["m"].as<string>();
+		}
+		if (result.count("t")) {
+			target_test = result["t"].as<string>();
+		}
 	}
-	//Parse the optional arguments:
-	if (result.count("list_modules")) {
-		list_modules = result["list_modules"].as<bool>();
-	}
-	if (result.count("list_tests")) {
-		list_tests = result["list_tests"].as<bool>();
-	}
-	if (result.count("m")) {
-		target_module = result["m"].as<string>();
-	}
-	if (result.count("t")) {
-		target_test = result["t"].as<string>();
+	catch (const cxxopts::OptionException & e) {
+		cerr << "Error parsing options: " << e.what() << endl;
+		exit(-1);
 	}
 	//Initialize the list of test modules:
 	list<string> modules = list<string>({
@@ -1427,10 +1436,10 @@ int main(int argc, char* argv[]) {
 	map<string, list<string>> tests_by_module = map<string, list<string>>({
 		{"common", {"common_read_xml"}},
 		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_shortest_path_length", "local_stemma_to_dot"}},
-		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4", "variation_unit_constructor_split_distinct"}},
+		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
 		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_trivial_solution", "set_cover_solver_get_greedy_solution"}},
-		{"witness", {"witness_constructor", "witness_constructor_relative", "witness_get_agreements_for_witness", "witness_get_explained_readings_for_witness", "witness_set_potential_ancestor_ids", "witness_set_global_stemma_ancestor_ids"}},
+		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness", "witness_set_potential_ancestor_ids", "witness_set_global_stemma_ancestor_ids"}},
 		{"textual_flow", {"textual_flow_constructor", "textual_flow_textual_flow_to_dot", "textual_flow_coherence_in_attestations_to_dot", "textual_flow_coherence_in_variant_passages_to_dot"}},
 		{"global_stemma", {"global_stemma_constructor", "global_stemma_to_dot"}}
 	});

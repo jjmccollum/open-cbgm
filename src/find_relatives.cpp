@@ -12,6 +12,7 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <limits>
 
 #include "cxxopts.h"
 #include "pugixml.h"
@@ -28,7 +29,7 @@ using namespace std;
 struct witness_comparison {
 	string id; //ID of the secondary witness
 	int dir; //-1 if primary witness is prior; 1 if posterior; 0 otherwise
-	//int nr; //rank of the secondary witness as a potential ancestor of the primary witness
+	int nr; //rank of the secondary witness as a potential ancestor of the primary witness
 	list<string> rdgs; //readings of the secondary witness at the given variation unit
 	int pass; //number of variation units where the primary witness is extant
 	float perc; //percentage of agreement in variation units where the primary witness is extant
@@ -249,15 +250,21 @@ int main(int argc, char* argv[]) {
 	}
 	//Sort the list of comparisons from highest number of agreements to lowest:
 	comparisons.sort([](const witness_comparison & wc1, const witness_comparison & wc2) {
-		return wc1.perc > wc2.perc ? true : (wc1.perc < wc2.perc ? false : false);
+		return wc1.eq > wc2.eq;
 	});
-	/*
 	//Pass through the sorted list of comparison to assign ancestral ranks:
-	int nr = 1;
+	int nr = 0;
+	int nr_value = numeric_limits<int>::max();
 	for (witness_comparison & comparison : comparisons) {
+		//Only assign positive ancestral ranks to witnesses prior to this one:
 		if (comparison.dir == 1) {
+			//Only increment the rank if the number of agreements is lower than that of the previous potential ancestor:
+			if (comparison.eq < nr_value) {
+				nr_value = comparison.eq;
+				nr++;
+			}
 			comparison.nr = nr;
-			nr++;
+
 		}
 		else if (comparison.dir == 0) {
 			comparison.nr = 0;
@@ -266,7 +273,6 @@ int main(int argc, char* argv[]) {
 			comparison.nr = -1;
 		}
 	}
-	*/
 	if (filter_reading.empty()) {
 		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " ";
 	}
@@ -290,12 +296,12 @@ int main(int argc, char* argv[]) {
 	}
 	cout << std::left << std::setw(8) << "W2";
 	cout << std::left << std::setw(4) << "DIR";
-	//cout << std::right << std::setw(8) << "NR";
-	//cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
+	cout << std::right << std::setw(4) << "NR";
+	cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
 	cout << std::left << std::setw(8) << "RDG";
 	cout << std::right << std::setw(8) << "PASS";
-	cout << std::right << std::setw(12) << "PERC";
 	cout << std::right << std::setw(8) << "EQ";
+	cout << std::right << std::setw(12) << ""; //percentage of agreements among mutually extant passages
 	cout << std::right << std::setw(8) << "W1>W2";
 	cout << std::right << std::setw(8) << "W1<W2";
 	//cout << std::right << std::setw(8) << "UNCL";
@@ -322,12 +328,12 @@ int main(int argc, char* argv[]) {
 		}
 		cout << std::left << std::setw(8) << comparison.id;
 		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
-		//cout << std::right << std::setw(8) << (comparison.nr > 0 ? to_string(comparison.nr) : "");
-		//cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
+		cout << std::right << std::setw(4) << (comparison.nr > 0 ? to_string(comparison.nr) : "");
+		cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
 		cout << std::left << std::setw(8) << rdgs_str;
 		cout << std::right << std::setw(8) << comparison.pass;
-		cout << std::right << std::setw(11) << fixed << std::setprecision(3) << comparison.perc << "%";
 		cout << std::right << std::setw(8) << comparison.eq;
+		cout << std::right << std::setw(3) << "(" << std::setw(7) << fixed << std::setprecision(3) << comparison.perc << std::setw(2) << "%)";
 		cout << std::right << std::setw(8) << comparison.prior;
 		cout << std::right << std::setw(8) << comparison.posterior;
 		//cout << std::right << std::setw(8) << comparison.uncl;

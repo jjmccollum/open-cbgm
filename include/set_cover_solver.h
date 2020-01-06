@@ -11,7 +11,7 @@
 #include <list>
 #include <stack>
 #include <vector>
-
+#include <limits>
 
 #include "roaring.hh"
 
@@ -35,8 +35,9 @@ struct branch_and_bound_node {
  */
 struct set_cover_row {
 	string id;
-	Roaring bits;
-	int cost;
+	Roaring agreements;
+	Roaring explained;
+	float cost;
 };
 
 /**
@@ -44,28 +45,29 @@ struct set_cover_row {
  */
 struct set_cover_solution {
 	list<set_cover_row> rows;
-	int cost;
+	int agreements;
+	float cost;
 };
 
 class set_cover_solver {
 private:
 	vector<set_cover_row> rows;
 	Roaring target;
-	int fixed_ub = -1;
+	float fixed_ub = numeric_limits<float>::infinity();
 public:
 	set_cover_solver();
 	set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target);
-	set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target, int _fixed_ub);
+	set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target, float _fixed_ub);
 	virtual ~set_cover_solver();
 	set_cover_solution get_solution_from_rows(const Roaring & solution_rows) const;
 	Roaring get_uncovered_columns() const;
-	list<set_cover_row> get_unique_rows() const;
+	Roaring get_unique_rows() const;
 	bool is_feasible(const Roaring & solution_rows) const;
 	void remove_redundant_rows_from_solution(Roaring & initial_solution_rows) const;
 	set_cover_solution get_trivial_solution() const;
 	set_cover_solution get_greedy_solution() const;
 	void branch(const Roaring & remaining, stack<branch_and_bound_node> & nodes);
-	int bound(const Roaring & solution_rows) const;
+	float bound(const Roaring & solution_rows) const;
 	void branch_and_bound(list<set_cover_solution> & solutions);
 	void solve(list<set_cover_solution> & solutions);
 };

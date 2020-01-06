@@ -103,68 +103,13 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 					break;
 				}
 			}
-			//Otherwise, if there is a potential ancestor within the connectivity limit that has a prior reading,
-			//then it is the textual flow ancestor:
-			if (textual_flow_ancestor_id.empty()) {
-				con = -1;
-				con_value = -1;
-				for (string potential_ancestor_id : potential_ancestor_ids) {
-					//Update the connectivity rank if the connectivity value changes:
-					genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
-					int agreements = comp.agreements.cardinality();
-					if (agreements != con_value) {
-						con_value = agreements;
-						con++;
-					}
-					//If we reach the connectivity limit, then exit the loop early:
-					if (con == connectivity) {
-						break;
-					}
-					//If this potential ancestor explains the current witness here, then we're done:
-					bool explained = false;
-					if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
-						list<string> potential_ancestor_rdgs = reading_support.at(potential_ancestor_id);
-						for (string wit_rdg : wit_rdgs) {
-							for (string potential_ancestor_rdg : potential_ancestor_rdgs) {
-								if (ls.path_exists(potential_ancestor_rdg, wit_rdg)) {
-									explained = true;
-								}
-							}
-						}
-					}
-					if (explained) {
-						textual_flow_ancestor_id = potential_ancestor_id;
-						type = flow_type::CHANGE;
-						break;
-					}
-				}
-			}
 		}
-		//If the witness is lacunose at this variation unit,
-		//then the first extant potential ancestor is its textual flow ancestor:
-		else {
-			con = -1;
-			con_value = -1;
-			for (string potential_ancestor_id : potential_ancestor_ids) {
-				//Update the connectivity rank if the connectivity value changes:
-				genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
-				int agreements = comp.agreements.cardinality();
-				if (agreements != con_value) {
-					con_value = agreements;
-					con++;
-				}
-				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
-					textual_flow_ancestor_id = potential_ancestor_id;
-					type = flow_type::LOSS;
-					break;
-				}
-			}
-		}
-		//If a textual flow ancestor has not been found
-		//because a witness has a reading with an unclear origin at this variation unit,
-		//then do not add an edge:
+		//If the witness is lacunose or it does not have a potential ancestor with its reading within the connectivity limit,
+		//then its first potential ancestor is its textual flow ancestor:
 		if (textual_flow_ancestor_id.empty()) {
-			continue;
+			con = 0;
+			textual_flow_ancestor_id = potential_ancestor_ids.front();
+			type = wit_rdgs.empty() || reading_support.find(textual_flow_ancestor_id) == reading_support.end() ? flow_type::LOSS : flow_type::CHANGE;
 		}
 		//Calculate the strength of the textual flow from the textual flow ancestor to its descendant
 		//based on relative proportion of prior readings to extant readings:
@@ -281,6 +226,7 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 		else if (e.type == flow_type::LOSS) {
 			edge_color = "color=gray";
 		}
+		/*
 		//Format the line style based on the flow strength:
 		string edge_style = "";
 		if (e.strength <= 0.01) {
@@ -301,8 +247,9 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 		else {
 			edge_style = "penwidth=4.0";
 		}
+		*/
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << /*", " << edge_style <<*/ "];\n";
 	}
 	out << "}" << endl;
 	return;
@@ -432,6 +379,7 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 		else if (e.type == flow_type::LOSS) {
 			edge_color = "color=gray";
 		}
+		/*
 		//Format the line style based on the flow strength:
 		string edge_style = "";
 		if (e.strength <= 0.01) {
@@ -452,8 +400,9 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 		else {
 			edge_style = "penwidth=4.0";
 		}
+		*/
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << /*", " << edge_style <<*/ "];\n";
 	}
 	out << "}" << endl;
 	return;
@@ -559,6 +508,7 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out) {
 		else if (e.type == flow_type::LOSS) {
 			edge_color = "color=gray";
 		}
+		/*
 		//Format the line style based on the flow strength:
 		string edge_style = "";
 		if (e.strength <= 0.01) {
@@ -579,8 +529,9 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out) {
 		else {
 			edge_style = "penwidth=4.0";
 		}
+		*/
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << ", " << edge_style << "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << /*", " << edge_style <<*/ "];\n";
 	}
 	out << "}" << endl;
 	return;

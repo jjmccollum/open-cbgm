@@ -246,8 +246,8 @@ int main(int argc, char* argv[]) {
 	cout << std::left << std::setw(8) << "W2";
 	cout << std::left << std::setw(4) << "DIR";
 	cout << std::right << std::setw(8) << "PASS";
-	cout << std::right << std::setw(12) << "PERC";
 	cout << std::right << std::setw(8) << "EQ";
+	cout << std::right << std::setw(12) << ""; //percentage of agreements among mutually extant passages
 	cout << std::right << std::setw(8) << "W1>W2";
 	cout << std::right << std::setw(8) << "W1<W2";
 	cout << std::right << std::setw(8) << "NOREL";
@@ -256,8 +256,8 @@ int main(int argc, char* argv[]) {
 		cout << std::left << std::setw(8) << comparison.id;
 		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
 		cout << std::right << std::setw(8) << comparison.pass;
-		cout << std::right << std::setw(11) << fixed << std::setprecision(3) << comparison.perc << "%";
 		cout << std::right << std::setw(8) << comparison.eq;
+		cout << std::right << std::setw(3) << "(" << std::setw(7) << fixed << std::setprecision(3) << comparison.perc << std::setw(2) << "%)";
 		cout << std::right << std::setw(8) << comparison.prior;
 		cout << std::right << std::setw(8) << comparison.posterior;
 		cout << std::right << std::setw(8) << comparison.norel;

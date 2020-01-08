@@ -48,9 +48,8 @@ int create_dir(const string & dir) {
  */
 int main(int argc, char* argv[]) {
 	//Read in the command-line options:
-	bool split = false;
-	bool orth = false;
-	bool def = false;
+	set<string> trivial_reading_types = set<string>();
+	bool merge_splits = false;
 	bool local = false;
 	bool flow = false;
 	bool attestations = false;
@@ -60,14 +59,13 @@ int main(int argc, char* argv[]) {
 	string input_xml = string();
 	try {
 		cxxopts::Options options("print_graphs", "Prints diagrams of CBGM graphs to .dot output files. The output files will be organized in separate directories based on diagram type.");
-		options.custom_help("[-h] [-t threshold] [--split] [--orth] [--def] [--local] [--flow] [--attestations] [--variants] [--global] input_xml");
+		options.custom_help("[-h] [-t threshold] [-z trivial_reading_types] [--merge-splits] [--local] [--flow] [--attestations] [--variants] [--global] input_xml");
 		//options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
-				("split", "treat split attestations as distinct readings", cxxopts::value<bool>())
-				("orth", "treat orthographic subvariants as distinct readings", cxxopts::value<bool>())
-				("def", "treat defective forms as distinct readings", cxxopts::value<bool>())
+				("z", "space-separated list of reading types to treat as trivial (e.g., defective orthographic)", cxxopts::value<vector<string>>())
+				("merge-splits", "merge split attestations of the same reading", cxxopts::value<bool>())
 				("local", "print local stemmata diagrams", cxxopts::value<bool>())
 				("flow", "print complete textual flow diagrams for all passages", cxxopts::value<bool>())
 				("attestations", "print coherence in attestation textual flow diagrams for all readings at all passages", cxxopts::value<bool>())
@@ -86,14 +84,13 @@ int main(int argc, char* argv[]) {
 		if (args.count("t")) {
 			threshold = args["t"].as<int>();
 		}
-		if (args.count("split")) {
-			split = args["split"].as<bool>();
+		if (args.count("z")) {
+			for (string trivial_reading_type : args["z"].as<vector<string>>()) {
+				trivial_reading_types.insert(trivial_reading_type);
+			}
 		}
-		if (args.count("orth")) {
-			split = args["orth"].as<bool>();
-		}
-		if (args.count("def")) {
-			split = args["def"].as<bool>();
+		if (args.count("merge-splits")) {
+			merge_splits = args["merge-splits"].as<bool>();
 		}
 		if (args.count("local")) {
 			local = args["local"].as<bool>();
@@ -123,20 +120,6 @@ int main(int argc, char* argv[]) {
 		cerr << "Error parsing options: " << e.what() << endl;
 		exit(-1);
 	}
-	//Using the input flags, populate a set of reading types to be treated as distinct:
-	set<string> distinct_reading_types = set<string>();
-	if (split) {
-		//Treat split readings as distinct:
-		distinct_reading_types.insert("split");
-	}
-	if (orth) {
-		//Treat orthographic variants as distinct:
-		distinct_reading_types.insert("orthographic");
-	}
-	if (def) {
-		//Treat defective variants as distinct:
-		distinct_reading_types.insert("defective");
-	}
 	//If no graphs are specified for printing, then print all of them:
 	if (!(local || flow || attestations || variants || global)) {
 		local = true;
@@ -157,7 +140,7 @@ int main(int argc, char* argv[]) {
 		cerr << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
-	apparatus app = apparatus(tei_node, distinct_reading_types);
+	apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 	//If specified, print all local stemmata:
 	if (local) {
 		cout << "Printing all local stemmata..." << endl;

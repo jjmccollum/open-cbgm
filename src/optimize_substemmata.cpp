@@ -25,12 +25,18 @@
 using namespace std;
 
 /**
- * Given a list of set cover solutions (assumed to be sorted from lowest cost to highest),
+ * Given primary witness ID and a list of set cover solutions (assumed to be sorted from lowest cost to highest),
  * prints the corresponding best-found substemmata for the primary witness, along with their costs and number of agreements with the primary witness.
  */
-void print_substemmata(const list<set_cover_solution> & solutions) {
-	//Print the header row first:
-	cout << std::left << std::setw(48) << "SUBSTEMMA" << std::right << std::setw(8) << "COST" << std::right << std::setw(8) << "AGREE" << "\n\n";
+void print_substemmata(const string & primary_wit_id, const list<set_cover_solution> & solutions) {
+	//Print the caption:
+	cout << "Optimal substemmata for witness W1 = " << primary_wit_id << ":\n\n";
+	//Print the header row:
+	cout << std::left << std::setw(48) << "SUBSTEMMA";
+	cout << std::right << std::setw(8) << "COST";
+	cout << std::right << std::setw(8) << "AGREE";
+	cout << "\n\n";
+	//Print the subsequent rows:
 	for (set_cover_solution solution : solutions) {
 		string solution_str = "";
 		for (set_cover_row row : solution.rows) {
@@ -53,24 +59,22 @@ void print_substemmata(const list<set_cover_solution> & solutions) {
  */
 int main(int argc, char* argv[]) {
 	//Read in the command-line options:
-	bool split = false;
-	bool orth = false;
-	bool def = false;
 	int threshold = 0;
 	float fixed_ub = numeric_limits<float>::infinity();
+	set<string> trivial_reading_types = set<string>();
+	bool merge_splits = false;
 	string input_xml = string();
 	string primary_wit_id = string();
 	try {
 		cxxopts::Options options("optimize_substemmata", "Get a table of best-found substemmata for the witness with the given ID.");
-		options.custom_help("[-h] [-t threshold] [-b bound] [--split] [--orth] [--def] input_xml witness");
+		options.custom_help("[-h] [-t threshold] [-b bound] [-z trivial_reading_types] [--merge-splits] input_xml witness");
 		//options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
 				("b,bound", "fixed upper bound on substemmata cost; if specified, list all substemmata with costs within this bound", cxxopts::value<float>())
-				("split", "treat split attestations as distinct readings", cxxopts::value<bool>())
-				("orth", "treat orthographic subvariants as distinct readings", cxxopts::value<bool>())
-				("def", "treat defective forms as distinct readings", cxxopts::value<bool>());
+				("z", "space-separated list of reading types to treat as trivial (e.g., defective orthographic)", cxxopts::value<vector<string>>())
+				("merge-splits", "merge split attestations of the same reading", cxxopts::value<bool>());
 		options.add_options("positional")
 				("input_xml", "collation file in TEI XML format", cxxopts::value<string>())
 				("witness", "ID of the witness whose relatives are desired, as found in its <witness> element in the XML file", cxxopts::value<vector<string>>());
@@ -88,14 +92,13 @@ int main(int argc, char* argv[]) {
 		if (args.count("b")) {
 			fixed_ub = args["b"].as<float>();
 		}
-		if (args.count("split")) {
-			split = args["split"].as<bool>();
+		if (args.count("z")) {
+			for (string trivial_reading_type : args["z"].as<vector<string>>()) {
+				trivial_reading_types.insert(trivial_reading_type);
+			}
 		}
-		if (args.count("orth")) {
-			split = args["orth"].as<bool>();
-		}
-		if (args.count("def")) {
-			split = args["def"].as<bool>();
+		if (args.count("merge-splits")) {
+			merge_splits = args["merge-splits"].as<bool>();
 		}
 		//Parse the positional arguments:
 		if (!args.count("input_xml") || args.count("witness") != 1) {
@@ -111,20 +114,6 @@ int main(int argc, char* argv[]) {
 		cerr << "Error parsing options: " << e.what() << endl;
 		exit(-1);
 	}
-	//Using the input flags, populate a set of reading types to be treated as distinct:
-	set<string> distinct_reading_types = set<string>();
-	if (split) {
-		//Treat split readings as distinct:
-		distinct_reading_types.insert("split");
-	}
-	if (orth) {
-		//Treat orthographic variants as distinct:
-		distinct_reading_types.insert("orthographic");
-	}
-	if (def) {
-		//Treat defective variants as distinct:
-		distinct_reading_types.insert("defective");
-	}
 	//Attempt to parse the input XML file as an apparatus:
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml.c_str());
@@ -137,7 +126,7 @@ int main(int argc, char* argv[]) {
 		cerr << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
-	apparatus app = apparatus(tei_node, distinct_reading_types);
+	apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 	//Ensure that the primary witness is included in the apparatus's <listWit> element:
 	bool primary_wit_exists = false;
 	for (string wit_id : app.get_list_wit()) {
@@ -252,6 +241,6 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	//Otherwise, print the solutions and their costs:
-	print_substemmata(solutions);
+	print_substemmata(primary_wit_id, solutions);
 	exit(0);
 }

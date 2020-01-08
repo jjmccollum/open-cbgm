@@ -37,28 +37,60 @@ struct witness_comparison {
 };
 
 /**
+ * Given primary witness ID and a list of witness comparisons (assumed to be sorted in decreasing order of agreements),
+ * prints the relatives list for the primary witness at the given variation unit.
+ */
+void print_comparisons(const string & primary_wit_id, const list<witness_comparison> & comparisons) {
+	//Print the caption:
+	cout << "Genealogical comparisons for W1 = " << primary_wit_id << ":";
+	cout << "\n\n";
+	//Print the header row:
+	cout << std::left << std::setw(8) << "W2";
+	cout << std::left << std::setw(4) << "DIR";
+	cout << std::right << std::setw(8) << "PASS";
+	cout << std::right << std::setw(8) << "EQ";
+	cout << std::right << std::setw(12) << ""; //percentage of agreements among mutually extant passages
+	cout << std::right << std::setw(8) << "W1>W2";
+	cout << std::right << std::setw(8) << "W1<W2";
+	cout << std::right << std::setw(8) << "NOREL";
+	cout << "\n\n";
+	//Print the subsequent rows:
+	for (witness_comparison comparison : comparisons) {
+		cout << std::left << std::setw(8) << comparison.id;
+		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
+		cout << std::right << std::setw(8) << comparison.pass;
+		cout << std::right << std::setw(8) << comparison.eq;
+		cout << std::right << std::setw(3) << "(" << std::setw(7) << fixed << std::setprecision(3) << comparison.perc << std::setw(2) << "%)";
+		cout << std::right << std::setw(8) << comparison.prior;
+		cout << std::right << std::setw(8) << comparison.posterior;
+		cout << std::right << std::setw(8) << comparison.norel;
+		cout << "\n";
+	}
+	cout << endl;
+	return;
+}
+
+/**
  * Entry point to the script.
  */
 int main(int argc, char* argv[]) {
 	//Read in the command-line options:
-	bool split = false;
-	bool orth = false;
-	bool def = false;
 	int threshold = 0;
+	set<string> trivial_reading_types = set<string>();
+	bool merge_splits = false;
 	string input_xml = string();
 	string primary_wit_id = string();
 	set<string> secondary_wit_ids = set<string>();
 	list<string> secondary_wit_ids_ordered = list<string>(); //for printing purposes
 	try {
 		cxxopts::Options options("compare_witnesses", "Get a table of genealogical relationships between the witness with the given ID and other witnesses, as specified by the user.");
-		options.custom_help("[-h] [-t threshold] [--split] [--orth] [--def] input_xml witness [secondary_witnesses]");
+		options.custom_help("[-h] [-t threshold] [-z trivial_reading_types] [--merge-splits] input_xml witness [secondary_witnesses]");
 		//options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
-				("split", "treat split attestations as distinct readings", cxxopts::value<bool>())
-				("orth", "treat orthographic subvariants as distinct readings", cxxopts::value<bool>())
-				("def", "treat defective forms as distinct readings", cxxopts::value<bool>());
+				("z", "space-separated list of reading types to treat as trivial (e.g., defective orthographic)", cxxopts::value<vector<string>>())
+				("merge-splits", "merge split attestations of the same reading", cxxopts::value<bool>());
 		options.add_options("positional arguments")
 				("input_xml", "collation file in TEI XML format", cxxopts::value<string>())
 				("witness", "ID of the primary witness to be compared, as found in its <witness> element in the XML file", cxxopts::value<string>())
@@ -74,14 +106,13 @@ int main(int argc, char* argv[]) {
 		if (args.count("t")) {
 			threshold = args["t"].as<int>();
 		}
-		if (args.count("split")) {
-			split = args["split"].as<bool>();
+		if (args.count("z")) {
+			for (string trivial_reading_type : args["z"].as<vector<string>>()) {
+				trivial_reading_types.insert(trivial_reading_type);
+			}
 		}
-		if (args.count("orth")) {
-			split = args["orth"].as<bool>();
-		}
-		if (args.count("def")) {
-			split = args["def"].as<bool>();
+		if (args.count("merge-splits")) {
+			merge_splits = args["merge-splits"].as<bool>();
 		}
 		//Parse the positional arguments:
 		if (!args.count("input_xml") || !args.count("witness")) {
@@ -112,20 +143,6 @@ int main(int argc, char* argv[]) {
 		cerr << "Error parsing options: " << e.what() << endl;
 		exit(-1);
 	}
-	//Using the input flags, populate a set of reading types to be treated as distinct:
-	set<string> distinct_reading_types = set<string>();
-	if (split) {
-		//Treat split readings as distinct:
-		distinct_reading_types.insert("split");
-	}
-	if (orth) {
-		//Treat orthographic variants as distinct:
-		distinct_reading_types.insert("orthographic");
-	}
-	if (def) {
-		//Treat defective variants as distinct:
-		distinct_reading_types.insert("defective");
-	}
 	//Attempt to parse the input XML file as an apparatus:
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml.c_str());
@@ -138,7 +155,7 @@ int main(int argc, char* argv[]) {
 		cout << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
-	apparatus app = apparatus(tei_node, distinct_reading_types);
+	apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 	//Ensure that the primary witness is included in the apparatus's <listWit> element:
 	bool primary_wit_exists = false;
 	for (string wit_id : app.get_list_wit()) {
@@ -239,30 +256,8 @@ int main(int argc, char* argv[]) {
 	}
 	//Sort the list of comparisons from highest number of agreements to lowest:
 	comparisons.sort([](const witness_comparison & wc1, const witness_comparison & wc2) {
-		return wc1.perc > wc2.perc ? true : (wc1.perc < wc2.perc ? false : false);
+		return wc1.eq > wc2.eq;
 	});
-	cout << "Genealogical comparisons for W1 = " << primary_wit_id << ":";
-	cout << "\n\n";
-	cout << std::left << std::setw(8) << "W2";
-	cout << std::left << std::setw(4) << "DIR";
-	cout << std::right << std::setw(8) << "PASS";
-	cout << std::right << std::setw(8) << "EQ";
-	cout << std::right << std::setw(12) << ""; //percentage of agreements among mutually extant passages
-	cout << std::right << std::setw(8) << "W1>W2";
-	cout << std::right << std::setw(8) << "W1<W2";
-	cout << std::right << std::setw(8) << "NOREL";
-	cout << "\n\n";
-	for (witness_comparison comparison : comparisons) {
-		cout << std::left << std::setw(8) << comparison.id;
-		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
-		cout << std::right << std::setw(8) << comparison.pass;
-		cout << std::right << std::setw(8) << comparison.eq;
-		cout << std::right << std::setw(3) << "(" << std::setw(7) << fixed << std::setprecision(3) << comparison.perc << std::setw(2) << "%)";
-		cout << std::right << std::setw(8) << comparison.prior;
-		cout << std::right << std::setw(8) << comparison.posterior;
-		cout << std::right << std::setw(8) << comparison.norel;
-		cout << "\n";
-	}
-	cout << endl;
+	print_comparisons(primary_wit_id, comparisons);
 	exit(0);
 }

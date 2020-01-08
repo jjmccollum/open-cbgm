@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <set>
 #include <map>
 
 #include "pugixml.h"
@@ -23,6 +24,7 @@ struct local_stemma_vertex {
 struct local_stemma_edge {
 	string prior;
 	string posterior;
+	float weight;
 };
 struct local_stemma_graph {
 	list<local_stemma_vertex> vertices;
@@ -33,16 +35,16 @@ class local_stemma {
 private:
 	string label;
 	local_stemma_graph graph;
-	map<pair<string, string>, int> shortest_paths;
+	map<pair<string, string>, float> shortest_paths;
 public:
 	local_stemma();
-	local_stemma(const string & label, const pugi::xml_node & xml, const map<string, string> & trivial_to_significant);
+	local_stemma(const pugi::xml_node & xml, const string & apparatus_label, const set<pair<string, string>> & split_pairs, const set<pair<string, string>> & trivial_pairs);
 	virtual ~local_stemma();
 	string get_label() const;
 	local_stemma_graph get_graph() const;
-	map<pair<string, string>, int> get_shortest_paths() const;
+	map<pair<string, string>, float> get_shortest_paths() const;
 	bool path_exists(const string & r1, const string & r2) const;
-	int get_shortest_path_length(const string & r1, const string & r2) const;
+	float get_shortest_path_length(const string & r1, const string & r2) const;
 	void to_dot(ostream & out);
 };
 

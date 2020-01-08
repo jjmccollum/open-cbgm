@@ -32,7 +32,7 @@ private:
 	local_stemma stemma;
 public:
 	variation_unit();
-	variation_unit(const pugi::xml_node & xml, const set<string> & substantive_reading_types);
+	variation_unit(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_type);
 	virtual ~variation_unit();
 	string get_id() const;
 	string get_label() const;

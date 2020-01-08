@@ -205,8 +205,8 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a local stemma with no collapsed nodes or edges:
-				local_stemma ls = local_stemma(label_text, graph_node, map<string, string>());
+				//Construct a local stemma without any split merges or trivial edges:
+				local_stemma ls = local_stemma(graph_node, label_text, set<pair<string, string>>(), set<pair<string, string>>());
 				//Check that the label is the expected value:
 				string expected_label = "Test 0:0/6";
 				string label = ls.get_label();
@@ -234,6 +234,10 @@ void autotest::run() {
 			}
 			mod_test.units.push_back(u_test);
 		}
+		//Do more pre-test work:
+		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U8\"]").node();
+		label_text = app_node.child("label").text().get();
+		graph_node = app_node.child("graph");
 		/**
 		 * Unit test local_stemma_constructor_2
 		 */
@@ -246,17 +250,11 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a local stemma with collapsed nodes and edges:
-				local_stemma ls = local_stemma(label_text, graph_node, map<string, string>({{"bf", "b"}, {"co", "c"}}));
-				//Check that the label is the expected value:
-				string expected_label = "Test 0:0/6";
-				string label = ls.get_label();
-				if (label != expected_label) {
-					u_test.msg += "Expected label " + expected_label + ", got " + label + "\n";
-				}
+				//Construct a local stemma with connected pairs of split readings:
+				local_stemma ls = local_stemma(graph_node, label_text, set<pair<string, string>>({{"c2", "c"}}), set<pair<string, string>>());
 				//Check that the graph is the size we expect:
-				unsigned int expected_n_vertices = 3;
-				unsigned int expected_n_edges = 2;
+				unsigned int expected_n_vertices = 4;
+				unsigned int expected_n_edges = 4;
 				local_stemma_graph graph = ls.get_graph();
 				unsigned int n_vertices = graph.vertices.size();
 				unsigned int n_edges = graph.edges.size();
@@ -279,7 +277,7 @@ void autotest::run() {
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U4\"]").node();
 		label_text = app_node.child("label").text().get();
 		graph_node = app_node.child("graph");
-		local_stemma ls = local_stemma(label_text, graph_node, map<string, string>());
+		local_stemma ls = local_stemma(graph_node, label_text, set<pair<string, string>>(), set<pair<string, string>>());
 		/**
 		 * Unit test local_stemma_path_exists
 		 */
@@ -334,8 +332,8 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//The shortest path from a reading to itself should have length 0:
-				int expected_path_length = 0;
-				int path_length = ls.get_shortest_path_length("a", "a");
+				float expected_path_length = 0;
+				float path_length = ls.get_shortest_path_length("a", "a");
 				if (path_length != expected_path_length) {
 					u_test.msg += "For variation unit B00K0V0U4, expected get_shortest_path_length(\"a\", \"a\") == " + to_string(expected_path_length) + ", got " + to_string(path_length) + "\n";
 				}
@@ -420,9 +418,8 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a variation unit where only substantive readings are treated as distinct:
-				set<string> distinct_reading_types = set<string>();
-				variation_unit vu = variation_unit(app_node_1, distinct_reading_types);
+				//Construct a variation unit with no merging of split readings and no trivial reading types:
+				variation_unit vu = variation_unit(app_node_1, false, set<string>());
 				//Check that the ID is the expected value:
 				string expected_id = "B00K0V0U2";
 				string id = vu.get_id();
@@ -476,9 +473,8 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a variation unit where only substantive readings are treated as distinct:
-				set<string> distinct_reading_types = set<string>();
-				variation_unit vu = variation_unit(app_node_2, distinct_reading_types);
+				//Construct a variation unit with no merging of split readings and no trivial reading types:
+				variation_unit vu = variation_unit(app_node_2, false, set<string>());
 				//Check that the label defaults to the ID when not provided:
 				string expected_label = "B00K0V0U4";
 				string label = vu.get_label();
@@ -512,42 +508,20 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a variation unit where only substantive and orthographic readings are treated as distinct:
-				set<string> distinct_reading_types = set<string>({"orthographic"});
-				variation_unit vu = variation_unit(app_node_3, distinct_reading_types);
-				//Check that the readings list is the correct size:
-				list<string> readings = vu.get_readings();
-				unsigned int expected_readings_size = 4;
-				unsigned int readings_size = readings.size();
-				if (readings_size != expected_readings_size) {
-					u_test.msg += "Expected readings.size() == " + to_string(expected_readings_size) + ", got " + to_string(readings_size) + "\n";
-				}
-				//Check that the reading support map is the correct size:
-				unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-				unsigned int expected_reading_support_size = 5;
-				unsigned int reading_support_size = reading_support.size();
-				if (reading_support_size != expected_reading_support_size) {
-					u_test.msg += "Expected reading_support.size() == " + to_string(expected_reading_support_size) + ", got " + to_string(reading_support_size) + "\n";
-				}
-				//The reading support map's entry for witness C should have an entry for reading b:
-				list<string> c_rdgs = reading_support.at("C");
-				string expected_c_rdg = "b";
-				string c_rdg = c_rdgs.front();
-				if (c_rdg != expected_c_rdg) {
-					u_test.msg += "Expected reading_support[\"C\"].front() == " + expected_c_rdg + ", got " + c_rdg + "\n";
-				}
-				//The reading support map's entry for witness E should have an entry for reading co:
-				list<string> e_rdgs = reading_support.at("E");
-				string expected_e_rdg = "co";
-				string e_rdg = e_rdgs.front();
-				if (e_rdg != expected_e_rdg) {
-					u_test.msg += "Expected reading_support[\"E\"].front() == " + expected_e_rdg + ", got " + e_rdg + "\n";
-				}
+				//Construct a variation unit with no merging of split readings and where defective readings are treated as trivial:
+				variation_unit vu = variation_unit(app_node_3, false, set<string>({"defective"}));
 				//Check that the connectivity is correctly set to the maximum value when no connectivity element is provided:
 				int expected_connectivity = numeric_limits<int>::max();
 				int connectivity = vu.get_connectivity();
 				if (connectivity != expected_connectivity) {
 					u_test.msg += "Expected connectivity == " + to_string(expected_connectivity) + ", got " + to_string(connectivity) + "\n";
+				}
+				//Check that the local stemma for this variation unit has a weight-0 edge where the defective variant is introduced:
+				local_stemma ls = vu.get_local_stemma();
+				float expected_shortest_path_length = 0;
+				float shortest_path_length = ls.get_shortest_path_length("b", "bf");
+				if (shortest_path_length != expected_shortest_path_length) {
+					u_test.msg += "Expected get_local_stemma().get_shortest_path_length(\"b\", \"bf\") == " + to_string(expected_shortest_path_length) + ", got " + to_string(shortest_path_length) + "\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -570,16 +544,8 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a variation unit where substantive and split readings are treated as distinct:
-				set<string> distinct_reading_types = set<string>({"split"});
-				variation_unit vu = variation_unit(app_node_4, distinct_reading_types);
-				//Check that the readings list is the correct size:
-				list<string> readings = vu.get_readings();
-				unsigned int expected_readings_size = 4;
-				unsigned int readings_size = readings.size();
-				if (readings_size != expected_readings_size) {
-					u_test.msg += "Expected readings.size() == " + to_string(expected_readings_size) + ", got " + to_string(readings_size) + "\n";
-				}
+				//Construct a variation unit with merging of split readings and no trivial reading types:
+				variation_unit vu = variation_unit(app_node_4, true, set<string>());
 				//Check that the reading support map is the correct size when a witness is lacunose:
 				unordered_map<string, list<string>> reading_support = vu.get_reading_support();
 				unsigned int expected_reading_support_size = 4;
@@ -593,12 +559,17 @@ void autotest::run() {
 				if (a_rdgs_size != expected_a_rdgs_size) {
 					u_test.msg += "Expected reading_support[\"A\"].size() == " + to_string(expected_a_rdgs_size) + ", got " + to_string(a_rdgs_size) + "\n";
 				}
-				//The reading support map's entry for witness C should have an entry for reading c2:
-				list<string> c_rdgs = reading_support.at("C");
-				string expected_c_rdg = "c2";
-				string c_rdg = c_rdgs.front();
-				if (c_rdg != expected_c_rdg) {
-					u_test.msg += "Expected reading_support[\"C\"].front() == " + expected_c_rdg + ", got " + c_rdg + "\n";
+				//Check that the local stemma for this variation unit has edges in both directions between paired split readings:
+				local_stemma ls = vu.get_local_stemma();
+				bool expected_path_exists = true;
+				bool path_exists = ls.path_exists("c", "c2");
+				if (path_exists != expected_path_exists) {
+					u_test.msg += "Expected get_local_stemma().path_exists(\"c\", \"c2\") == true, got false\n";
+				}
+				expected_path_exists = true;
+				path_exists = ls.path_exists("c2", "c");
+				if (path_exists != expected_path_exists) {
+					u_test.msg += "Expected get_local_stemma().path_exists(\"c2\", \"c\") == true, got false\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -608,19 +579,6 @@ void autotest::run() {
 				u_test.msg += string(e.what()) + "\n";
 			}
 			mod_test.units.push_back(u_test);
-		}
-		//Do more pre-test work:
-		pugi::xml_node tei_node = doc.child("TEI");
-		set<string> distinct_reading_types = set<string>({"split"});
-		apparatus app = apparatus(tei_node, distinct_reading_types);
-		variation_unit vu = app.get_variation_units()[3];
-		list<witness> witnesses = list<witness>();
-		for (const string & wit_id : app.get_list_wit()) {
-			witness wit = witness(wit_id, app);
-			witnesses.push_back(wit);
-		}
-		for (witness & wit : witnesses) {
-			wit.set_potential_ancestor_ids(witnesses);
 		}
 		lib_test.modules.push_back(mod_test);
 	}
@@ -637,7 +595,8 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node tei_node = doc.child("TEI");
-		set<string> distinct_reading_types = set<string>({"split"});
+		bool merge_splits = false;
+		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
 		//Then proceed for each unit test:
 		string current_unit;
 		/**
@@ -653,7 +612,7 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct an apparatus:
-				apparatus app = apparatus(tei_node, distinct_reading_types);
+				apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 				//Check if its number of witnesses is correct:
 				unsigned int expected_n_witnesses = 5;
 				unsigned int n_witnesses = app.get_list_wit().size();
@@ -676,7 +635,7 @@ void autotest::run() {
 			mod_test.units.push_back(u_test);
 		}
 		//Do more pre-test work:
-		apparatus app = apparatus(tei_node, distinct_reading_types);
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 		/**
 		 * Unit apparatus_get_extant_passages_for_witness
 		 */
@@ -903,8 +862,9 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node tei_node = doc.child("TEI");
-		set<string> distinct_reading_types = set<string>({"split"});
-		apparatus app = apparatus(tei_node, distinct_reading_types);
+		bool merge_splits = false;
+		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 		/**
 		 * Unit witness_constructor_1
 		 */
@@ -997,8 +957,8 @@ void autotest::run() {
 					u_test.msg += "Expected explained readings bitmap for A relative to B == " + expected_explained_readings.toString() + ", got " + explained_readings.toString() + "\n";
 				}
 				//Check that the genealogical cost of A relative to B is correct:
-				int expected_cost = 1;
-				int cost = comp.cost;
+				float expected_cost = 1;
+				float cost = comp.cost;
 				if (cost != expected_cost) {
 					u_test.msg += "Expected genealogical cost for A relative to B == " + to_string(expected_cost) + ", got " + to_string(cost) + "\n";
 				}
@@ -1143,8 +1103,9 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node tei_node = doc.child("TEI");
-		set<string> distinct_reading_types = set<string>({"split"});
-		apparatus app = apparatus(tei_node, distinct_reading_types);
+		bool merge_splits = false;
+		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 		variation_unit vu = app.get_variation_units()[3];
 		list<witness> witnesses = list<witness>();
 		for (string wit_id : app.get_list_wit()) {
@@ -1292,8 +1253,9 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node tei_node = doc.child("TEI");
-		set<string> distinct_reading_types = set<string>({"split"});
-		apparatus app = apparatus(tei_node, distinct_reading_types);
+		bool merge_splits = false;
+		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 		list<witness> witnesses = list<witness>();
 		for (string wit_id : app.get_list_wit()) {
 			witness wit = witness(wit_id, app);

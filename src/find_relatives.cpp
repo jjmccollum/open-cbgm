@@ -41,29 +41,106 @@ struct witness_comparison {
 };
 
 /**
+ * Given primary witness ID, a variation unit label, a filter reading,
+ * and a list of witness comparisons (assumed to be sorted in decreasing order of agreements),
+ * prints the relatives list for the primary witness at the given variation unit.
+ */
+void print_relatives(const string & primary_wit_id, const string & vu_label, const string & filter_reading, const list<witness_comparison> & comparisons) {
+	//Print the caption:
+	if (filter_reading.empty()) {
+		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " ";
+	}
+	else {
+		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " with reading " << filter_reading << " ";
+	}
+	if (reading_support.find(primary_wit_id) != reading_support.end()) {
+		cout << "(W1 RDG = ";
+		list<string> primary_wit_rdgs = reading_support.at(primary_wit_id);
+		for (string primary_wit_rdg : primary_wit_rdgs) {
+			if (primary_wit_rdg != primary_wit_rdgs.front()) {
+				cout << ", ";
+			}
+			cout << primary_wit_rdg;
+		}
+		cout << "):\n\n";
+	}
+	else {
+		cout << "(W1 is lacunose):\n\n";
+	}
+	//Print the header row:
+	cout << std::left << std::setw(8) << "W2";
+	cout << std::left << std::setw(4) << "DIR";
+	cout << std::right << std::setw(4) << "NR";
+	cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
+	cout << std::left << std::setw(8) << "RDG";
+	cout << std::right << std::setw(8) << "PASS";
+	cout << std::right << std::setw(8) << "EQ";
+	cout << std::right << std::setw(12) << ""; //percentage of agreements among mutually extant passages
+	cout << std::right << std::setw(8) << "W1>W2";
+	cout << std::right << std::setw(8) << "W1<W2";
+	//cout << std::right << std::setw(8) << "UNCL";
+	cout << std::right << std::setw(8) << "NOREL";
+	cout << "\n\n";
+	//Print the subsequent rows:
+	for (witness_comparison comparison : comparisons) {
+		string rdgs_str = "";
+		bool match = filter_reading.empty() ? true : false;
+		for (string rdg : comparison.rdgs) {
+			if (rdg != comparison.rdgs.front()) {
+				rdgs_str += ", ";
+			}
+			rdgs_str += rdg;
+			if (rdg == filter_reading) {
+				match = true;
+			}
+		}
+		if (!match) {
+			continue;
+		}
+		//Handle lacunae:
+		if (rdgs_str.empty()) {
+			rdgs_str = "-";
+		}
+		cout << std::left << std::setw(8) << comparison.id;
+		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
+		cout << std::right << std::setw(4) << (comparison.nr > 0 ? to_string(comparison.nr) : "");
+		cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
+		cout << std::left << std::setw(8) << rdgs_str;
+		cout << std::right << std::setw(8) << comparison.pass;
+		cout << std::right << std::setw(8) << comparison.eq;
+		cout << std::right << std::setw(3) << "(" << std::setw(7) << fixed << std::setprecision(3) << comparison.perc << std::setw(2) << "%)";
+		cout << std::right << std::setw(8) << comparison.prior;
+		cout << std::right << std::setw(8) << comparison.posterior;
+		//cout << std::right << std::setw(8) << comparison.uncl;
+		cout << std::right << std::setw(8) << comparison.norel;
+		cout << "\n";
+	}
+	cout << endl;
+	return;
+}
+
+/**
  * Entry point to the script.
  */
 int main(int argc, char* argv[]) {
 	//Read in the command-line options:
-	bool split = false;
-	bool orth = false;
-	bool def = false;
 	int threshold = 0;
 	string filter_reading = string();
+	set<string> trivial_reading_types = set<string>();
+	bool merge_splits = false;
 	string input_xml = string();
 	string primary_wit_id = string();
 	string vu_id = string();
 	try {
 		cxxopts::Options options("find_relatives", "Get a table of genealogical relationships between the witness with the given ID and other witnesses at a given passage, as specified by the user.\nOptionally, the user can optionally specify a reading ID for the given passage, in which case the output will be restricted to the witnesses preserving that reading.");
-		options.custom_help("[-h] [-t threshold] [-r reading] [--split] [--orth] [--def] input_xml witness passage");
+		options.custom_help("[-h] [-t threshold] [-r reading] [-z trivial_reading_types] [--merge-splits] input_xml witness passage");
 		//options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
 				("r,reading", "ID of desired variant reading", cxxopts::value<string>())
-				("split", "treat split attestations as distinct readings", cxxopts::value<bool>())
-				("orth", "treat orthographic subvariants as distinct readings", cxxopts::value<bool>())
-				("def", "treat defective forms as distinct readings", cxxopts::value<bool>());
+				("z", "space-separated list of reading types to treat as trivial (e.g., defective orthographic)", cxxopts::value<vector<string>>())
+				("merge-splits", "merge split attestations of the same reading", cxxopts::value<bool>());
 		options.add_options("positional")
 				("input_xml", "collation file in TEI XML format", cxxopts::value<string>())
 				("witness", "ID of the witness whose relatives are desired, as found in its <witness> element in the XML file", cxxopts::value<string>())
@@ -82,14 +159,13 @@ int main(int argc, char* argv[]) {
 		if (args.count("r")) {
 			filter_reading = args["r"].as<string>();
 		}
-		if (args.count("split")) {
-			split = args["split"].as<bool>();
+		if (args.count("z")) {
+			for (string trivial_reading_type : args["z"].as<vector<string>>()) {
+				trivial_reading_types.insert(trivial_reading_type);
+			}
 		}
-		if (args.count("orth")) {
-			split = args["orth"].as<bool>();
-		}
-		if (args.count("def")) {
-			split = args["def"].as<bool>();
+		if (args.count("merge-splits")) {
+			merge_splits = args["merge-splits"].as<bool>();
 		}
 		//Parse the positional arguments:
 		if (!args.count("input_xml") || !args.count("witness") || args.count("passage") != 1) {
@@ -106,20 +182,6 @@ int main(int argc, char* argv[]) {
 		cerr << "Error parsing options: " << e.what() << endl;
 		exit(-1);
 	}
-	//Using the input flags, populate a set of reading types to be treated as distinct:
-	set<string> distinct_reading_types = set<string>();
-	if (split) {
-		//Treat split readings as distinct:
-		distinct_reading_types.insert("split");
-	}
-	if (orth) {
-		//Treat orthographic variants as distinct:
-		distinct_reading_types.insert("orthographic");
-	}
-	if (def) {
-		//Treat defective variants as distinct:
-		distinct_reading_types.insert("defective");
-	}
 	//Attempt to parse the input XML file as an apparatus:
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(input_xml.c_str());
@@ -132,7 +194,7 @@ int main(int argc, char* argv[]) {
 		cerr << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
-	apparatus app = apparatus(tei_node, distinct_reading_types);
+	apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
 	//Attempt to retrieve the input variation unit by searching for a match in the apparatus:
 	variation_unit vu;
 	bool variation_unit_matched = false;
@@ -273,73 +335,6 @@ int main(int argc, char* argv[]) {
 			comparison.nr = -1;
 		}
 	}
-	if (filter_reading.empty()) {
-		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " ";
-	}
-	else {
-		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " with reading " << filter_reading << " ";
-	}
-	//Get the readings supported by the primary witness:
-	if (reading_support.find(primary_wit_id) != reading_support.end()) {
-		cout << "(W1 RDG = ";
-		list<string> primary_wit_rdgs = reading_support.at(primary_wit_id);
-		for (string primary_wit_rdg : primary_wit_rdgs) {
-			if (primary_wit_rdg != primary_wit_rdgs.front()) {
-				cout << ", ";
-			}
-			cout << primary_wit_rdg;
-		}
-		cout << "):\n\n";
-	}
-	else {
-		cout << "(W1 is lacunose):\n\n";
-	}
-	cout << std::left << std::setw(8) << "W2";
-	cout << std::left << std::setw(4) << "DIR";
-	cout << std::right << std::setw(4) << "NR";
-	cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
-	cout << std::left << std::setw(8) << "RDG";
-	cout << std::right << std::setw(8) << "PASS";
-	cout << std::right << std::setw(8) << "EQ";
-	cout << std::right << std::setw(12) << ""; //percentage of agreements among mutually extant passages
-	cout << std::right << std::setw(8) << "W1>W2";
-	cout << std::right << std::setw(8) << "W1<W2";
-	//cout << std::right << std::setw(8) << "UNCL";
-	cout << std::right << std::setw(8) << "NOREL";
-	cout << "\n\n";
-	for (witness_comparison comparison : comparisons) {
-		string rdgs_str = "";
-		bool match = filter_reading.empty() ? true : false;
-		for (string rdg : comparison.rdgs) {
-			if (rdg != comparison.rdgs.front()) {
-				rdgs_str += ", ";
-			}
-			rdgs_str += rdg;
-			if (rdg == filter_reading) {
-				match = true;
-			}
-		}
-		if (!match) {
-			continue;
-		}
-		//Handle lacunae:
-		if (rdgs_str.empty()) {
-			rdgs_str = "-";
-		}
-		cout << std::left << std::setw(8) << comparison.id;
-		cout << std::left << std::setw(4) << (comparison.dir == -1 ? "<" : (comparison.dir == 1 ? ">" : "="));
-		cout << std::right << std::setw(4) << (comparison.nr > 0 ? to_string(comparison.nr) : "");
-		cout << std::setw(4) << ""; //buffer space between right-aligned and left-aligned columns
-		cout << std::left << std::setw(8) << rdgs_str;
-		cout << std::right << std::setw(8) << comparison.pass;
-		cout << std::right << std::setw(8) << comparison.eq;
-		cout << std::right << std::setw(3) << "(" << std::setw(7) << fixed << std::setprecision(3) << comparison.perc << std::setw(2) << "%)";
-		cout << std::right << std::setw(8) << comparison.prior;
-		cout << std::right << std::setw(8) << comparison.posterior;
-		//cout << std::right << std::setw(8) << comparison.uncl;
-		cout << std::right << std::setw(8) << comparison.norel;
-		cout << "\n";
-	}
-	cout << endl;
+	print_relatives(primary_wit_id, vu_label, filter_reading, comparisons);
 	exit(0);
 }

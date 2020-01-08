@@ -11,6 +11,7 @@
 #include <list>
 #include <unordered_map>
 #include <algorithm>
+#include <limits>
 
 #include "roaring.hh"
 #include "witness.h"
@@ -58,16 +59,16 @@ witness::witness(const string & witness_id, const apparatus & app) {
 			}
 			//Otherwise, loop through all pairs of readings:
 			local_stemma ls = vu.get_local_stemma();
-			int shortest_path_length = -1;
+			float shortest_path_length = numeric_limits<float>::infinity();
 			for (string reading_for_this : readings_for_this) {
 				for (string reading_for_other : readings_for_other) {
 					if (ls.path_exists(reading_for_other, reading_for_this)) {
-						int path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
-						shortest_path_length = shortest_path_length == -1 ? path_length : min(shortest_path_length, path_length);
+						float path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
+						shortest_path_length = min(shortest_path_length, path_length);
 					}
 				}
 			}
-			if (shortest_path_length > -1) {
+			if (shortest_path_length < numeric_limits<float>::infinity()) {
 				comp.explained.add(variation_unit_index);
 				if (shortest_path_length == 0) {
 					comp.agreements.add(variation_unit_index);
@@ -111,16 +112,16 @@ witness::witness(const string & witness_id, const list<string> & list_wit, const
 			}
 			//Otherwise, loop through all pairs of readings:
 			local_stemma ls = vu.get_local_stemma();
-			int shortest_path_length = -1;
+			float shortest_path_length = numeric_limits<float>::infinity();
 			for (string reading_for_this : readings_for_this) {
 				for (string reading_for_other : readings_for_other) {
 					if (ls.path_exists(reading_for_other, reading_for_this)) {
-						int path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
-						shortest_path_length = shortest_path_length == -1 ? path_length : min(shortest_path_length, path_length);
+						float path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
+						shortest_path_length = min(shortest_path_length, path_length);
 					}
 				}
 			}
-			if (shortest_path_length > -1) {
+			if (shortest_path_length < numeric_limits<float>::infinity()) {
 				comp.explained.add(variation_unit_index);
 				if (shortest_path_length == 0) {
 					comp.agreements.add(variation_unit_index);

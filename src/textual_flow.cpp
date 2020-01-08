@@ -91,7 +91,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 					list<string> potential_ancestor_rdgs = reading_support.at(potential_ancestor_id);
 					for (string wit_rdg : wit_rdgs) {
 						for (string potential_ancestor_rdg : potential_ancestor_rdgs) {
-							if (wit_rdg == potential_ancestor_rdg) {
+							if (ls.path_exists(potential_ancestor_rdg, wit_rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, wit_rdg) == 0) {
 								agree = true;
 							}
 						}

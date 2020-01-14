@@ -118,7 +118,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		Roaring primary_extant = self_comp.explained;
 		Roaring agreements = ancestor_comp.agreements;
 		Roaring explained = ancestor_comp.explained;
-		float strength = float((agreements ^ explained).cardinality()) / float(primary_extant.cardinality());
+		float strength = float((explained ^ agreements).cardinality()) / float(primary_extant.cardinality());
 		//Add an edge to the graph connecting the current witness to its textual flow ancestor:
 		textual_flow_edge e;
 		e.descendant = wit_id;
@@ -160,8 +160,9 @@ textual_flow_graph textual_flow::get_graph() const {
 
 /**
  * Given an output stream, writes a complete textual flow diagram to output in .dot format.
+ * An optional flag indicating whether to format edges to reflect flow strength can also be specified.
  */
-void textual_flow::textual_flow_to_dot(ostream & out) {
+void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false) {
 	//Add the graph first:
 	out << "digraph textual_flow {\n";
 	//Add a line indicating that nodes do not have any shape:
@@ -205,51 +206,66 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 		//Get the indices corresponding to the endpoints' IDs:
 		int ancestor_ind = id_to_index.at(e.ancestor);
 		int descendant_ind = id_to_index.at(e.descendant);
+		//Handle the conditional formatting of the edge:
+		list<string> format_cmds = list<string>();
 		//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
-		string edge_label = "";
 		if (e.connectivity > 0) {
-			edge_label = "label=\"" + to_string(e.connectivity + 1) + "\", fontsize=10";
-		} else {
-			edge_label = "label=\"\", fontsize=10";
+			string edge_label = "label=\"" + to_string(e.connectivity + 1) + "\", fontsize=10";
+			format_cmds.push_back(edge_label);
 		}
 		//Format the color based on the flow type:
-		string edge_color = "";
 		if (e.type == flow_type::EQUAL) {
-			edge_color = "color=black";
+			string edge_color = "color=black";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::CHANGE) {
-			edge_color = "color=blue";
+			string edge_color = "color=blue";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::AMBIGUOUS) {
-			edge_color = "color=\"black:invis:black\"";
+			string edge_color = "color=\"black:invis:black\"";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::LOSS) {
-			edge_color = "color=gray";
+			string edge_color = "color=gray";
+			format_cmds.push_back(edge_color);
 		}
-		/*
-		//Format the line style based on the flow strength:
-		string edge_style = "";
-		if (e.strength <= 0.01) {
-			edge_style = "style=dotted";
+		if (flow_strengths) {
+			//Format the line style based on the flow strength:
+			if (e.strength <= 0.01) {
+				string edge_style = "style=dotted";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.05) {
+				string edge_style = "style=dashed";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.1) {
+				string edge_style = "penwidth=1.0";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.25) {
+				string edge_style = "penwidth=2.0";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.5) {
+				string edge_style = "penwidth=3.0";
+				format_cmds.push_back(edge_style);
+			}
+			else {
+				string edge_style = "penwidth=4.0";
+				format_cmds.push_back(edge_style);
+			}
 		}
-		else if (e.strength <= 0.05) {
-			edge_style = "style=dashed";
-		}
-		else if (e.strength <= 0.1) {
-			edge_style = "penwidth=1.0";
-		}
-		else if (e.strength <= 0.25) {
-			edge_style = "penwidth=2.0";
-		}
-		else if (e.strength <= 0.5) {
-			edge_style = "penwidth=3.0";
-		}
-		else {
-			edge_style = "penwidth=4.0";
-		}
-		*/
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << /*", " << edge_style <<*/ "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [";
+		for (string format_cmd : format_cmds) {
+			if (format_cmd != format_cmds.front()) {
+				out << ", ";
+			}
+			out << format_cmd;
+		}
+		out << "];\n";
 	}
 	out << "}" << endl;
 	return;
@@ -258,8 +274,9 @@ void textual_flow::textual_flow_to_dot(ostream & out) {
 /**
  * Given a reading ID and an output stream,
  * writes a coherence in attestations diagram for that reading to output in .dot format.
+ * An optional flag indicating whether to format edges to reflect flow strength can also be specified.
  */
-void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream & out) {
+void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string & rdg, bool flow_strengths=false) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
 	//Add a line indicating that nodes do not have any shape:
@@ -358,51 +375,66 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 		//Otherwise, get the indices of the endpoints:
 		int ancestor_ind = id_to_index.at(ancestor_id);
 		int descendant_ind = id_to_index.at(descendant_id);
+		//Handle the conditional formatting of the edge:
+		list<string> format_cmds = list<string>();
 		//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
-		string edge_label = "";
 		if (e.connectivity > 0) {
-			edge_label = "label=\"" + to_string(e.connectivity + 1) + "\", fontsize=10";
-		} else {
-			edge_label = "label=\"\", fontsize=10";
+			string edge_label = "label=\"" + to_string(e.connectivity + 1) + "\", fontsize=10";
+			format_cmds.push_back(edge_label);
 		}
 		//Format the color based on the flow type:
-		string edge_color = "";
 		if (e.type == flow_type::EQUAL) {
-			edge_color = "color=black";
+			string edge_color = "color=black";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::CHANGE) {
-			edge_color = "color=blue";
+			string edge_color = "color=blue";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::AMBIGUOUS) {
-			edge_color = "color=\"black:invis:black\"";
+			string edge_color = "color=\"black:invis:black\"";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::LOSS) {
-			edge_color = "color=gray";
+			string edge_color = "color=gray";
+			format_cmds.push_back(edge_color);
 		}
-		/*
-		//Format the line style based on the flow strength:
-		string edge_style = "";
-		if (e.strength <= 0.01) {
-			edge_style = "style=dotted";
+		if (flow_strengths) {
+			//Format the line style based on the flow strength:
+			if (e.strength <= 0.01) {
+				string edge_style = "style=dotted";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.05) {
+				string edge_style = "style=dashed";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.1) {
+				string edge_style = "penwidth=1.0";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.25) {
+				string edge_style = "penwidth=2.0";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.5) {
+				string edge_style = "penwidth=3.0";
+				format_cmds.push_back(edge_style);
+			}
+			else {
+				string edge_style = "penwidth=4.0";
+				format_cmds.push_back(edge_style);
+			}
 		}
-		else if (e.strength <= 0.05) {
-			edge_style = "style=dashed";
-		}
-		else if (e.strength <= 0.1) {
-			edge_style = "penwidth=1.0";
-		}
-		else if (e.strength <= 0.25) {
-			edge_style = "penwidth=2.0";
-		}
-		else if (e.strength <= 0.5) {
-			edge_style = "penwidth=3.0";
-		}
-		else {
-			edge_style = "penwidth=4.0";
-		}
-		*/
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << /*", " << edge_style <<*/ "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [";
+		for (string format_cmd : format_cmds) {
+			if (format_cmd != format_cmds.front()) {
+				out << ", ";
+			}
+			out << format_cmd;
+		}
+		out << "];\n";
 	}
 	out << "}" << endl;
 	return;
@@ -410,8 +442,9 @@ void textual_flow::coherence_in_attestations_to_dot(const string & rdg, ostream 
 
 /**
  * Given an output stream, writes a coherence in variant passages diagram to output in .dot format.
+ * An optional flag indicating whether to format edges to reflect flow strength can also be specified.
  */
-void textual_flow::coherence_in_variant_passages_to_dot(ostream & out) {
+void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow_strengths=false) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
 	//Add a line indicating that nodes do not have any shape:
@@ -487,51 +520,66 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out) {
 		//Get the indices corresponding to the endpoints' IDs:
 		int ancestor_ind = id_to_index.at(e.ancestor);
 		int descendant_ind = id_to_index.at(e.descendant);
+		//Handle the conditional formatting of the edge:
+		list<string> format_cmds = list<string>();
 		//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
-		string edge_label = "";
 		if (e.connectivity > 0) {
-			edge_label = "label=\"" + to_string(e.connectivity + 1) + "\", fontsize=10";
-		} else {
-			edge_label = "label=\"\", fontsize=10";
+			string edge_label = "label=\"" + to_string(e.connectivity + 1) + "\", fontsize=10";
+			format_cmds.push_back(edge_label);
 		}
 		//Format the color based on the flow type:
-		string edge_color = "";
 		if (e.type == flow_type::EQUAL) {
-			edge_color = "color=black";
+			string edge_color = "color=black";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::CHANGE) {
-			edge_color = "color=blue";
+			string edge_color = "color=blue";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::AMBIGUOUS) {
-			edge_color = "color=\"black:invis:black\"";
+			string edge_color = "color=\"black:invis:black\"";
+			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::LOSS) {
-			edge_color = "color=gray";
+			string edge_color = "color=gray";
+			format_cmds.push_back(edge_color);
 		}
-		/*
-		//Format the line style based on the flow strength:
-		string edge_style = "";
-		if (e.strength <= 0.01) {
-			edge_style = "style=dotted";
+		if (flow_strengths) {
+			//Format the line style based on the flow strength:
+			if (e.strength <= 0.01) {
+				string edge_style = "style=dotted";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.05) {
+				string edge_style = "style=dashed";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.1) {
+				string edge_style = "penwidth=1.0";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.25) {
+				string edge_style = "penwidth=2.0";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.strength <= 0.5) {
+				string edge_style = "penwidth=3.0";
+				format_cmds.push_back(edge_style);
+			}
+			else {
+				string edge_style = "penwidth=4.0";
+				format_cmds.push_back(edge_style);
+			}
 		}
-		else if (e.strength <= 0.05) {
-			edge_style = "style=dashed";
-		}
-		else if (e.strength <= 0.1) {
-			edge_style = "penwidth=1.0";
-		}
-		else if (e.strength <= 0.25) {
-			edge_style = "penwidth=2.0";
-		}
-		else if (e.strength <= 0.5) {
-			edge_style = "penwidth=3.0";
-		}
-		else {
-			edge_style = "penwidth=4.0";
-		}
-		*/
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [" << edge_label << ", " << edge_color << /*", " << edge_style <<*/ "];\n";
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [";
+		for (string format_cmd : format_cmds) {
+			if (format_cmd != format_cmds.front()) {
+				out << ", ";
+			}
+			out << format_cmd;
+		}
+		out << "];\n";
 	}
 	out << "}" << endl;
 	return;

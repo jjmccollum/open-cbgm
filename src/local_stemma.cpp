@@ -78,15 +78,17 @@ local_stemma::local_stemma() {
 }
 
 /**
- * Constructs a local stemma from a <graph/> XML element using the given label taken from the apparatus.
+ * Constructs a local stemma from a <graph/> XML element using the parent variation_unit's ID and label.
  * A set of split reading pairs may be specified, between which new edges with lengths of 0 will be added.
  * A set of trivial reading pairs may also be specified, whose connecting edges will be assigned a length of 0.
  */
-local_stemma::local_stemma(const pugi::xml_node & xml, const string & apparatus_label, const set<pair<string, string>> & split_pairs, const set<pair<string, string>> & trivial_pairs) {
+local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, const string & vu_label, const set<pair<string, string>> & split_pairs, const set<pair<string, string>> & trivial_pairs) {
 	graph.vertices = list<local_stemma_vertex>();
 	graph.edges = list<local_stemma_edge>();
+	//Set the ID:
+	id = vu_id;
 	//Set the label:
-	label = apparatus_label;
+	label = vu_label;
 	//Add a vertex for each <node/> element:
 	for (pugi::xml_node node : xml.children("node")) {
 		//If the node lacks an "n" attribute, then do not add it:
@@ -94,9 +96,9 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & apparatus_
 			continue;
 		}
 		//Otherwise, create a vertex and add it to the graph:
-		string id = node.attribute("n").value();
+		string node_id = node.attribute("n").value();
 		local_stemma_vertex v;
-		v.id = id;
+		v.id = node_id;
 		graph.vertices.push_back(v);
 	}
 	//Add an edge for each <arc/> element:
@@ -110,7 +112,7 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & apparatus_
 		}
 		//If the arc has a weight, then add it:
 		e.weight = 1;
-		//If the edge is in the trivia set, then set the weight to 0:
+		//If the edge is in the trivial set, then set the weight to 0:
 		if (trivial_pairs.find(pair<string, string>(e.prior, e.posterior)) != trivial_pairs.end()) {
 			e.weight = 0;
 		}
@@ -147,10 +149,37 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & apparatus_
 }
 
 /**
+ * Constructs a local stemma from a variation unit ID, label, and graph data structure populated using the genealogical cache.
+ */
+local_stemma::local_stemma(const string & _id, const string & _label, const local_stemma_graph & _graph) {
+	id = _id;
+	label = _label;
+	graph = _graph;
+	//Construct an adjacency map from the graph:
+	map<string, list<local_stemma_edge>> adjacency_map = map<string, list<local_stemma_edge>>();
+	for (local_stemma_vertex v: graph.vertices) {
+		adjacency_map[v.id] = list<local_stemma_edge>();
+	}
+	for (local_stemma_edge e : graph.edges) {
+		adjacency_map[e.prior].push_back(e);
+	}
+	//Now use Dijkstra's algorithm to populate the map of shortest paths:
+	shortest_paths = map<pair<string, string>, float>();
+	populate_shortest_paths(adjacency_map, shortest_paths);
+}
+
+/**
  * Default destructor.
  */
 local_stemma::~local_stemma() {
 
+}
+
+/**
+ * Returns the ID for this local_stemma.
+ */
+string local_stemma::get_id() const {
+	return id;
 }
 
 /**
@@ -191,8 +220,9 @@ float local_stemma::get_shortest_path_length(const string & r1, const string & r
 
 /**
  * Given an output stream, writes the local stemma graph to output in .dot format.
+ * An optional flag indicating whether to print edge weights can also be specified.
  */
-void local_stemma::to_dot(ostream & out) {
+void local_stemma::to_dot(ostream & out, bool print_weights=false) {
 	//Add the graph first:
 	out << "digraph local_stemma {\n";
 	//Add a line indicating that nodes do not have any shape:
@@ -224,7 +254,13 @@ void local_stemma::to_dot(ostream & out) {
 			edge_style = "style=dashed";
 		}
 		out << "\t";
-		out << id_to_index.at(prior) << " -> " << id_to_index.at(posterior) << "[" << edge_style << ", label=\"" << fixed << std::setprecision(3) << weight << "\", fontsize=10];";
+		if (print_weights) {
+			out << id_to_index.at(prior) << " -> " << id_to_index.at(posterior) << "[" << edge_style << ", label=\"" << fixed << std::setprecision(3) << weight << "\", fontsize=10];";
+		}
+		else {
+			out << id_to_index.at(prior) << " -> " << id_to_index.at(posterior) << "[" << edge_style << "];";
+		}
+
 		out << "\n";
 	}
 	out << "}" << endl;

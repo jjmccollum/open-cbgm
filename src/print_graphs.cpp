@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
 			local_stemma ls = vu.get_local_stemma();
-			ls.to_dot(dot_file);
+			ls.to_dot(dot_file, false);
 			dot_file.close();
 			vu_ind++;
 		}
@@ -234,7 +234,7 @@ int main(int argc, char* argv[]) {
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
 			textual_flow tf = tfs[vu_ind];
-			tf.textual_flow_to_dot(dot_file);
+			tf.textual_flow_to_dot(dot_file, false);
 			dot_file.close();
 			vu_ind++;
 		}
@@ -265,7 +265,7 @@ int main(int argc, char* argv[]) {
 				fstream dot_file;
 				dot_file.open(filepath, ios::out);
 				textual_flow tf = tfs[vu_ind];
-				tf.coherence_in_attestations_to_dot(rdg, dot_file);
+				tf.coherence_in_attestations_to_dot(dot_file, rdg, false);
 				dot_file.close();
 			}
 			vu_ind++;
@@ -295,7 +295,7 @@ int main(int argc, char* argv[]) {
 			fstream dot_file;
 			dot_file.open(filepath, ios::out);
 			textual_flow tf = tfs[vu_ind];
-			tf.coherence_in_variant_passages_to_dot(dot_file);
+			tf.coherence_in_variant_passages_to_dot(dot_file, false);
 			dot_file.close();
 			vu_ind++;
 		}

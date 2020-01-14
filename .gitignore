@@ -41,12 +41,8 @@ py/
 build/
 test/config.h
 
-# autotools byproducts
-autom4te.cache/
-config.log
-config.status
-configure
-Makefile
+# SQLite DB
+*.db
 
 # Generated directories
 local/

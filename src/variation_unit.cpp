@@ -102,7 +102,7 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 			string rdg_id = kv.first;
 			set<string> rdg_types = kv.second;
 			string rdg_text = reading_to_text.at(rdg_id);
-			if (text_to_reading.find(rdg_text) != text_to_reading.end()) {
+			if (rdg_types.find("split") != rdg_types.end() && text_to_reading.find(rdg_text) != text_to_reading.end()) {
 				string matching_rdg_id = text_to_reading.at(rdg_text);
 				if (matching_rdg_id != rdg_id) {
 					pair<string, string> split_pair = pair<string, string>(rdg_id, matching_rdg_id);
@@ -154,7 +154,19 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 		}
 	}
 	//The <graph/> element should contain the local stemma for this variation unit:
-	stemma = local_stemma(stemma_node, label, split_pairs, trivial_pairs);
+	stemma = local_stemma(stemma_node, id, label, split_pairs, trivial_pairs);
+}
+
+/**
+ * Constructs a variation unit using values populated from the genealogical cache.
+ */
+variation_unit::variation_unit(const string & _id, const string & _label, const list<string> & _readings, const unordered_map<string, list<string>> & _reading_support, int _connectivity, const local_stemma _stemma) {
+	id = _id;
+	label = _label;
+	readings = _readings;
+	reading_support = _reading_support;
+	connectivity = _connectivity;
+	stemma = _stemma;
 }
 
 /**

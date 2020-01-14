@@ -48,9 +48,9 @@ public:
 	string get_label() const;
 	int get_connectivity() const;
 	textual_flow_graph get_graph() const;
-	void textual_flow_to_dot(ostream & out);
-	void coherence_in_attestations_to_dot(const string & rdg, ostream & out);
-	void coherence_in_variant_passages_to_dot(ostream & out);
+	void textual_flow_to_dot(ostream & out, bool flow_strengths);
+	void coherence_in_attestations_to_dot(ostream & out, const string & rdg, bool flow_strengths);
+	void coherence_in_variant_passages_to_dot(ostream & out, bool flow_strengths);
 };
 
 #endif /* TEXTUAL_FLOW_H */

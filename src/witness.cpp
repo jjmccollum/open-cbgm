@@ -32,9 +32,9 @@ witness::witness() {
 /**
  * Constructs a witness using its ID and a textual apparatus.
  */
-witness::witness(const string & witness_id, const apparatus & app) {
+witness::witness(const string & _id, const apparatus & app) {
 	//Set its ID:
-	id = witness_id;
+	id = _id;
 	//Now populate the its map of genealogical_comparisons, keyed by witness ID:
 	genealogical_comparisons = unordered_map<string, genealogical_comparison>();
 	list<string> list_wit = app.get_list_wit();
@@ -49,7 +49,7 @@ witness::witness(const string & witness_id, const apparatus & app) {
 			//Get the indices of all readings supported by each of these witnesses at this variation unit
 			//(the Ausgangstext A may support more than one reading):
 			unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-			list<string> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support.at(witness_id) : list<string>();
+			list<string> readings_for_this = (reading_support.find(id) != reading_support.end()) ? reading_support.at(id) : list<string>();
 			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support.at(other_id) : list<string>();
 			//If either witness's list is empty, then it is lacunose here,
 			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
@@ -86,9 +86,9 @@ witness::witness(const string & witness_id, const apparatus & app) {
  * Alternative constructor for a witness relative to a list of other witnesses.
  * This constructor only populates the witness's agreements and explained readings bitmaps relative to itself and the specified witnesses.
  */
-witness::witness(const string & witness_id, const list<string> & list_wit, const apparatus & app) {
+witness::witness(const string & _id, const list<string> & list_wit, const apparatus & app) {
 	//Set its ID:
-	id = witness_id;
+	id = _id;
 	//Now populate the its map of genealogical_comparisons, keyed by witness ID:
 	genealogical_comparisons = unordered_map<string, genealogical_comparison>();
 	for (string other_id : list_wit) {
@@ -102,7 +102,7 @@ witness::witness(const string & witness_id, const list<string> & list_wit, const
 			//Get the indices of all readings supported by each of these witnesses at this variation unit
 			//(the Ausgangstext A may support more than one reading):
 			unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-			list<string> readings_for_this = (reading_support.find(witness_id) != reading_support.end()) ? reading_support.at(witness_id) : list<string>();
+			list<string> readings_for_this = (reading_support.find(id) != reading_support.end()) ? reading_support.at(id) : list<string>();
 			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support.at(other_id) : list<string>();
 			//If either witness's list is empty, then it is lacunose here,
 			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
@@ -133,6 +133,16 @@ witness::witness(const string & witness_id, const list<string> & list_wit, const
 		//Add the completed genealogical_comparison to this witness's map:
 		genealogical_comparisons[other_id] = comp;
 	}
+}
+
+/**
+ * Alternative constructor for a witness using an ID and a map of genealogical comparisons populated using the genealogical cache.
+ */
+witness::witness(const string & _id, const unordered_map<string, genealogical_comparison> & _genealogical_comparisons) {
+	//Set its ID:
+	id = _id;
+	//Then populate the its map of genealogical_comparisons, keyed by witness ID:
+	genealogical_comparisons = _genealogical_comparisons;
 }
 
 /**

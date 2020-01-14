@@ -15,7 +15,7 @@
 #include <limits>
 
 #include "cxxopts.h"
-#include "pugixml.h"
+#include "sqlite3.h"
 #include "roaring.hh"
 #include "witness.h"
 #include "apparatus.h"
@@ -41,11 +41,193 @@ struct witness_comparison {
 };
 
 /**
- * Given primary witness ID, a variation unit label, a filter reading,
- * and a list of witness comparisons (assumed to be sorted in decreasing order of agreements),
+ * Determines if the WITNESSES table of the given SQLite database
+ * contains a row with the given witness ID.
+ */
+bool witness_id_exists(sqlite3 * input_db, const string & wit_id) {
+	bool witness_id_exists = false;
+	int rc; //to store SQLite macros
+	sqlite3_stmt * select_from_witnesses_stmt;
+	sqlite3_prepare(input_db, "SELECT * FROM WITNESSES WHERE WITNESS=?", -1, & select_from_witnesses_stmt, 0);
+	sqlite3_bind_text(select_from_witnesses_stmt, 1, wit_id.c_str(), -1, SQLITE_STATIC);
+	rc = sqlite3_step(select_from_witnesses_stmt);
+	witness_id_exists = (rc == SQLITE_ROW) ? true : false;
+	sqlite3_finalize(select_from_witnesses_stmt);
+	return witness_id_exists;
+}
+
+/**
+ * Retrieves all rows from the WITNESSES table of the given SQLite database
+ * and returns a list of witness IDs populated with its contents.
+ */
+list<string> get_witness_ids(sqlite3 * input_db) {
+	list<string> witness_ids = list<string>();
+	int rc; //to store SQLite macros
+	sqlite3_stmt * select_from_witnesses_stmt;
+	sqlite3_prepare(input_db, "SELECT * FROM WITNESSES ORDER BY ROWID", -1, & select_from_witnesses_stmt, 0);
+	rc = sqlite3_step(select_from_witnesses_stmt);
+	while (rc == SQLITE_ROW) {
+		string wit_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_witnesses_stmt, 0)));
+		witness_ids.push_back(wit_id);
+		rc = sqlite3_step(select_from_witnesses_stmt);
+	}
+	sqlite3_finalize(select_from_witnesses_stmt);
+	return witness_ids;
+}
+
+/**
+ * Retrieves rows for the given variation unit from the READING_SUPPORT table of the given SQLite database
+ * and returns a reading support map populated with its contents.
+ */
+unordered_map<string, list<string>> get_reading_support(sqlite3 * input_db, const string & vu_id) {
+	unordered_map<string, list<string>> reading_support = unordered_map<string, list<string>>();
+	int rc; //to store SQLite macros
+	sqlite3_stmt * select_from_reading_support_stmt;
+	sqlite3_prepare(input_db, "SELECT * FROM READING_SUPPORT WHERE VARIATION_UNIT=?", -1, & select_from_reading_support_stmt, 0);
+	sqlite3_bind_text(select_from_reading_support_stmt, 1, vu_id.c_str(), -1, SQLITE_STATIC);
+	rc = sqlite3_step(select_from_reading_support_stmt);
+	while (rc == SQLITE_ROW) {
+		string wit_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_reading_support_stmt, 1)));
+		string rdg_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_reading_support_stmt, 2)));
+		//Add an entry for this witness if there isn't one already:
+		if (reading_support.find(wit_id) == reading_support.end()) {
+			reading_support[wit_id] = list<string>();
+		}
+		reading_support[wit_id].push_back(rdg_id);
+		rc = sqlite3_step(select_from_reading_support_stmt);
+	}
+	sqlite3_finalize(select_from_reading_support_stmt);
+	return reading_support;
+}
+
+/**
+ * Retrieves rows relative to the given primary witness ID from the GENEALOGICAL_COMPARISONS table of the given SQLite database
+ * and returns a map of genealogical comparisons populated with its contents.
+ */
+unordered_map<string, genealogical_comparison> get_primary_witness_genealogical_comparisons(sqlite3 * input_db, const string & _primary_wit_id) {
+	unordered_map<string, genealogical_comparison> primary_witness_genealogical_comparisons = unordered_map<string, genealogical_comparison>();
+	int rc; //to store SQLite macros
+	sqlite3_stmt * select_from_genealogical_comparisons_stmt;
+	sqlite3_prepare(input_db, "SELECT * FROM GENEALOGICAL_COMPARISONS WHERE PRIMARY_WIT=?", -1, & select_from_genealogical_comparisons_stmt, 0);
+	sqlite3_bind_text(select_from_genealogical_comparisons_stmt, 1, _primary_wit_id.c_str(), -1, SQLITE_STATIC);
+	rc = sqlite3_step(select_from_genealogical_comparisons_stmt);
+	while (rc == SQLITE_ROW) {
+		genealogical_comparison comp;
+		string primary_wit_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_genealogical_comparisons_stmt, 0)));
+		string secondary_wit_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_genealogical_comparisons_stmt, 1)));
+		int agreements_bytes = sqlite3_column_bytes(select_from_genealogical_comparisons_stmt, 2);
+		const char * agreements_buf = reinterpret_cast<const char *>(sqlite3_column_blob(select_from_genealogical_comparisons_stmt, 2));
+		Roaring agreements = Roaring::readSafe(agreements_buf, agreements_bytes);
+		comp.agreements = agreements;
+		int explained_bytes = sqlite3_column_bytes(select_from_genealogical_comparisons_stmt, 3);
+		const char * explained_buf = reinterpret_cast<const char *>(sqlite3_column_blob(select_from_genealogical_comparisons_stmt, 3));
+		Roaring explained = Roaring::readSafe(explained_buf, explained_bytes);
+		comp.explained = explained;
+		float cost = float(sqlite3_column_double(select_from_genealogical_comparisons_stmt, 4));
+		comp.cost = cost;
+		primary_witness_genealogical_comparisons[secondary_wit_id] = comp;
+		rc = sqlite3_step(select_from_genealogical_comparisons_stmt);
+	}
+	sqlite3_finalize(select_from_genealogical_comparisons_stmt);
+	return primary_witness_genealogical_comparisons;
+}
+
+/**
+ * Retrieves rows corresponding to the each secondary witness's genealogical comparisons relative to itself and the given primary witness
+ * from the GENEALOGICAL_COMPARISONS table of the given SQLite database
+ * and returns a map of genealogical comparison maps populated with its contents.
+ */
+unordered_map<string, unordered_map<string, genealogical_comparison>> get_secondary_witness_genealogical_comparisons(sqlite3 * input_db, const string & _primary_wit_id) {
+	unordered_map<string, unordered_map<string, genealogical_comparison>> secondary_witness_genealogical_comparisons = unordered_map<string, unordered_map<string, genealogical_comparison>>();
+	int rc; //to store SQLite macros
+	sqlite3_stmt * select_from_genealogical_comparisons_stmt;
+	sqlite3_prepare(input_db, "SELECT * FROM GENEALOGICAL_COMPARISONS WHERE (PRIMARY_WIT=SECONDARY_WIT) <> (SECONDARY_WIT=?)", -1, & select_from_genealogical_comparisons_stmt, 0);
+	sqlite3_bind_text(select_from_genealogical_comparisons_stmt, 1, _primary_wit_id.c_str(), -1, SQLITE_STATIC);
+	rc = sqlite3_step(select_from_genealogical_comparisons_stmt);
+	while (rc == SQLITE_ROW) {
+		genealogical_comparison comp;
+		string primary_wit_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_genealogical_comparisons_stmt, 0)));
+		//Check if there is already a comparison map for this witness in the output map, and create one if not:
+		if (secondary_witness_genealogical_comparisons.find(primary_wit_id) == secondary_witness_genealogical_comparisons.end()) {
+			secondary_witness_genealogical_comparisons[primary_wit_id] = unordered_map<string, genealogical_comparison>();
+		}
+		string secondary_wit_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_genealogical_comparisons_stmt, 1)));
+		int agreements_bytes = sqlite3_column_bytes(select_from_genealogical_comparisons_stmt, 2);
+		const char * agreements_buf = reinterpret_cast<const char *>(sqlite3_column_blob(select_from_genealogical_comparisons_stmt, 2));
+		Roaring agreements = Roaring::readSafe(agreements_buf, agreements_bytes);
+		comp.agreements = agreements;
+		int explained_bytes = sqlite3_column_bytes(select_from_genealogical_comparisons_stmt, 3);
+		const char * explained_buf = reinterpret_cast<const char *>(sqlite3_column_blob(select_from_genealogical_comparisons_stmt, 3));
+		Roaring explained = Roaring::readSafe(explained_buf, explained_bytes);
+		comp.explained = explained;
+		float cost = float(sqlite3_column_double(select_from_genealogical_comparisons_stmt, 4));
+		comp.cost = cost;
+		secondary_witness_genealogical_comparisons.at(primary_wit_id)[secondary_wit_id] = comp;
+		rc = sqlite3_step(select_from_genealogical_comparisons_stmt);
+	}
+	sqlite3_finalize(select_from_genealogical_comparisons_stmt);
+	return secondary_witness_genealogical_comparisons;
+}
+
+/**
+ * Determines if the VARIATION_UNITS table of the given SQLite database
+ * contains a row with the given variation unit ID.
+ */
+bool variation_unit_id_exists(sqlite3 * input_db, const string & vu_id) {
+	bool variation_unit_id_exists = false;
+	int rc; //to store SQLite macros
+	sqlite3_stmt * select_from_variation_units_stmt;
+	sqlite3_prepare(input_db, "SELECT * FROM VARIATION_UNITS WHERE VARIATION_UNIT=?", -1, & select_from_variation_units_stmt, 0);
+	sqlite3_bind_text(select_from_variation_units_stmt, 1, vu_id.c_str(), -1, SQLITE_STATIC);
+	rc = sqlite3_step(select_from_variation_units_stmt);
+	variation_unit_id_exists = (rc == SQLITE_ROW) ? true : false;
+	sqlite3_finalize(select_from_variation_units_stmt);
+	return variation_unit_id_exists;
+}
+
+/**
+ * Retrieves all rows from the VARIATION_UNITS table of the given SQLite database
+ * and returns a vector of variation_unit IDs populated with its contents.
+ */
+vector<string> get_variation_unit_ids(sqlite3 * input_db) {
+	vector<string> variation_unit_ids = vector<string>();
+	int rc; //to store SQLite macros
+	sqlite3_stmt * select_from_variation_units_stmt;
+	sqlite3_prepare(input_db, "SELECT * FROM VARIATION_UNITS ORDER BY ROWID", -1, & select_from_variation_units_stmt, 0);
+	rc = sqlite3_step(select_from_variation_units_stmt);
+	while (rc == SQLITE_ROW) {
+		string vu_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_variation_units_stmt, 0)));
+		variation_unit_ids.push_back(vu_id);
+		rc = sqlite3_step(select_from_variation_units_stmt);
+	}
+	sqlite3_finalize(select_from_variation_units_stmt);
+	return variation_unit_ids;
+}
+
+/**
+ * Returns the label for the given variation unit ID from the VARIATION_UNITS table of the given SQLite database.
+ */
+string get_variation_unit_label(sqlite3 * input_db, const string & vu_id) {
+	string variation_unit_label = string();
+	int rc; //to store SQLite macros
+	sqlite3_stmt * select_from_variation_units_stmt;
+	sqlite3_prepare(input_db, "SELECT * FROM VARIATION_UNITS WHERE VARIATION_UNIT=?", -1, & select_from_variation_units_stmt, 0);
+	sqlite3_bind_text(select_from_variation_units_stmt, 1, vu_id.c_str(), -1, SQLITE_STATIC);
+	rc = sqlite3_step(select_from_variation_units_stmt);
+	while (rc == SQLITE_ROW) {
+		variation_unit_label = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_variation_units_stmt, 1)));
+		break;
+	}
+	sqlite3_finalize(select_from_variation_units_stmt);
+	return variation_unit_label;
+}
+
+/**
+ * Given primary witness ID, a variation unit label, a list of readings supported by the primary witness,
+ * a filter reading, and a list of witness comparisons (assumed to be sorted in decreasing order of agreements),
  * prints the relatives list for the primary witness at the given variation unit.
  */
-void print_relatives(const string & primary_wit_id, const string & vu_label, const string & filter_reading, const list<witness_comparison> & comparisons) {
+void print_relatives(const string & primary_wit_id, const string & vu_label, const list<string> & primary_wit_readings, const string & filter_reading, const list<witness_comparison> & comparisons) {
 	//Print the caption:
 	if (filter_reading.empty()) {
 		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " ";
@@ -53,11 +235,10 @@ void print_relatives(const string & primary_wit_id, const string & vu_label, con
 	else {
 		cout << "Relatives of W1 = " << primary_wit_id << " at " << vu_label << " with reading " << filter_reading << " ";
 	}
-	if (reading_support.find(primary_wit_id) != reading_support.end()) {
+	if (!primary_wit_readings.empty()) {
 		cout << "(W1 RDG = ";
-		list<string> primary_wit_rdgs = reading_support.at(primary_wit_id);
-		for (string primary_wit_rdg : primary_wit_rdgs) {
-			if (primary_wit_rdg != primary_wit_rdgs.front()) {
+		for (string primary_wit_rdg : primary_wit_readings) {
+			if (primary_wit_rdg != primary_wit_readings.front()) {
 				cout << ", ";
 			}
 			cout << primary_wit_rdg;
@@ -124,28 +305,22 @@ void print_relatives(const string & primary_wit_id, const string & vu_label, con
  */
 int main(int argc, char* argv[]) {
 	//Read in the command-line options:
-	int threshold = 0;
 	string filter_reading = string();
-	set<string> trivial_reading_types = set<string>();
-	bool merge_splits = false;
-	string input_xml = string();
+	string input_db_name = string();
 	string primary_wit_id = string();
 	string vu_id = string();
 	try {
 		cxxopts::Options options("find_relatives", "Get a table of genealogical relationships between the witness with the given ID and other witnesses at a given passage, as specified by the user.\nOptionally, the user can optionally specify a reading ID for the given passage, in which case the output will be restricted to the witnesses preserving that reading.");
-		options.custom_help("[-h] [-t threshold] [-r reading] [-z trivial_reading_types] [--merge-splits] input_xml witness passage");
+		options.custom_help("[-h] [-r reading] input_db witness passage");
 		//options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
-				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
-				("r,reading", "ID of desired variant reading", cxxopts::value<string>())
-				("z", "space-separated list of reading types to treat as trivial (e.g., defective orthographic)", cxxopts::value<vector<string>>())
-				("merge-splits", "merge split attestations of the same reading", cxxopts::value<bool>());
+				("r,reading", "ID of desired variant reading", cxxopts::value<string>());
 		options.add_options("positional")
-				("input_xml", "collation file in TEI XML format", cxxopts::value<string>())
+				("input_db", "genealogical cache database", cxxopts::value<string>())
 				("witness", "ID of the witness whose relatives are desired, as found in its <witness> element in the XML file", cxxopts::value<string>())
-				("passage", "ID or index (0-based) of the variation unit at which relatives' readings are desired", cxxopts::value<vector<string>>());
-		options.parse_positional({"input_xml", "witness", "passage"});
+				("passage", "ID or (one-based) index of the variation unit at which relatives' readings are desired", cxxopts::value<vector<string>>());
+		options.parse_positional({"input_db", "witness", "passage"});
 		auto args = options.parse(argc, argv);
 		//Print help documentation and exit if specified:
 		if (args.count("help")) {
@@ -153,27 +328,16 @@ int main(int argc, char* argv[]) {
 			exit(0);
 		}
 		//Parse the optional arguments:
-		if (args.count("t")) {
-			threshold = args["t"].as<int>();
-		}
 		if (args.count("r")) {
 			filter_reading = args["r"].as<string>();
 		}
-		if (args.count("z")) {
-			for (string trivial_reading_type : args["z"].as<vector<string>>()) {
-				trivial_reading_types.insert(trivial_reading_type);
-			}
-		}
-		if (args.count("merge-splits")) {
-			merge_splits = args["merge-splits"].as<bool>();
-		}
 		//Parse the positional arguments:
-		if (!args.count("input_xml") || !args.count("witness") || args.count("passage") != 1) {
-			cerr << "Error: 3 positional arguments (input_xml, witness, and passage) are required." << endl;
+		if (!args.count("input_db") || !args.count("witness") || args.count("passage") != 1) {
+			cerr << "Error: 3 positional arguments (input_db, witness, and passage) are required." << endl;
 			exit(1);
 		}
 		else {
-			input_xml = args["input_xml"].as<string>();
+			input_db_name = args["input_db"].as<string>();
 			primary_wit_id = args["witness"].as<string>();
 			vu_id = args["passage"].as<vector<string>>()[0];
 		}
@@ -182,29 +346,34 @@ int main(int argc, char* argv[]) {
 		cerr << "Error parsing options: " << e.what() << endl;
 		exit(-1);
 	}
-	//Attempt to parse the input XML file as an apparatus:
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(input_xml.c_str());
-	if (!result) {
-		cerr << "Error: An error occurred while loading XML file " << input_xml << ": " << result.description() << endl;
+	//Open the database:
+	cout << "Opening database..." << endl;
+	sqlite3 * input_db;
+	int rc = sqlite3_open(input_db_name.c_str(), & input_db);
+	if (rc) {
+		cerr << "Error opening database " << input_db_name << ": " << sqlite3_errmsg(input_db) << endl;
 		exit(1);
 	}
-	pugi::xml_node tei_node = doc.child("TEI");
-	if (!tei_node) {
-		cerr << "Error: The XML file " << input_xml << " does not have a <TEI> element as its root element." << endl;
+	//Check if the primary witness ID is in the database:
+	bool primary_wit_exists = witness_id_exists(input_db, primary_wit_id);
+	if (!primary_wit_exists) {
+		cerr << "Error: The WITNESSES table has no rows with WITNESS = " << primary_wit_id << "." << endl;
 		exit(1);
 	}
-	apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
-	//Attempt to retrieve the input variation unit by searching for a match in the apparatus:
-	variation_unit vu;
-	bool variation_unit_matched = false;
-	for (variation_unit curr_vu : app.get_variation_units()) {
-		if (curr_vu.get_id() == vu_id) {
-			vu = curr_vu;
-			variation_unit_matched = true;
-			break;
-		}
-	}
+	cout << "Retrieving genealogical relationships for witnesses..." << endl;
+	//Retrieve a list of all witness IDs:
+	list<string> list_wit = get_witness_ids(input_db);
+	//Retrieve a map of reading support for this variation unit:
+	unordered_map<string, list<string>> reading_support = get_reading_support(input_db, vu_id);
+	//Retrieve all necessary genealogical comparisons relative to the primary witness:
+	unordered_map<string, genealogical_comparison> primary_witness_genealogical_comparisons = get_primary_witness_genealogical_comparisons(input_db, primary_wit_id);
+	//Retrieve all necessary genealogical comparisons relative to the secondary witnesses:
+	unordered_map<string, unordered_map<string, genealogical_comparison>> secondary_witness_genealogical_comparisons = get_secondary_witness_genealogical_comparisons(input_db, primary_wit_id);
+	cout << "Retrieving variation units..." << endl;
+	//Retrieve a vector of all variation unit IDs:
+	vector<string> vu_ids = get_variation_unit_ids(input_db);
+	//Check if the input passage is a variation unit ID in the database:
+	bool variation_unit_matched = variation_unit_id_exists(input_db, vu_id);
 	//If no match is found, the try to treat the ID as an index:
 	if (!variation_unit_matched) {
 		bool is_number = true;
@@ -215,80 +384,36 @@ int main(int argc, char* argv[]) {
 			}
 		}
 		//If it isn't a number, then report an error to the user and exit:
-	    if (!is_number) {
-	    	cerr << "Error: The XML file has no <app> element with an xml:id, id, or n attribute value of " << vu_id << "." << endl;
+		if (!is_number) {
+			cerr << "Error: The VARIATION_UNITS table has no rows with VARIATION_UNIT = " << vu_id << "." << endl;
 			exit(1);
-	    }
-	    //Otherwise, convert the ID to a number, and check if it is a valid index:
-	    unsigned int vu_ind = atoi(vu_id.c_str());
-	    if (vu_ind >= app.get_variation_units().size()) {
-	    	cerr << "Error: The XML file has no <app> element with an xml:id, id, or n attribute value of " << vu_id << "; if the variation unit ID was specified as an index, then it is out of range, as there are only " << app.get_variation_units().size() << " variation units." << endl;
+		}
+		//Otherwise, convert the ID to a zero-based index, and check if it is a valid index:
+		unsigned int vu_ind = atoi(vu_id.c_str()) - 1;
+		if (vu_ind >= vu_ids.size()) {
+			cerr << "Error: The VARIATION_UNITS table has no rows with VARIATION_UNIT = " << vu_id << "; if the variation unit ID was specified as an index, then it is out of range, as there are only " << vu_ids.size() << " variation units." << endl;
 			exit(1);
-	    }
-	    //Otherwise, get the variation unit corresponding to this ID:
-	    vu = app.get_variation_units()[vu_ind];
-	    variation_unit_matched = true;
-	}
-	//Get the label for this variation unit, if it exists; otherwise, use the ID:
-	string vu_label = vu.get_label().empty() ? vu_id : vu.get_label();
-	//Ensure that the primary witness is included in the apparatus's <listWit> element:
-	bool primary_wit_exists = false;
-	for (string wit_id : app.get_list_wit()) {
-		if (wit_id == primary_wit_id) {
-			primary_wit_exists = true;
-			break;
 		}
+		//Otherwise, get the variation unit corresponding to this ID:
+		vu_id = vu_ids[vu_ind];
 	}
-	if (!primary_wit_exists) {
-		cerr << "Error: The XML file's <listWit> element has no child <witness> element with ID " << primary_wit_id << "." << endl;
-		exit(1);
-	}
-	//If the user has specified a minimum extant readings threshold,
-	//then populate a list of witnesses that meet the threshold:
-	list<string> list_wit = list<string>();
-	if (threshold > 0) {
-		cout << "Filtering out fragmentary witnesses... " << endl;
-		for (string wit_id : app.get_list_wit()) {
-			if (app.get_extant_passages_for_witness(wit_id) >= threshold) {
-				list_wit.push_back(wit_id);
-			}
-			//If the primary witness is fragmentary, then report this to the user and exit:
-			else if (wit_id == primary_wit_id) {
-				cout << "Primary witness " << primary_wit_id << " does not meet the specified minimum extant readings threshold of " << threshold << "." << endl;
-				exit(0);
-			}
-		}
-	}
-	//Otherwise, just use the full list of witnesses found in the apparatus:
-	else {
-		list_wit = app.get_list_wit();
-	}
-	cout << "Calculating genealogical relationships between witness " << primary_wit_id << " and all other witnesses..." << endl;
-	//Then initialize the primary witness:
-	witness primary_wit = witness(primary_wit_id, list_wit, app);
-	//Then populate a list of secondary witnesses:
-	list<witness> secondary_witnesses = list<witness>();
+	//Get the variation unit's label:
+	string vu_label = get_variation_unit_label(input_db, vu_id);
+	//Close the database:
+	cout << "Closing database..." << endl;
+	sqlite3_close(input_db);
+	cout << "Database closed." << endl;
+	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
+	list<witness_comparison> comparisons = list<witness_comparison>();
 	for (string secondary_wit_id : list_wit) {
 		//Skip the primary witness:
 		if (secondary_wit_id == primary_wit_id) {
 			continue;
 		}
-		//Initialize the secondary witness relative to the primary witness:
-		list<string> secondary_list_wit = list<string>({primary_wit_id, secondary_wit_id});
-		witness secondary_wit = witness(secondary_wit_id, secondary_list_wit, app);
-		//Add it to the list:
-		secondary_witnesses.push_back(secondary_wit);
-	}
-	cout << "Sorting relatives for " << primary_wit_id << " at " << vu_label << "..." << endl;
-	//Now calculate the comparison metrics between the primary witness and all of the secondary witnesses:
-	list<witness_comparison> comparisons = list<witness_comparison>();
-	unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-	for (witness secondary_wit : secondary_witnesses) {
-		string secondary_wit_id = secondary_wit.get_id();
-		genealogical_comparison primary_primary_comp = primary_wit.get_genealogical_comparison_for_witness(primary_wit_id);
-		genealogical_comparison primary_secondary_comp = primary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
-		genealogical_comparison secondary_primary_comp = secondary_wit.get_genealogical_comparison_for_witness(primary_wit_id);
-		genealogical_comparison secondary_secondary_comp = secondary_wit.get_genealogical_comparison_for_witness(secondary_wit_id);
+		genealogical_comparison primary_primary_comp = primary_witness_genealogical_comparisons.at(primary_wit_id);
+		genealogical_comparison primary_secondary_comp = primary_witness_genealogical_comparisons.at(secondary_wit_id);
+		genealogical_comparison secondary_primary_comp = secondary_witness_genealogical_comparisons.at(secondary_wit_id).at(primary_wit_id);
+		genealogical_comparison secondary_secondary_comp = secondary_witness_genealogical_comparisons.at(secondary_wit_id).at(secondary_wit_id);
 		Roaring primary_extant = primary_primary_comp.explained;
 		Roaring secondary_extant = secondary_secondary_comp.explained;
 		Roaring mutually_extant = primary_extant & secondary_extant;
@@ -314,7 +439,7 @@ int main(int argc, char* argv[]) {
 	comparisons.sort([](const witness_comparison & wc1, const witness_comparison & wc2) {
 		return wc1.eq > wc2.eq;
 	});
-	//Pass through the sorted list of comparison to assign ancestral ranks:
+	//Pass through the sorted list of comparisons to assign ancestral ranks:
 	int nr = 0;
 	int nr_value = numeric_limits<int>::max();
 	for (witness_comparison & comparison : comparisons) {
@@ -335,6 +460,7 @@ int main(int argc, char* argv[]) {
 			comparison.nr = -1;
 		}
 	}
-	print_relatives(primary_wit_id, vu_label, filter_reading, comparisons);
+	list<string> primary_wit_readings = reading_support.find(primary_wit_id) != reading_support.end() ? reading_support.at(primary_wit_id) : list<string>();
+	print_relatives(primary_wit_id, vu_label, primary_wit_readings, filter_reading, comparisons);
 	exit(0);
 }

@@ -32,8 +32,9 @@ private:
 	list<string> global_stemma_ancestor_ids;
 public:
 	witness();
-	witness(const string & witness_id, const apparatus & app);
-	witness(const string & witness_id, const list<string> & list_wit, const apparatus & app);
+	witness(const string & _id, const apparatus & app);
+	witness(const string & _id, const list<string> & list_wit, const apparatus & app);
+	witness(const string & _id, const unordered_map<string, genealogical_comparison> & _genealogical_comparisons);
 	virtual ~witness();
 	string get_id() const;
 	unordered_map<string, genealogical_comparison> get_genealogical_comparisons() const;

@@ -19,8 +19,8 @@
 						<!-- Simple local stemma with two readings and a clear relationship -->
 						<app n="B00K0V0U2">
 							<label>Test 0:0/2</label>
-							<rdg n="a" wit="A B C" />
-							<rdg n="b" wit="D E" />
+							<rdg n="a" wit="A B C">a</rdg>
+							<rdg n="b" wit="D E">b</rdg>
 							<fs>
 								<f name="connectivity">
 									<numeric value="5" />
@@ -35,10 +35,10 @@
 						<!-- Local stemma with four readings and depth 2 -->
 						<app n="B00K0V0U4">
 							<!-- Test with no label -->
-							<rdg n="a" wit="A B" />
-							<rdg n="b" wit="C" />
-							<rdg n="c" wit="D" />
-							<rdg n="d" wit="E" />
+							<rdg n="a" wit="A B">a</rdg>
+							<rdg n="b" wit="C">b</rdg>
+							<rdg n="c" wit="D">c</rdg>
+							<rdg n="d" wit="E">d</rdg>
 							<!-- Test explicit "absolute" connectivity -->
 							<fs>
 								<f name="connectivity">
@@ -46,10 +46,10 @@
 								</f>
 							</fs>
 							<graph type="directed">
-								<node n="a" />
-								<node n="b" />
-								<node n="c" />
-								<node n="d" />
+								<node n="a">a</node>
+								<node n="b">b</node>
+								<node n="c">c</node>
+								<node n="d">d</node>
 								<arc from="a" to="b" />
 								<arc from="a" to="c" />
 								<arc from="c" to="d" />
@@ -58,11 +58,11 @@
 						<!-- Local stemma with defective and orthographic subvariants -->
 						<app n="B00K0V0U6">
 							<label>Test 0:0/6</label>
-							<rdg n="a" wit="A" />
-							<rdg n="b" wit="B" />
-							<rdg n="bf" type="defective" wit="C" />
-							<rdg n="c" wit="D" />
-							<rdg n="co" type="orthographic" wit="E" />
+							<rdg n="a" wit="A">a</rdg>
+							<rdg n="b" wit="B">b</rdg>
+							<rdg n="bf" type="defective" wit="C">bf</rdg>
+							<rdg n="c" wit="D">c</rdg>
+							<rdg n="co" type="orthographic" wit="E">co</rdg>
 							<!-- Test default connectivity value -->
 							<graph type="directed">
 								<node n="a" />
@@ -79,10 +79,10 @@
 						<!-- Local stemma where the Ausgangstext could be one of two readings, there is a split attestation for one reading, and one witness is lacunose -->
 						<app n="B00K0V0U8">
 							<label>Test 0:0/8</label>
-							<rdg n="a" wit="A" />
-							<rdg n="b" wit="A B" />
-							<rdg n="c" wit="D" />
-							<rdg n="c2" type="split" wit="C" />
+							<rdg n="a" wit="A">a</rdg>
+							<rdg n="b" wit="A B">b</rdg>
+							<rdg n="c" wit="D">c</rdg>
+							<rdg n="c2" type="split" wit="C">c</rdg>
 							<fs>
 								<f name="connectivity">
 									<numeric value="5" />

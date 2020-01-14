@@ -189,7 +189,8 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node app_node = doc.select_node("descendant::app[@n=\"B00K0V0U6\"]").node();
-		string label_text = app_node.child("label").text().get();
+		string vu_id = app_node.attribute("n").value();
+		string vu_label = app_node.child("label").text().get();
 		pugi::xml_node graph_node = app_node.child("graph");
 		//Then proceed for each unit test:
 		string current_unit;
@@ -206,12 +207,18 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct a local stemma without any split merges or trivial edges:
-				local_stemma ls = local_stemma(graph_node, label_text, set<pair<string, string>>(), set<pair<string, string>>());
+				local_stemma ls = local_stemma(graph_node, vu_id, vu_label, set<pair<string, string>>(), set<pair<string, string>>());
+				//Check that the ID is the expected_value:
+				string expected_id = vu_id;
+				string id = ls.get_id();
+				if (id != expected_id) {
+					u_test.msg += "Expected ID " + expected_id + ", got " + id + "\n";
+				}
 				//Check that the label is the expected value:
-				string expected_label = "Test 0:0/6";
+				string expected_label = vu_label;
 				string label = ls.get_label();
-				if (label != "Test 0:0/6") {
-					u_test.msg += "Expected label " + expected_label + ", got label " + label + "\n";
+				if (label != expected_label) {
+					u_test.msg += "Expected label " + expected_label + ", got " + label + "\n";
 				}
 				//Check that the graph is the size we expect:
 				unsigned int expected_n_vertices = 5;
@@ -236,7 +243,8 @@ void autotest::run() {
 		}
 		//Do more pre-test work:
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U8\"]").node();
-		label_text = app_node.child("label").text().get();
+		vu_id = app_node.attribute("n").value();
+		vu_label = app_node.child("label").text().get();
 		graph_node = app_node.child("graph");
 		/**
 		 * Unit test local_stemma_constructor_2
@@ -251,7 +259,7 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct a local stemma with connected pairs of split readings:
-				local_stemma ls = local_stemma(graph_node, label_text, set<pair<string, string>>({{"c2", "c"}}), set<pair<string, string>>());
+				local_stemma ls = local_stemma(graph_node, vu_id, vu_label, set<pair<string, string>>({{"c2", "c"}}), set<pair<string, string>>());
 				//Check that the graph is the size we expect:
 				unsigned int expected_n_vertices = 4;
 				unsigned int expected_n_edges = 4;
@@ -275,9 +283,10 @@ void autotest::run() {
 		}
 		//Do more pre-test work:
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U4\"]").node();
-		label_text = app_node.child("label").text().get();
+		vu_id = app_node.attribute("n").value();
+		vu_label = app_node.child("label").text().get();
 		graph_node = app_node.child("graph");
-		local_stemma ls = local_stemma(graph_node, label_text, set<pair<string, string>>(), set<pair<string, string>>());
+		local_stemma ls = local_stemma(graph_node, vu_id, vu_label, set<pair<string, string>>(), set<pair<string, string>>());
 		/**
 		 * Unit test local_stemma_path_exists
 		 */
@@ -372,7 +381,7 @@ void autotest::run() {
 			try {
 				//Test .dot serialization:
 				stringstream ss;
-				ls.to_dot(ss);
+				ls.to_dot(ss, false);
 				string out = ss.str();
 				if (out.empty()) {
 					u_test.msg += "The .dot serialization was empty.\n";
@@ -1166,7 +1175,7 @@ void autotest::run() {
 			try {
 				//Test .dot serialization of complete textual flow graph:
 				stringstream ss;
-				tf.textual_flow_to_dot(ss);
+				tf.textual_flow_to_dot(ss, false);
 				string out = ss.str();
 				if (out.empty()) {
 					u_test.msg += "The .dot serialization was empty.\n";
@@ -1194,7 +1203,7 @@ void autotest::run() {
 			try {
 				//Test .dot serialization of coherence in attestations graph:
 				stringstream ss;
-				tf.coherence_in_attestations_to_dot("b", ss);
+				tf.coherence_in_attestations_to_dot(ss, "b", false);
 				string out = ss.str();
 				if (out.empty()) {
 					u_test.msg += "The .dot serialization was empty.\n";
@@ -1222,7 +1231,7 @@ void autotest::run() {
 			try {
 				//Test .dot serialization of coherence in variant passages graph:
 				stringstream ss;
-				tf.coherence_in_variant_passages_to_dot(ss);
+				tf.coherence_in_variant_passages_to_dot(ss, false);
 				string out = ss.str();
 				if (out.empty()) {
 					u_test.msg += "The .dot serialization was empty.\n";

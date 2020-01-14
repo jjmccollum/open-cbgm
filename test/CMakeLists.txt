@@ -8,7 +8,7 @@ add_executable(autotest $<TARGET_OBJECTS:objects> autotest.cpp)
 target_include_directories(autotest PRIVATE ${TEST_HEADERS_DIR})
 
 # Link the build targets to external libraries:
-target_link_libraries(autotest -lpthread -ldl)
+target_link_libraries(autotest ${PTHREAD_LIB} ${DL_LIB})
 
 # Make sure the build targets are compiled with C++11:
 target_compile_features(autotest PRIVATE cxx_std_11)

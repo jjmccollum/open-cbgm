@@ -38,6 +38,7 @@ struct witness_comparison {
 	int posterior; //number of variation units where the primary witness has a posterior reading
 	//int uncl; //number of variation units where both witnesses have different readings, but either's could explain that of the other
 	int norel; //number of variation units where the primary witness has a reading unrelated to that of the secondary witness
+	float cost; //genealogical cost of relationship from the target witnesses if it is a potential ancestor
 };
 
 /**
@@ -261,6 +262,7 @@ void print_relatives(const string & primary_wit_id, const string & vu_label, con
 	cout << std::right << std::setw(8) << "W1<W2";
 	//cout << std::right << std::setw(8) << "UNCL";
 	cout << std::right << std::setw(8) << "NOREL";
+	cout << std::right << std::setw(12) << "COST";
 	cout << "\n\n";
 	//Print the subsequent rows:
 	for (witness_comparison comparison : comparisons) {
@@ -294,6 +296,12 @@ void print_relatives(const string & primary_wit_id, const string & vu_label, con
 		cout << std::right << std::setw(8) << comparison.posterior;
 		//cout << std::right << std::setw(8) << comparison.uncl;
 		cout << std::right << std::setw(8) << comparison.norel;
+		if (comparison.cost >= 0) {
+			cout << std::right << std::setw(12) << fixed << std::setprecision(3) << comparison.cost;
+		}
+		else {
+			cout << std::right << std::setw(12) << "";
+		}
 		cout << "\n";
 	}
 	cout << endl;
@@ -433,6 +441,7 @@ int main(int argc, char* argv[]) {
 		comparison.norel = comparison.pass - comparison.eq - comparison.prior - comparison.posterior;
 		comparison.perc = comparison.pass > 0 ? (100 * float(comparison.eq) / float(comparison.pass)) : 0;
 		comparison.dir = comparison.prior > comparison.posterior ? -1 : (comparison.posterior > comparison.prior ? 1 : 0);
+		comparison.cost = comparison.dir < 0 ? -1 : primary_secondary_comp.cost;
 		comparisons.push_back(comparison);
 	}
 	//Sort the list of comparisons from highest number of agreements to lowest:

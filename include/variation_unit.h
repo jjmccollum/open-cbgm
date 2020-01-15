@@ -27,18 +27,18 @@ private:
 	string id;
 	string label;
 	list<string> readings;
-	unordered_map<string, list<string>> reading_support;
+	unordered_map<string, string> reading_support;
 	int connectivity = numeric_limits<int>::max(); //absolute connectivity by default
 	local_stemma stemma;
 public:
 	variation_unit();
-	variation_unit(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_type);
-	variation_unit(const string & _id, const string & _label, const list<string> & _readings, const unordered_map<string, list<string>> & _reading_support, int _connectivity, const local_stemma _stemma);
+	variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, bool merge_splits, const set<string> & trivial_reading_type);
+	variation_unit(const string & _id, const string & _label, const list<string> & _readings, const unordered_map<string, string> & _reading_support, int _connectivity, const local_stemma _stemma);
 	virtual ~variation_unit();
 	string get_id() const;
 	string get_label() const;
 	list<string> get_readings() const;
-	unordered_map<string, list<string>> get_reading_support() const;
+	unordered_map<string, string> get_reading_support() const;
 	int get_connectivity() const;
 	local_stemma get_local_stemma() const;
 };

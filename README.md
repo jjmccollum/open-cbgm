@@ -136,32 +136,33 @@ When built, the open-cbgm library contains seven executable scripts: populate\_d
 
 The populate\_db script reads the input collation XML file, calculates genealogical relationships between all pairs of witnesses, and writes this and other data needed for common CBGM tasks to a SQLite database. Typically, this process will take at least a few minutes, depending on the number of variation units and witnesses in the collation, but the use of a database is intended to make this process one-time work. The script takes the input XML file as a required command-line argument, and it also accepts the following optional arguments for processing the data:
 - `-t` or `--threshold`, which will set a threshold of minimum extant passages for witnesses to be included from the collation. For example, the argument `-t 100` will filter out any witnesses extant in fewer than 100 passages.
-- `-z` followed by a space-separated list of reading types (e.g., `-z defective orthographic`), which will treat readings of those types as trivial for the purposes of witness comparison (so using the example already provided, a defective or orthographic subvariant of a reading would be considered to agree with that reading).
+- `-z` followed by a reading type (e.g., `-z defective`), which will treat readings of that type as trivial for the purposes of witness comparison (so using the example already provided, a defective or orthographic subvariant of a reading would be considered to agree with that reading). This argument can be repeated with different reading types (e.g., `-z defective -z orthographic`).
+- `--drop-ambiguous`, which will treat ambiguous readings as lacunae, excluding them from variation units and local stemmata.
 - `--merge-splits`, which will treat split attestations of the same reading as equivalent for the purposes of witness comparison.
 
-If we wanted to create a new database called cache.db, then we would use the following command:
+So if we wanted to create a new database called cache.db using the 3\_john\_collation.xml collation file in the examples directory, and we wanted to exclude ambiguous readings and witnesses with fewer than 100 extant readings, and we wanted to ignore orthographic and defective subvariation, then we would use the following command:
 
-	./populate_db examples/3_john_collation.xml cache.db
+	./populate_db -t 100 -z defective -z orthographic --drop-ambiguous examples/3_john_collation.xml cache.db
 
 Please note that at this time, the current database must be overwritten, or a separate one must be created, in order to incorporate any changes to the processing options.
 
-To illustrate the effects of the processing arguments, we present four versions of the local stemma for the variation unit at 3 John 1:4/22–26, along with the commands used to populate the database containing their data. In the local stemmata presented below, dashed arrows represent edges of weight 0.
+To illustrate the effects of the processing arguments, we present several versions of the local stemma for the variation unit at 3 John 1:4/22–26, along with the commands used to populate the database containing their data. In the local stemmata presented below, dashed arrows represent edges of weight 0.
 
 	./populate_db examples/3_john_collation.xml cache.db
 
 ![3 John 1:4/22–26, no processing](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma.png)
 
-	./populate_db -z defective examples/3_john_collation.xml cache.db
+	./populate_db -z ambiguous -z defective examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-def.png)
+![3 John 1:4/22–26, ambiguous and defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-amb-def.png)
 
-	./populate_db --merge-splits examples/3_john_collation.xml cache.db
+	./populate_db --drop-ambiguous --merge-splits examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, split readings merged](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-split.png)
+![3 John 1:4/22–26, ambiguous readings dropped and split readings merged](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-drop-merge.png)
 
-	./populate_db -z defective --merge-splits examples/3_john_collation.xml cache.db
+	./populate_db -z defective --drop-ambiguous --merge-splits examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, split readings merged, defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-split-def.png)
+![3 John 1:4/22–26, ambiguous readings dropped, split readings merged, defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-drop-merge-def.png)
 
 ### Comparison of Witnesses
 
@@ -248,7 +249,7 @@ The generated outputs are not image files, but .dot files, which contain textual
     
 will generate a PNG image file called B25K1V4U22-26-local-stemma.dot.png. (If you want to specify your own output file name, use the `-o` argument followed by the file name you want.)
 
-Sample images of local stemmata have already been included at the beginning of the "Usage" section. For the sake of completeness, we have included sample images of the other types of graphs below.
+Sample images of local stemmata have already been included at the beginning of the "Usage" section. For the sake of completeness, we have included sample images of the other types of graphs below. All of these graphs have been produced using data from a genealogical cache populated with the `--drop-ambiguous` argument.
 
 Complete textual flow diagram for 3 John 1:4/22–26:
 ![3 John 1:4/22–26 complete textual flow diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-textual-flow.png)

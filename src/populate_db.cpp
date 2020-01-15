@@ -185,23 +185,21 @@ void populate_reading_support_table(sqlite3 * output_db, const list<variation_un
 	}
 	for (variation_unit vu : variation_units) {
 		string vu_id = vu.get_id();
-		unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-		for (pair<string, list<string>> kv : reading_support) {
+		unordered_map<string, string> reading_support = vu.get_reading_support();
+		for (pair<string, string> kv : reading_support) {
 			string wit_id = kv.first;
-			list<string> wit_rdgs = kv.second;
-			for (string wit_rdg : wit_rdgs) {
-				//Then insert a row containing these values:
-				sqlite3_bind_text(insert_into_reading_support_stmt, 1, vu_id.c_str(), -1, SQLITE_STATIC);
-				sqlite3_bind_text(insert_into_reading_support_stmt, 2, wit_id.c_str(), -1, SQLITE_STATIC);
-				sqlite3_bind_text(insert_into_reading_support_stmt, 3, wit_rdg.c_str(), -1, SQLITE_STATIC);
-				rc = sqlite3_step(insert_into_reading_support_stmt);
-				if (rc != SQLITE_DONE) {
-					cerr << "Error executing prepared statement." << endl;
-					exit(1);
-				}
-				//Then reset the prepared statement so we can bind the next values to it:
-				sqlite3_reset(insert_into_reading_support_stmt);
+			string wit_rdg = kv.second;
+			//Then insert a row containing these values:
+			sqlite3_bind_text(insert_into_reading_support_stmt, 1, vu_id.c_str(), -1, SQLITE_STATIC);
+			sqlite3_bind_text(insert_into_reading_support_stmt, 2, wit_id.c_str(), -1, SQLITE_STATIC);
+			sqlite3_bind_text(insert_into_reading_support_stmt, 3, wit_rdg.c_str(), -1, SQLITE_STATIC);
+			rc = sqlite3_step(insert_into_reading_support_stmt);
+			if (rc != SQLITE_DONE) {
+				cerr << "Error executing prepared statement." << endl;
+				exit(1);
 			}
+			//Then reset the prepared statement so we can bind the next values to it:
+			sqlite3_reset(insert_into_reading_support_stmt);
 		}
 	}
 	sqlite3_finalize(insert_into_reading_support_stmt);
@@ -408,18 +406,20 @@ void populate_witnesses_table(sqlite3 * output_db, const list<witness> & witness
 int main(int argc, char* argv[]) {
 	//Read in the command-line options:
 	set<string> trivial_reading_types = set<string>();
+	bool drop_ambiguous = false;
 	bool merge_splits = false;
 	int threshold = 0;
 	string input_xml_name = string();
 	string output_db_name = string();
 	try {
 		cxxopts::Options options("populate_db", "Parses the given collation XML file and populates the genealogical cache in the given SQLite database.");
-		options.custom_help("[-h] [-t threshold] [-z trivial_reading_types] [--merge-splits] input_xml output_db");
+		options.custom_help("[-h] [-t threshold] [-z trivial_reading_type_1 -z trivial_reading_type_2 ...] [--drop-ambiguous] [--merge-splits] input_xml output_db");
 		//options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
-				("z", "space-separated list of reading types to treat as trivial (e.g., defective orthographic)", cxxopts::value<vector<string>>())
+				("z", "reading type to treat as trivial (this may be used multiple times)", cxxopts::value<vector<string>>())
+				("drop-ambiguous", "treat ambiguous readings as lacunose", cxxopts::value<bool>())
 				("merge-splits", "merge split attestations of the same reading", cxxopts::value<bool>());
 		options.add_options("positional")
 				("input_xml", "collation file in TEI XML format", cxxopts::value<string>())
@@ -439,6 +439,9 @@ int main(int argc, char* argv[]) {
 			for (string trivial_reading_type : args["z"].as<vector<string>>()) {
 				trivial_reading_types.insert(trivial_reading_type);
 			}
+		}
+		if (args.count("drop-ambiguous")) {
+			drop_ambiguous = args["drop-ambiguous"].as<bool>();
 		}
 		if (args.count("merge-splits")) {
 			merge_splits = args["merge-splits"].as<bool>();
@@ -469,7 +472,7 @@ int main(int argc, char* argv[]) {
 		cerr << "Error: The XML file " << input_xml_name << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
-	apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types);
+	apparatus app = apparatus(tei_node, drop_ambiguous, merge_splits, trivial_reading_types);
 	//Get the apparatus's list of variation units:
 	list<variation_unit> variation_units = list<variation_unit>();
 	for (variation_unit vu : app.get_variation_units()) {

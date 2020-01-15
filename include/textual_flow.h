@@ -17,12 +17,12 @@
 
 using namespace std;
 
-enum flow_type {NONE, EQUAL, CHANGE, AMBIGUOUS, LOSS};
+enum flow_type {NONE, EQUAL, CHANGE, LOSS};
 
 //Define graph types for the textual flow diagram:
 struct textual_flow_vertex {
 	string id;
-	list<string> rdgs;
+	string rdg;
 };
 struct textual_flow_edge {
 	string ancestor;

@@ -44,38 +44,32 @@ witness::witness(const string & _id, const apparatus & app) {
 		comp.agreements = Roaring(); //readings in the other witness equal to this witness's readings
 		comp.explained = Roaring(); //readings in the other witness equal or prior to this witness's readings
 		comp.cost = 0; //genealogical cost of the other witness relative to this witness
-		int variation_unit_index = 0;
+		int vu_ind = 0;
 		for (variation_unit vu : app.get_variation_units()) {
-			//Get the indices of all readings supported by each of these witnesses at this variation unit
-			//(the Ausgangstext A may support more than one reading):
-			unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-			list<string> readings_for_this = (reading_support.find(id) != reading_support.end()) ? reading_support.at(id) : list<string>();
-			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support.at(other_id) : list<string>();
-			//If either witness's list is empty, then it is lacunose here,
-			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
-			if (readings_for_this.size() == 0 || readings_for_other.size() == 0) {
-				variation_unit_index++;
+			//Try to get the reading of each witness at this variation unit:
+			unordered_map<string, string> reading_support = vu.get_reading_support();
+			//If either witness is lacunose, then there is no relationship
+			//(including equality, as two lacunae should not be treated as equal):
+			if (reading_support.find(id) == reading_support.end() || reading_support.find(other_id) == reading_support.end()) {
+				vu_ind++;
 				continue;
 			}
-			//Otherwise, loop through all pairs of readings:
+			//Otherwise, check for a path from the other witness's reading to this one in the local stemma:
+			string reading_for_this = reading_support.at(id);
+			string reading_for_other = reading_support.at(other_id);
 			local_stemma ls = vu.get_local_stemma();
-			float shortest_path_length = numeric_limits<float>::infinity();
-			for (string reading_for_this : readings_for_this) {
-				for (string reading_for_other : readings_for_other) {
-					if (ls.path_exists(reading_for_other, reading_for_this)) {
-						float path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
-						shortest_path_length = min(shortest_path_length, path_length);
-					}
-				}
+			float path_length = numeric_limits<float>::infinity();
+			if (ls.path_exists(reading_for_other, reading_for_this)) {
+				path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
 			}
-			if (shortest_path_length < numeric_limits<float>::infinity()) {
-				comp.explained.add(variation_unit_index);
-				if (shortest_path_length == 0) {
-					comp.agreements.add(variation_unit_index);
+			if (path_length < numeric_limits<float>::infinity()) {
+				comp.explained.add(vu_ind);
+				if (path_length == 0) {
+					comp.agreements.add(vu_ind);
 				}
-				comp.cost += shortest_path_length;
+				comp.cost += path_length;
 			}
-			variation_unit_index++;
+			vu_ind++;
 		}
 		//Add the completed genealogical_comparison to this witness's map:
 		genealogical_comparisons[other_id] = comp;
@@ -97,38 +91,32 @@ witness::witness(const string & _id, const list<string> & list_wit, const appara
 		comp.agreements = Roaring(); //readings in the other witness equal to this witness's readings
 		comp.explained = Roaring(); //readings in the other witness equal or prior to this witness's readings
 		comp.cost = 0; //genealogical cost of the other witness relative to this witness
-		int variation_unit_index = 0;
+		int vu_ind = 0;
 		for (variation_unit vu : app.get_variation_units()) {
-			//Get the indices of all readings supported by each of these witnesses at this variation unit
-			//(the Ausgangstext A may support more than one reading):
-			unordered_map<string, list<string>> reading_support = vu.get_reading_support();
-			list<string> readings_for_this = (reading_support.find(id) != reading_support.end()) ? reading_support.at(id) : list<string>();
-			list<string> readings_for_other = (reading_support.find(other_id) != reading_support.end()) ? reading_support.at(other_id) : list<string>();
-			//If either witness's list is empty, then it is lacunose here,
-			//and there is no relationship (including equality, as two lacunae should not be treated as equal):
-			if (readings_for_this.size() == 0 || readings_for_other.size() == 0) {
-				variation_unit_index++;
+			//Try to get the reading of each witness at this variation unit:
+			unordered_map<string, string> reading_support = vu.get_reading_support();
+			//If either witness is lacunose, then there is no relationship
+			//(including equality, as two lacunae should not be treated as equal):
+			if (reading_support.find(id) == reading_support.end() || reading_support.find(other_id) == reading_support.end()) {
+				vu_ind++;
 				continue;
 			}
-			//Otherwise, loop through all pairs of readings:
+			//Otherwise, check for a path from the other witness's reading to this one in the local stemma:
+			string reading_for_this = reading_support.at(id);
+			string reading_for_other = reading_support.at(other_id);
 			local_stemma ls = vu.get_local_stemma();
-			float shortest_path_length = numeric_limits<float>::infinity();
-			for (string reading_for_this : readings_for_this) {
-				for (string reading_for_other : readings_for_other) {
-					if (ls.path_exists(reading_for_other, reading_for_this)) {
-						float path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
-						shortest_path_length = min(shortest_path_length, path_length);
-					}
-				}
+			float path_length = numeric_limits<float>::infinity();
+			if (ls.path_exists(reading_for_other, reading_for_this)) {
+				path_length = ls.get_shortest_path_length(reading_for_other, reading_for_this);
 			}
-			if (shortest_path_length < numeric_limits<float>::infinity()) {
-				comp.explained.add(variation_unit_index);
-				if (shortest_path_length == 0) {
-					comp.agreements.add(variation_unit_index);
+			if (path_length < numeric_limits<float>::infinity()) {
+				comp.explained.add(vu_ind);
+				if (path_length == 0) {
+					comp.agreements.add(vu_ind);
 				}
-				comp.cost += shortest_path_length;
+				comp.cost += path_length;
 			}
-			variation_unit_index++;
+			vu_ind++;
 		}
 		//Add the completed genealogical_comparison to this witness's map:
 		genealogical_comparisons[other_id] = comp;

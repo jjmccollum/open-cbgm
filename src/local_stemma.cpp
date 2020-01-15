@@ -80,9 +80,10 @@ local_stemma::local_stemma() {
 /**
  * Constructs a local stemma from a <graph/> XML element using the parent variation_unit's ID and label.
  * A set of split reading pairs may be specified, between which new edges with lengths of 0 will be added.
- * A set of trivial reading pairs may also be specified, whose connecting edges will be assigned a length of 0.
+ * A set of trivial readings may also be specified, whose in-edges will be assigned weights of 0.
+ * A set of dropped readings may also be specified, whose vertices and edges will not be added.
  */
-local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, const string & vu_label, const set<pair<string, string>> & split_pairs, const set<pair<string, string>> & trivial_pairs) {
+local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, const string & vu_label, const set<pair<string, string>> & split_pairs, const set<string> & trivial_readings, const set<string> & dropped_readings) {
 	graph.vertices = list<local_stemma_vertex>();
 	graph.edges = list<local_stemma_edge>();
 	//Set the ID:
@@ -95,8 +96,11 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, con
 		if (!node.attribute("n")) {
 			continue;
 		}
-		//Otherwise, create a vertex and add it to the graph:
 		string node_id = node.attribute("n").value();
+		//If the node represents a dropped reading, then don't add it:
+		if (dropped_readings.find(node_id) != dropped_readings.end()) {
+			continue;
+		}
 		local_stemma_vertex v;
 		v.id = node_id;
 		graph.vertices.push_back(v);
@@ -110,15 +114,21 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, con
 		if (e.prior == e.posterior) {
 			continue;
 		}
-		//If the arc has a weight, then add it:
-		e.weight = 1;
-		//If the edge is in the trivial set, then set the weight to 0:
-		if (trivial_pairs.find(pair<string, string>(e.prior, e.posterior)) != trivial_pairs.end()) {
+		//Don't add edges with dropped endpoints:
+		if (dropped_readings.find(e.prior) != dropped_readings.end() || dropped_readings.find(e.posterior) != dropped_readings.end()) {
+			continue;
+		}
+		//If the destination vertex is in the trivial set, then set the weight to 0:
+		if (trivial_readings.find(e.posterior) != trivial_readings.end()) {
 			e.weight = 0;
 		}
 		//Otherwise, use the value provided in the <label/> element under the <arc/> element, if there is one:
 		else if (arc.child("label") && arc.child("label").text()) {
 			e.weight = arc.child("label").text().as_float();
+		}
+		//Otherwise, use the default value of 1:
+		else {
+			e.weight = 1;
 		}
 		graph.edges.push_back(e);
 	}

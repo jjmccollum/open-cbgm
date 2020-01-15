@@ -39,7 +39,7 @@ private:
 	map<pair<string, string>, float> shortest_paths;
 public:
 	local_stemma();
-	local_stemma(const pugi::xml_node & xml, const string & vu_id, const string & vu_label, const set<pair<string, string>> & split_pairs, const set<pair<string, string>> & trivial_pairs);
+	local_stemma(const pugi::xml_node & xml, const string & vu_id, const string & vu_label, const set<pair<string, string>> & split_pairs, const set<string> & trivial_readings, const set<string> & dropped_readings);
 	local_stemma(const string & _id, const string & _label, const local_stemma_graph & _graph);
 	virtual ~local_stemma();
 	string get_id() const;

@@ -151,8 +151,8 @@ list<string> get_readings_for_variation_unit(sqlite3 * input_db, const string & 
  * Retrieves rows for the given variation unit from the READING_SUPPORT table of the given SQLite database
  * and returns a reading support map populated with its contents.
  */
-unordered_map<string, list<string>> get_reading_support_for_variation_unit(sqlite3 * input_db, const string & vu_id) {
-	unordered_map<string, list<string>> reading_support = unordered_map<string, list<string>>();
+unordered_map<string, string> get_reading_support_for_variation_unit(sqlite3 * input_db, const string & vu_id) {
+	unordered_map<string, string> reading_support = unordered_map<string, string>();
 	int rc; //to store SQLite macros
 	sqlite3_stmt * select_from_reading_support_stmt;
 	sqlite3_prepare(input_db, "SELECT * FROM READING_SUPPORT WHERE VARIATION_UNIT=?", -1, & select_from_reading_support_stmt, 0);
@@ -161,11 +161,7 @@ unordered_map<string, list<string>> get_reading_support_for_variation_unit(sqlit
 	while (rc == SQLITE_ROW) {
 		string wit_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_reading_support_stmt, 1)));
 		string rdg_id = string(reinterpret_cast<const char *>(sqlite3_column_text(select_from_reading_support_stmt, 2)));
-		//Add an entry for this witness if there isn't one already:
-		if (reading_support.find(wit_id) == reading_support.end()) {
-			reading_support[wit_id] = list<string>();
-		}
-		reading_support[wit_id].push_back(rdg_id);
+		reading_support[wit_id] = rdg_id;
 		rc = sqlite3_step(select_from_reading_support_stmt);
 	}
 	sqlite3_finalize(select_from_reading_support_stmt);
@@ -249,7 +245,7 @@ variation_unit get_variation_unit(sqlite3 * input_db, const string & vu_id) {
 	//Then get the readings list:
 	list<string> readings = get_readings_for_variation_unit(input_db, vu_id);
 	//Then get the reading support map:
-	unordered_map<string, list<string>> reading_support = get_reading_support_for_variation_unit(input_db, vu_id);
+	unordered_map<string, string> reading_support = get_reading_support_for_variation_unit(input_db, vu_id);
 	//Then get the local stemma:
 	local_stemma stemma = get_local_stemma_for_variation_unit(input_db, vu_id);
 	//Then construct the variation unit:

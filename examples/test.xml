@@ -79,10 +79,11 @@
 						<!-- Local stemma where the Ausgangstext could be one of two readings, there is a split attestation for one reading, and one witness is lacunose -->
 						<app n="B00K0V0U8">
 							<label>Test 0:0/8</label>
-							<rdg n="a" wit="A">a</rdg>
-							<rdg n="b" wit="A B">b</rdg>
+							<rdg n="a" wit="">a</rdg>
+							<rdg n="b" wit="B">b</rdg>
 							<rdg n="c" wit="D">c</rdg>
 							<rdg n="c2" type="split" wit="C">c</rdg>
+							<rdg n="zw-a/b" type="ambiguous" wit="A">zw-a/b</rdg>
 							<fs>
 								<f name="connectivity">
 									<numeric value="5" />
@@ -93,6 +94,13 @@
 								<node n="b" />
 								<node n="c" />
 								<node n="c2" />
+								<node n="zw-a/b" />
+								<arc from="zw-a/b" to="a">
+									<label>0</label>
+								</arc>
+								<arc from="zw-a/b" to="b">
+									<label>0</label>
+								</arc>
 								<arc from="a" to="c" />
 								<arc from="b" to="c2" />
 							</graph>

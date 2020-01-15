@@ -45,16 +45,16 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 	graph.vertices = list<textual_flow_vertex>();
 	graph.edges = list<textual_flow_edge>();
 	//Get a copy of the variation unit's reading support map:
-	unordered_map<string, list<string>> reading_support = vu.get_reading_support();
+	unordered_map<string, string> reading_support = vu.get_reading_support();
 	//Add vertices and edges for each witness in the input list:
 	for (witness wit : witnesses) {
 		//Get the witness's ID and a list of any readings it has at this variation unit:
 		string wit_id = wit.get_id();
-		list<string> wit_rdgs = reading_support.find(wit_id) != reading_support.end() ? reading_support.at(wit_id) : list<string>();
+		string wit_rdg = reading_support.find(wit_id) != reading_support.end() ? reading_support.at(wit_id) : "";
 		//Add a vertex for this witness to the graph:
 		textual_flow_vertex v;
 		v.id = wit_id;
-		v.rdgs = wit_rdgs;
+		v.rdg = wit_rdg;
 		graph.vertices.push_back(v);
 		//If this witness has no potential ancestors (i.e., if it has equal priority to the Ausgangstext),
 		//then there are no edges to add, and we can continue:
@@ -68,7 +68,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		int con_value = -1; //connectivity rank only changes when this value changes
 		flow_type type = flow_type::NONE;
 		//If the witness is extant, then attempt to find an ancestor with an equal or prior reading:
-		if (!wit_rdgs.empty()) {
+		if (!wit_rdg.empty()) {
 			//If there is a potential ancestor within the connectivity limit that agrees with this witness,
 			//then it is the textual flow ancestor:
 			con = -1;
@@ -88,18 +88,14 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 				//If this potential ancestor agrees with the current witness here, then we're done:
 				bool agree = false;
 				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
-					list<string> potential_ancestor_rdgs = reading_support.at(potential_ancestor_id);
-					for (string wit_rdg : wit_rdgs) {
-						for (string potential_ancestor_rdg : potential_ancestor_rdgs) {
-							if (ls.path_exists(potential_ancestor_rdg, wit_rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, wit_rdg) == 0) {
-								agree = true;
-							}
-						}
+					string potential_ancestor_rdg = reading_support.at(potential_ancestor_id);
+					if (ls.path_exists(potential_ancestor_rdg, wit_rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, wit_rdg) == 0) {
+						agree = true;
 					}
 				}
 				if (agree) {
 					textual_flow_ancestor_id = potential_ancestor_id;
-					type = wit_rdgs.size() > 1 ? flow_type::AMBIGUOUS : flow_type::EQUAL;
+					type = flow_type::EQUAL;
 					break;
 				}
 			}
@@ -109,7 +105,8 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		if (textual_flow_ancestor_id.empty()) {
 			con = 0;
 			textual_flow_ancestor_id = potential_ancestor_ids.front();
-			type = wit_rdgs.empty() || reading_support.find(textual_flow_ancestor_id) == reading_support.end() ? flow_type::LOSS : flow_type::CHANGE;
+			string textual_flow_ancestor_rdg = reading_support.find(textual_flow_ancestor_id) != reading_support.end() ? reading_support.at(textual_flow_ancestor_id) : "";
+			type = wit_rdg.empty() || textual_flow_ancestor_rdg.empty() ? flow_type::LOSS : flow_type::CHANGE;
 		}
 		//Calculate the strength of the textual flow from the textual flow ancestor to its descendant
 		//based on relative proportion of prior readings to extant readings:
@@ -174,30 +171,19 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false)
 	for (textual_flow_vertex v : graph.vertices) {
 		//Map the ID of this vertex to its numerical index:
 		string wit_id = v.id;
-		list<string> wit_rdgs = v.rdgs;
+		string wit_rdg = v.rdg;
 		id_to_index[wit_id] = id_to_index.size();
-		int wit_index = id_to_index.at(wit_id);
-		//Serialize its readings list:
-		string serialized = "";
-		for (string wit_rdg : wit_rdgs) {
-			if (wit_rdg != wit_rdgs.front()) {
-				serialized += ", ";
-			}
-			serialized += wit_rdg;
-		}
-		out << "\t" << wit_index;
+		int wit_ind = id_to_index.at(wit_id);
+		//Then add the node:
+		out << "\t" << wit_ind;
 		//Format the node based on its readings list:
-		if (wit_rdgs.empty()) {
+		if (wit_rdg.empty()) {
 			//The witness is lacunose at this variation unit:
 			out << " [label=\"" << wit_id << "\", color=gray, shape=ellipse, style=dashed]";
 		}
-		else if (wit_rdgs.size() == 1) {
-			//The witness has exactly one reading at this variation unit:
-			out << " [label=\"" << wit_id << " (" << serialized << ")\", shape=ellipse]";
-		}
 		else {
-			//The witness's support is ambiguous at this variation unit:
-			out << " [label=\"" << wit_id << " (" << serialized << ")\", shape=ellipse, peripheries=2]";
+			//The witness has a reading at this variation unit:
+			out << " [label=\"" << wit_id << " (" << wit_rdg << ")\", shape=ellipse]";
 		}
 		out << ";\n";
 	}
@@ -220,10 +206,6 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false)
 		}
 		else if (e.type == flow_type::CHANGE) {
 			string edge_color = "color=blue";
-			format_cmds.push_back(edge_color);
-		}
-		else if (e.type == flow_type::AMBIGUOUS) {
-			string edge_color = "color=\"black:invis:black\"";
 			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::LOSS) {
@@ -290,7 +272,6 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 	for (textual_flow_vertex v : graph.vertices) {
 		//Map the ID of this vertex to its numerical index:
 		string wit_id = v.id;
-		list<string> wit_rdgs = v.rdgs;
 		id_to_index[wit_id] = id_to_index.size();
 		vertices.push_back(v);
 	}
@@ -299,28 +280,15 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 	for (textual_flow_vertex v : graph.vertices) {
 		//If this witness does not have the specified reading, then skip it:
 		string wit_id = v.id;
-		list<string> wit_rdgs = v.rdgs;
-		bool has_rdg = false;
-		for (string wit_rdg : wit_rdgs) {
-			if (wit_rdg == rdg) {
-				has_rdg = true;
-				break;
-			}
-		}
-		if (!has_rdg) {
+		string wit_rdg = v.rdg;
+		if (wit_rdg != rdg) {
 			continue;
 		}
 		//Otherwise, draw a vertex with its numerical index:
 		int wit_ind = id_to_index.at(wit_id);
+		//Then add the node:
 		out << "\t" << wit_ind;
-		if (wit_rdgs.size() == 1) {
-			//The witness has exactly one reading at this variation unit:
-			out << " [label=\"" << wit_id << "\", shape=ellipse]";
-		}
-		else {
-			//The witness's support is ambiguous at this variation unit:
-			out << " [label=\"" << wit_id << "\", shape=ellipse, peripheries=2]";
-		}
+		out << " [label=\"" << wit_id << " (" << wit_rdg << ")\", shape=ellipse]";
 		out << ";\n";
 		primary_set.insert(wit_id);
 	}
@@ -339,27 +307,12 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		if (secondary_set.find(ancestor_id) != secondary_set.end()) {
 			continue;
 		}
-		//If it's new, then serialize its reading(s) for labeling purposes:
+		//If it's new, then add a vertex for it:
 		int ancestor_ind = id_to_index.at(ancestor_id);
 		textual_flow_vertex v = vertices[ancestor_ind];
-		list<string> ancestor_rdgs = v.rdgs;
-		string serialized = "";
-		for (string ancestor_rdg : ancestor_rdgs) {
-			if (ancestor_rdg != ancestor_rdgs.front()) {
-				serialized += ", ";
-			}
-			serialized += ancestor_rdg;
-		}
-		//Then draw a vertex with its numerical index:
+		string ancestor_rdg = v.rdg;
 		out << "\t" << ancestor_ind;
-		if (ancestor_rdgs.size() == 1) {
-			//The witness has exactly one reading at this variation unit:
-			out << " [label=\"" << ancestor_id << " (" << serialized << ")\", color=blue, shape=ellipse, type=dashed]";
-		}
-		else {
-			//The witness's support is ambiguous at this variation unit:
-			out << " [label=\"" << ancestor_id << " (" << serialized << ")\", color=blue, shape=ellipse, peripheries=2, type=dashed]";
-		}
+		out << " [label=\"" << ancestor_id << " (" << ancestor_rdg << ")\", color=blue, shape=ellipse, type=dashed]";
 		out << ";\n";
 		secondary_set.insert(ancestor_id);
 	}
@@ -389,10 +342,6 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		}
 		else if (e.type == flow_type::CHANGE) {
 			string edge_color = "color=blue";
-			format_cmds.push_back(edge_color);
-		}
-		else if (e.type == flow_type::AMBIGUOUS) {
-			string edge_color = "color=\"black:invis:black\"";
 			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::LOSS) {
@@ -458,7 +407,6 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 	for (textual_flow_vertex v : graph.vertices) {
 		//Map the ID of this vertex to its numerical index:
 		string wit_id = v.id;
-		list<string> wit_rdgs = v.rdgs;
 		id_to_index[wit_id] = id_to_index.size();
 		vertices.push_back(v);
 	}
@@ -466,14 +414,12 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 	map<string, list<string>> clusters = map<string, list<string>>();
 	for (textual_flow_vertex v : graph.vertices) {
 		string wit_id = v.id;
-		list<string> wit_rdgs = v.rdgs;
-		for (string wit_rdg : wit_rdgs) {
-			//Add an empty list of witness IDs for this reading, if it hasn't been encountered yet:
-			if (clusters.find(wit_rdg) == clusters.end()) {
-				clusters[wit_rdg] = list<string>();
-			}
-			clusters[wit_rdg].push_back(wit_id);
+		string wit_rdg = v.rdg;
+		//Add an empty list of witness IDs for this reading, if it hasn't been encountered yet:
+		if (clusters.find(wit_rdg) == clusters.end()) {
+			clusters[wit_rdg] = list<string>();
 		}
+		clusters[wit_rdg].push_back(wit_id);
 	}
 	//Maintain a set of IDs for nodes between which there exists an edge of flow type CHANGE:
 	unordered_set<string> change_wit_ids = unordered_set<string>();
@@ -495,25 +441,17 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 			if (change_wit_ids.find(wit_id) == change_wit_ids.end()) {
 				continue;
 			}
-			//Otherwise, get the numerical index for this witness's vertex and the vertex itself:
+			//Otherwise, add a vertex for it:
 			int wit_ind = id_to_index.at(wit_id);
-			textual_flow_vertex v = vertices[wit_ind];
 			out << "\t\t" << wit_ind;
-			if (v.rdgs.size() == 1) {
-				//The witness has exactly one reading at this variation unit:
-				out << " [label=\"" << wit_id << "\", shape=ellipse]";
-			}
-			else {
-				//The witness's support is ambiguous at this variation unit:
-				out << " [label=\"" << wit_id << "\", shape=ellipse, peripheries=2]";
-			}
+			out << " [label=\"" << wit_id << "\", shape=ellipse]";
 			out << ";\n";
 		}
 		out << "\t}\n";
 	}
 	//Finally, add the "CHANGE" edges:
 	for (textual_flow_edge e : graph.edges) {
-		//Only include vertices that are at endpoints of a "CHANGE" edge:
+		//Only add "CHANGE" edges:
 		if (e.type != flow_type::CHANGE) {
 			continue;
 		}
@@ -534,10 +472,6 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 		}
 		else if (e.type == flow_type::CHANGE) {
 			string edge_color = "color=blue";
-			format_cmds.push_back(edge_color);
-		}
-		else if (e.type == flow_type::AMBIGUOUS) {
-			string edge_color = "color=\"black:invis:black\"";
 			format_cmds.push_back(edge_color);
 		}
 		else if (e.type == flow_type::LOSS) {

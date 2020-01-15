@@ -15,9 +15,9 @@ set(SOURCES
 # Combine the object source files into an object library:
 # TODO: We could allow the user to specify on the command line if a STATIC or SHARED library is desired instead,
 # to facilitate incorporating the core modules into their own projects.
-add_library(roaring SHARED roaring.c)
-add_library(pugixml SHARED pugixml.cpp)
-add_library(sqlite3 SHARED sqlite3.c)
+add_library(roaring STATIC roaring.c)
+add_library(pugixml STATIC pugixml.cpp)
+add_library(sqlite3 STATIC sqlite3.c)
 add_library(objects OBJECT ${SOURCES})
 
 # Point the libraries to their include directories:

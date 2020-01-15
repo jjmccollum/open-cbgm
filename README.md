@@ -164,6 +164,8 @@ To illustrate the effects of the processing arguments, we present several versio
 
 ![3 John 1:4/22–26, ambiguous readings dropped, split readings merged, defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-drop-merge-def.png)
 
+In the sections that follow, we will assume that the genealogical cache has been populated using the `--drop-ambiguous` argument.
+
 ### Comparison of Witnesses
 
 The compare\_witnesses script is based on the "Comparison of Witnesses" module of the Genealogical Queries tool, but our implementation adds some flexibility. While the Genealogical Queries module only allows for the comparison of two witnesses at a time, compare\_witnesses can compare a given witness with any number of other specified witnesses. If our genealogical cache is stored in the database cache.db and we wanted to compare the witness with ID 5 with the witnesses with IDs 03, 35, 88, 453, 1611, and 1739, then we would enter the following command from the open-cbgm directory:
@@ -249,7 +251,7 @@ The generated outputs are not image files, but .dot files, which contain textual
     
 will generate a PNG image file called B25K1V4U22-26-local-stemma.dot.png. (If you want to specify your own output file name, use the `-o` argument followed by the file name you want.)
 
-Sample images of local stemmata have already been included at the beginning of the "Usage" section. For the sake of completeness, we have included sample images of the other types of graphs below. All of these graphs have been produced using data from a genealogical cache populated with the `--drop-ambiguous` argument.
+Sample images of local stemmata have already been included at the beginning of the "Usage" section. For the sake of completeness, we have included sample images of the other types of graphs below.
 
 Complete textual flow diagram for 3 John 1:4/22–26:
 ![3 John 1:4/22–26 complete textual flow diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-textual-flow.png)

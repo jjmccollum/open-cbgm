@@ -2,13 +2,13 @@
 set(TEST_HEADERS_DIR ${CMAKE_SOURCE_DIR}/include)
 
 # Add all executable scripts to be generated:
-add_executable(autotest $<TARGET_OBJECTS:roaring> $<TARGET_OBJECTS:pugixml> $<TARGET_OBJECTS:sqlite3> $<TARGET_OBJECTS:objects> autotest.cpp)
+add_executable(autotest $<TARGET_OBJECTS:objects> autotest.cpp)
 
 # Point the build targets to their include directories:
 target_include_directories(autotest PRIVATE ${TEST_HEADERS_DIR})
 
 # Link the build targets to external libraries:
-# target_link_libraries(autotest -pthread -ldl)
+target_link_libraries(autotest PUBLIC roaring pugixml sqlite3)
 
 # Make sure the build targets are compiled with C++11:
 target_compile_features(autotest PRIVATE cxx_std_11)

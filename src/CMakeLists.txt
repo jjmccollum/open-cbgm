@@ -28,7 +28,7 @@ target_include_directories(objects PRIVATE ${HEADERS_DIR})
 
 # Set compiler flags for sqlite3:
 target_compile_definitions(sqlite3 PUBLIC SQLITE_OMIT_LOAD_EXTENSION=1)
-target_link_libraries(sqlite3 -pthread)
+target_link_libraries(sqlite3 -lpthread)
 
 # Link object library to Roaring library:
 target_link_libraries(objects PUBLIC roaring)

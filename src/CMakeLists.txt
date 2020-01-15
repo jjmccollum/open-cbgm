@@ -24,8 +24,8 @@ add_library(objects OBJECT ${SOURCES})
 target_include_directories(objects PRIVATE ${HEADERS_DIR})
 
 # Find external libraries to link to:
-find_library(PTHREAD_LIB NAMES pthread libpthread)
-find_library(DL_LIB NAMES dl libdl)
+find_library(PTHREAD_LIB NAMES pthread pthreads pthreads-win32)
+find_library(DL_LIB NAMES dl kernel32)
 
 # Add all executable scripts to be generated:
 add_executable(populate_db $<TARGET_OBJECTS:objects> populate_db.cpp)

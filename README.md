@@ -28,25 +28,7 @@ With respect to feature (2), our code makes use of only four external libraries:
 
 For feature (3), we made performance-minded decisions at all levels of design. We chose the pugixml library to ensure that the software would parse potentially long XML input files quickly. SQLite databases are known for their speed, and following Edmondson's lead, we have optimized our database's query performance with denormalization. Likewise, we used Roaring bitmaps from the CRoaring library to encode pregenealogical and genealogical relationships, both to leverage hardware accelerations for common computations involving those relationships and to ensure that performance would scale gracefully with the number of variation units covered in collation input files. We stored data keyed by witnesses in hash tables for efficient accesses on average. Due to combinatorial nature of the problem of substemma optimization, we implemented common heuristics known to be effective at solving similar types of problems in practice. As a result, the open-cbgm library can parse the _ECM_ collation of 3 John (consisting of 137 witnesses and 116 variation units), calculate the pre-genealogical and genealogical relationships between its witnesses, and write this data to the cache in just over two minutes, and it can generate a global stemma for the entire book in under ten seconds on a desktop computer.
 
-Finally, for feature (4), we ensured compliance with the XML standard of the Text Encoding Initiative (TEI) by designing the software to expect an input in the TEI XML format used by the INTF and the International Greek New Testament Project (IGNTP) in their transcriptions and collations. (For specific guidelines, see TEI Consortium, eds. \[2019\], _TEI P5: Guidelines for Electronic Text Encoding and Interchange (version 3.6.0)_, manual, TEI Consortium, http://www.tei-c.org/Guidelines/P5/ \[accessed 1 January 2020\], and Houghton, H.A.G. \[2016\], _IGNTP Guidelines for XML Transcriptions of New Testament Manuscripts (version 1.5)_, manual, International Greek New Testament Project \[unpublished\].) We made this possible by encoding common features of the CBGM as additional TEI XML elements in the input collation file (e.g., the feature set `<fs/>` element for a variation unit's connectivity and the `<graph/>` element for its local stemma). An example for a variation unit in 3 John is shown below.
-
-```
-<app n="B25K1V1U2">
-    <label>3Jo 1:1/2</label>
-    <rdg n="a" wit="A Byz 01 03 018 020 025 044 049 0142 1 5 6 18 33 35 43 61 69 81 88 93 94 1180 181 206S 218 252 254 307 319 321 323 326 330 365 378 398 400 424 429 431 436 442 453 459 468 522 607 614 617 621 623 629 630 642 720 808 876 915 918 945 996 1067 1127 1175 1241 1243 1270 1292 1297 1359 1409 1448 1490 1501 1505 1523 1524 1563 1595 1609 1611 1661 1678 1718 1729 1735 1739 1751 1799 1827 1831 1832 1836 1837 1838 1842 1844 1845 1846 1852 1874 1875 1881 1890 2138 2147 2186 2200 2298 2344 2374 2412 2423 2464 2492 2541 2544 2652 2718 2774 2805 L596 L921 L938 L1141 L1281">ο</rdg>
-    <rdg n="b" wit="467 2243 2818" />
-    <fs>
-        <f name="connectivity">
-            <numeric value="10" />
-        </f>
-    </fs>
-    <graph type="directed">
-        <node n="a" />
-        <node n="b" />
-        <arc from="a" to="b" />
-    </graph>
-</app>
-```
+Finally, for feature (4), we ensured compliance with the XML standard of the Text Encoding Initiative (TEI) by designing the software to expect an input in the TEI XML format used by the INTF and the International Greek New Testament Project (IGNTP) in their transcriptions and collations. (For specific guidelines, see TEI Consortium, eds. \[2019\], _TEI P5: Guidelines for Electronic Text Encoding and Interchange (version 3.6.0)_, manual, TEI Consortium, http://www.tei-c.org/Guidelines/P5/ \[accessed 1 January 2020\], and Houghton, H.A.G. \[2016\], _IGNTP Guidelines for XML Transcriptions of New Testament Manuscripts (version 1.5)_, manual, International Greek New Testament Project \[unpublished\].) We made this possible by encoding common features of the CBGM as additional TEI XML elements in the input collation file (e.g., the feature set `<fs/>` element for a variation unit's connectivity and the `<graph/>` element for its local stemma). Sample collation files demonstrating this encoding can be found in the examples directory.
 
 The .dot format used to describe output graphs is the standard used by the graphviz visualization software (https://www.graphviz.org/), which is the standard for existing CBGM software.
 

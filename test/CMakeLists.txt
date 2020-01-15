@@ -1,5 +1,8 @@
-#Specify test headers directory:
+# Specify test headers directory:
 set(TEST_HEADERS_DIR ${CMAKE_SOURCE_DIR}/include)
+
+# Include the source directory:
+include_directories (${open-cbgm_SOURCE_DIR}/src)
 
 # Add all executable scripts to be generated:
 add_executable(autotest $<TARGET_OBJECTS:objects> autotest.cpp)

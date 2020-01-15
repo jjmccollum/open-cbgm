@@ -26,12 +26,13 @@ target_include_directories(pugixml PRIVATE ${HEADERS_DIR})
 target_include_directories(sqlite3 PRIVATE ${HEADERS_DIR})
 target_include_directories(objects PRIVATE ${HEADERS_DIR})
 
+# Find the library that supports multi-threading (preferably pthread):
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 # Set compiler flags for sqlite3:
 target_compile_definitions(sqlite3 PUBLIC SQLITE_OMIT_LOAD_EXTENSION=1)
-target_link_libraries(sqlite3 -lpthread)
-
-# Link object library to Roaring library:
-target_link_libraries(objects PUBLIC roaring)
+target_link_libraries(sqlite3 Threads::Threads)
 
 # Add all executable scripts to be generated:
 add_executable(populate_db $<TARGET_OBJECTS:objects> populate_db.cpp)

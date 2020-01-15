@@ -30,6 +30,9 @@ target_include_directories(objects PRIVATE ${HEADERS_DIR})
 target_compile_definitions(sqlite3 PUBLIC SQLITE_OMIT_LOAD_EXTENSION=1)
 target_link_libraries(sqlite3 -pthread)
 
+# Link object library to Roaring library:
+target_link_libraries(objects PUBLIC roaring)
+
 # Add all executable scripts to be generated:
 add_executable(populate_db $<TARGET_OBJECTS:objects> populate_db.cpp)
 add_executable(compare_witnesses $<TARGET_OBJECTS:objects> compare_witnesses.cpp)

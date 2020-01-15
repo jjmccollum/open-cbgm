@@ -245,32 +245,22 @@ Be aware that specifying too high an upper bound may cause the procedure to take
 
 ### Generating Graphs
 
-**TODO: Update to reflect modularization**
+The two main steps in the iterative workflow of the CBGM are the formulation of hypotheses about readings in local stemmata and the evaluation and refinement of these hypotheses using textual flow diagrams. Ideally, the end result of the process will be a global stemma consisting of all witnesses and their optimized substemmata. The open-cbgm library has full functionality to generate textual graph description files for all diagrams used in the method.
 
-The two main steps in the iterative workflow of the CBGM are the formulation of hypotheses about readings in local stemmata and the evaluation and refinement of these hypotheses using textual flow diagrams. Ideally, the end result of the process will be a global stemma consisting of all witnesses and their optimized substemmata. The open-cbgm library has full functionality to generate textual graph description files for local stemmata, textual flow diagrams, and global stemmata.
+All of this is accomplished with the print\_local\_stemma, print\_textual\_flow, and print\_global\_stemma scripts. The first requires at least one input (the genealogical cache database), but it can accept one or more variation unit IDs as additional arguments, in which case it will only generate graphs for the local stemmata at those variation units. If no variation units are specified, then local stemmata will be generated for all of them. In addition, it accepts an optional `--weights` argument, which will add edge weights to the generated local stemma graphs. To generate the local stemma graph for 3 John 1:4/22–26, like the ones included above, you can use the command
 
-All of this is accomplished with the print\_graphs script. It accepts the following optional arguments indicating which specific graph types to generate:
-- `--local`, which will generate local stemmata graphs for all variation units.
-- `--flow`, which will generate complete textual flow diagrams for all variation units. A complete textual flow diagram contains all witnesses, highlighting edges of textual flow that involve changes in readings.
-- `--attestations`, which will generate coherence in attestations textual flow diagrams for all readings in all variation units. A coherence in attestations diagram highlights just the witnesses that support a given reading and any witnesses with different readings that are textual flow ancestors of these witnesses.
-- `--variants`, which will generate coherence in variant passages textual flow diagrams for all variation units. A coherence in variant passages diagram highlights just the textual flow relationships that involve changes in readings.
-- `--global`, which will generate a single global stemma graph.
+    ./print_local_stemma cache.db B25K1V4U22-26
 
-These arguments can be provided in any combination. If none of them is provided, then it is assumed that the user wants all graphs to be generated. So the command
+The print\_textual\_flow script accepts the same positional inputs (the database and, if desired, a list of specific variation units  whose textual flow diagrams are desired), along with the following optional arguments indicating which specific graph types to generate:
+- `--flow`, which will generate complete textual flow diagrams. A complete textual flow diagram contains all witnesses, highlighting edges of textual flow that involve changes in readings.
+- `--attestations`, which will generate coherence in attestations textual flow diagrams for all readings in each variation unit. A coherence in attestations diagram highlights the genealogical coherence of a reading by displaying just the witnesses that support a given reading and any witnesses with different readings that are textual flow ancestors of these witnesses.
+- `--variants`, which will generate coherence in variant passages textual flow diagrams. A coherence in variant passages diagram highlights just the textual flow relationships that involve changes in readings.
 
-    ./print_graphs examples/3_john_collation.xml
-    
-will generate all graphs for the 3 John collation, while
+These arguments can be provided in any combination. If none of them is provided, then it is assumed that the user wants all graphs to be generated. In addition, a `--strengths` argument can be provided, which will format textual flow edges to highlight flow strength, per Edmondson's recommendation.
 
-    ./print_graphs --local examples/3_john_collation.xml
-    
-will generate just the local stemma graphs, and
+The print\_global\_stemma scripts takes only a single argument, the database. It optimizes the substemmata of all witnesses (choosing the first option in case of ties), then combines the substemmata into a single global stemma. While this will produce a global stemma graph fully automatically, this graph should be considered a "first-pass" result; users are strongly encouraged to run the optimize\_substemmata script for individual witnesses and modify the graph according to their judgment.
 
-    ./print_graphs --flow --attestations --variants examples/3_john_collation.xml
-    
-will generate all three types of textual flow diagrams.
-
-The generated outputs are not image files, but .dot files, which contain textual descriptions of the graphs. To render the image files from these files, we must use the dot program from the graphviz library. As an example, if the graph description file for the local stemma of 3 John 1:4/22–26 is B25K1V4U22-26-local-stemma.dot, then the command
+The generated outputs are not image files, but .dot files, which contain textual descriptions of the graphs. To render the images from these files, we must use the `dot` program from the graphviz library. As an example, if the graph description file for the local stemma of 3 John 1:4/22–26 is B25K1V4U22-26-local-stemma.dot, then the command
 
     dot -Tpng B25K1V4U22-26-local-stemma.dot -O
     

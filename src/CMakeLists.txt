@@ -23,10 +23,6 @@ add_library(objects OBJECT ${SOURCES})
 # Point the build targets to their include directories:
 target_include_directories(objects PRIVATE ${HEADERS_DIR})
 
-# Find external libraries to link to:
-find_library(PTHREAD_LIB NAMES pthread pthreads pthreads-win32)
-find_library(DL_LIB NAMES dl kernel32)
-
 # Add all executable scripts to be generated:
 add_executable(populate_db $<TARGET_OBJECTS:objects> populate_db.cpp)
 add_executable(compare_witnesses $<TARGET_OBJECTS:objects> compare_witnesses.cpp)
@@ -46,13 +42,13 @@ target_include_directories(print_textual_flow PRIVATE ${HEADERS_DIR})
 target_include_directories(print_global_stemma PRIVATE ${HEADERS_DIR})
 
 # Link the build targets to external libraries:
-target_link_libraries(populate_db ${PTHREAD_LIB} ${DL_LIB})
-target_link_libraries(compare_witnesses ${PTHREAD_LIB} ${DL_LIB})
-target_link_libraries(find_relatives ${PTHREAD_LIB} ${DL_LIB})
-target_link_libraries(optimize_substemmata ${PTHREAD_LIB} ${DL_LIB})
-target_link_libraries(print_local_stemma ${PTHREAD_LIB} ${DL_LIB})
-target_link_libraries(print_textual_flow ${PTHREAD_LIB} ${DL_LIB})
-target_link_libraries(print_global_stemma ${PTHREAD_LIB} ${DL_LIB})
+target_link_libraries(populate_db -pthread -ldl)
+target_link_libraries(compare_witnesses -pthread -ldl)
+target_link_libraries(find_relatives -pthread -ldl)
+target_link_libraries(optimize_substemmata -pthread -ldl)
+target_link_libraries(print_local_stemma -pthread -ldl)
+target_link_libraries(print_textual_flow -pthread -ldl)
+target_link_libraries(print_global_stemma -pthread -ldl)
 
 # Make sure the build targets are compiled with C++11:
 target_compile_features(populate_db PRIVATE cxx_std_11)

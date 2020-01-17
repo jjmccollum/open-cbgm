@@ -34,7 +34,7 @@ matrix:
         - cmake .. #invoke CMake, placing the build in the build directory
         - cmake --build . --config Debug #build in Debug mode using CMake
         - ctest -C Debug #test using CTest
-        - src/Debug/populate_db.exe --drop-ambiguous ..\examples\3_john_collation.xml cache.db
+        - src/Debug/populate_db.exe --drop-ambiguous ../examples/3_john_collation.xml cache.db
         - src/Debug/optimize_substemmata.exe cache.db 2464
         - rm cache.db
     #Windows, g++ and make via MinGW

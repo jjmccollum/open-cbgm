@@ -228,7 +228,7 @@ void witness::set_global_stemma_ancestor_ids() {
 		rows.push_back(row);
 	}
 	//Sort this vector by increasing cost and decreasing number of agreements:
-	sort(begin(rows), end(rows), [](const set_cover_row & r1, const set_cover_row & r2) {
+	stable_sort(begin(rows), end(rows), [](const set_cover_row & r1, const set_cover_row & r2) {
 		return r1.cost < r2.cost ? true : (r1.cost > r2.cost ? false : (r1.agreements.cardinality() > r2.agreements.cardinality()));
 	});
 	//Initialize the bitmap of the target set to be covered:

@@ -243,45 +243,53 @@ int main(int argc, char* argv[]) {
 	unordered_map<string, genealogical_comparison> primary_witness_genealogical_comparisons = get_primary_witness_genealogical_comparisons(input_db, primary_wit_id);
 	//Retrieve all necessary genealogical comparisons relative to the secondary witnesses:
 	unordered_map<string, unordered_map<string, genealogical_comparison>> secondary_witness_genealogical_comparisons = get_secondary_witness_genealogical_comparisons(input_db, primary_wit_id);
+	//Initialize the primary witness:
+	witness primary_wit = witness(primary_wit_id, primary_witness_genealogical_comparisons);
+	//Then initialize a list of all witnesses:
+	list<witness> witnesses = list<witness>();
+	for (string wit_id : list_wit) {
+		//The primary witness is initialized using genealogical comparisons with all witnesses:
+		if (wit_id == primary_wit_id) {
+			witness wit = witness(wit_id, primary_witness_genealogical_comparisons);
+			witnesses.push_back(wit);
+		}
+		//Secondary witnesses are initialized using genealogical comparisons with just themselves and the primary witness:
+		else {
+			unordered_map<string, genealogical_comparison> genealogical_comparisons = secondary_witness_genealogical_comparisons.at(wit_id);
+			witness wit = witness(wit_id, genealogical_comparisons);
+			witnesses.push_back(wit);
+		}
+	}
+	//Then populate the primary witness's list of potential ancestors:
+	primary_wit.set_potential_ancestor_ids(witnesses);
+	//If the primary witness has no potential ancestors, then let the user know:
+	if (primary_wit.get_potential_ancestor_ids().empty()) {
+		cout << "The witness with ID " << primary_wit_id << " has no potential ancestors. This may be because it is too fragmentary or because it has equal priority to the Ausgangstext according to local stemmata." << endl;
+		exit(0);
+	}
 	if (fixed_ub == numeric_limits<float>::infinity()) {
 		cout << "Finding optimal substemmata for witness " << primary_wit_id << "..." << endl;
 	}
 	else {
 		cout << "Finding all substemmata for witness " << primary_wit_id << " with costs within " << fixed_ub << "..." << endl;
 	}
-	//Now populate, filter, and sort a vector of set cover rows:
+	//Populate a vector of set cover rows using genealogical comparisons for the primary witness's potential ancestors:
 	vector<set_cover_row> rows = vector<set_cover_row>();
-	for (string secondary_wit_id : list_wit) {
-		//Skip the primary witness:
-		if (secondary_wit_id == primary_wit_id) {
-			continue;
-		}
-		//Get genealogical comparisons in both directions between the primary witness and this one:
-		genealogical_comparison comp = primary_witness_genealogical_comparisons.at(secondary_wit_id);
-		genealogical_comparison reverse_comp = secondary_witness_genealogical_comparisons.at(secondary_wit_id).at(primary_wit_id);
-		//Skip this witness if it is not strictly prior to the primary witness:
-		if (reverse_comp.explained.cardinality() >= comp.explained.cardinality()) {
-			continue;
-		}
-		//Otherwise, populate a set cover row using this genealogical comparison:
+	for (string wit_id : primary_wit.get_potential_ancestor_ids()) {
+		genealogical_comparison comp = primary_wit.get_genealogical_comparison_for_witness(wit_id);
 		set_cover_row row;
-		row.id = secondary_wit_id;
+		row.id = wit_id;
 		row.agreements = comp.agreements;
 		row.explained = comp.explained;
 		row.cost = comp.cost;
 		rows.push_back(row);
 	}
-	//If this witness has no potential ancestors, then let the user know:
-	if (rows.empty()) {
-		cout << "The witness with ID " << primary_wit_id << " has no potential ancestors. This may be because it is too fragmentary or because it has equal priority to the Ausgangstext according to local stemmata." << endl;
-		exit(0);
-	}
-	//Otherwise, sort the vector of rows by increasing cost and decreasing number of agreements:
+	//Sort this vector by increasing cost and decreasing number of agreements:
 	sort(begin(rows), end(rows), [](const set_cover_row & r1, const set_cover_row & r2) {
 		return r1.cost < r2.cost ? true : (r1.cost > r2.cost ? false : (r1.agreements.cardinality() > r2.agreements.cardinality()));
 	});
 	//Initialize the bitmap of the target set to be covered:
-	Roaring target = primary_witness_genealogical_comparisons.at(primary_wit_id).explained;
+	Roaring target = primary_wit.get_genealogical_comparison_for_witness(primary_wit_id).explained;
 	//Initialize the list of solutions to be populated:
 	list<set_cover_solution> solutions;
 	//Then populate it using the solver:

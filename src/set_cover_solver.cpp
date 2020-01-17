@@ -374,6 +374,14 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
  */
 void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 	solutions = list<set_cover_solution>();
+	//Create a map of row IDs to their indices:
+	unordered_map<string, unsigned int> row_ids_to_inds = unordered_map<string, unsigned int>();
+	unsigned int row_ind = 0;
+	for (set_cover_row row : rows) {
+		string row_id = row.id;
+		row_ids_to_inds[row_id] = row_ind;
+		row_ind++;
+	}
 	//If any column cannot be covered by the rows provided, then we're done:
 	if (!get_uncovered_columns().isEmpty()) {
 		return;
@@ -419,17 +427,23 @@ void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 	list<set_cover_solution> subproblem_solutions = list<set_cover_solution>();
 	set_cover_solver subproblem_solver = fixed_ub != numeric_limits<float>::infinity() ? set_cover_solver(subproblem_rows, subproblem_target, subproblem_ub) : set_cover_solver(subproblem_rows, subproblem_target);
 	subproblem_solver.branch_and_bound(subproblem_solutions);
-	//Sort the subproblem solutions in order of their costs, then cardinality, then number of agreements:
-	subproblem_solutions.sort([](const set_cover_solution & s1, const set_cover_solution & s2) {
-		return s1.cost < s2.cost ? true : (s1.cost > s2.cost ? false : (s1.rows.size() < s2.rows.size() ? true : (s1.rows.size() > s2.rows.size() ? false : (s1.agreements > s2.agreements))));
-	});
 	//Then add the unique coverage rows found earlier to the subproblem solutions:
 	set_cover_solution unique_rows_solution = get_solution_from_rows(unique_rows);
 	for (set_cover_solution subproblem_solution : subproblem_solutions) {
 		set_cover_solution solution;
 		solution.rows = list<set_cover_row>();
-		solution.rows.splice(solution.rows.begin(), subproblem_solution.rows); //these rows will be in back
-		solution.rows.splice(solution.rows.begin(), unique_rows_solution.rows); //these rows will be in front
+		Roaring row_set = Roaring();
+		for (set_cover_row row : subproblem_solution.rows) {
+			row_set.add(row_ids_to_inds.at(row.id));
+		}
+		for (set_cover_row row : unique_rows_solution.rows) {
+			row_set.add(row_ids_to_inds.at(row.id));
+		}
+		for (Roaring::const_iterator it = row_set.begin(); it != row_set.end(); it++) {
+			unsigned int row_ind = *it;
+			set_cover_row row = rows[row_ind];
+			solution.rows.push_back(row);
+		}
 		solution.cost = subproblem_solution.cost + unique_rows_solution.cost;
 		Roaring agreements = Roaring();
 		for (set_cover_row row : solution.rows) {
@@ -438,5 +452,51 @@ void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 		solution.agreements = agreements.cardinality();
 		solutions.push_back(solution);
 	}
+	//Then sort the solutions:
+	solutions.sort([row_ids_to_inds](const set_cover_solution & s1, const set_cover_solution & s2) {
+		//Sort first by cost:
+		if (s1.cost < s2.cost) {
+			return true;
+		}
+		else if (s1.cost > s2.cost) {
+			return false;
+		}
+		//Then sort by cardinality:
+		if (s1.rows.size() < s2.rows.size()) {
+			return true;
+		}
+		else if (s1.rows.size() > s2.rows.size()) {
+			return false;
+		}
+		//Then sort by number of agreements:
+		if (s1.agreements > s2.agreements) {
+			return true;
+		}
+		else if (s1.agreements < s2.agreements) {
+			return false;
+		}
+		//Then sort lexicographically by the indices of the rows in the solutions:
+		Roaring rs1 = Roaring();
+		for (set_cover_row row : s1.rows) {
+			rs1.add(row_ids_to_inds.at(row.id));
+		}
+		Roaring rs2 = Roaring();
+		for (set_cover_row row : s2.rows) {
+			rs2.add(row_ids_to_inds.at(row.id));
+		}
+		while (!rs1.isEmpty()) {
+			unsigned int rs1_min = rs1.minimum();
+			unsigned int rs2_min = rs2.minimum();
+			if (rs1_min < rs2_min) {
+				return true;
+			}
+			else if (rs1_min > rs2_min) {
+				return false;
+			}
+			rs1.remove(rs1_min);
+			rs2.remove(rs2_min);
+		}
+		return false;
+	});
 	return;
 }

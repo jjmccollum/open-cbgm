@@ -40,6 +40,7 @@ class textual_flow {
 private:
 	string label;
 	int connectivity;
+	list<string> readings;
 	textual_flow_graph graph;
 public:
 	textual_flow();

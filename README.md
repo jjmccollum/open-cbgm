@@ -10,7 +10,7 @@ Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Ba
 
 The Coherence-Based Genealogical Method (CBGM) is a novel approach to textual criticism, popularized by the Institut für Neutestamentliche Textforschung (INTF) for its use in the production of the _Editio Critica Maior_ (_ECM_) of the New Testament. It is a meta-method, combining methodology-dependent philological decisions from the user with efficient computer-based calculations to highlight genealogical relationships between different stages of the text. To establish genealogical relationships in the presence of contamination (understood to be a problem in the textual tradition of the New Testament), the CBGM makes a number of philosophical and methodological innovations, such as the abstracting of texts away from the manuscripts that preserve them (and the resulting rejection of hypothetical ancestors as used in traditional stemmata), the encoding of the textual critic's decisions in local stemmata of variants, and the use of coherence in textual flow to evaluate hypotheses about the priority of variant readings. 
 
-To learn more about the CBGM, see Tommy Wasserman and Peter J. Gurry, _A New Approach to Textual Criticism: An Instroduction to the Coherence-Based Genealogical Method_, RBS 80 (Atlanta: SBL Press, 2017); Peter J. Gurry, _A Critical Examination of the Coherence-Based Genealogical Method in the New Testament_, NTTSD 55 (Leiden: Brill, 2017); and Gerd Mink, "Problems of a Highly Contaminated Tradition: The New Testament: Stemmata of Variants as a Source of Genealogy for Witnesses," in Pieter van Reenen, August den Hollander, and Margot van Mulken, eds., _Studies in Stemmatology II_ (Philadelphia, PA: Benjamins, 2004), 13–85.
+To learn more about the CBGM, see Tommy Wasserman and Peter J. Gurry, _A New Approach to Textual Criticism: An Introduction to the Coherence-Based Genealogical Method_, RBS 80 (Atlanta: SBL Press, 2017); Peter J. Gurry, _A Critical Examination of the Coherence-Based Genealogical Method in the New Testament_, NTTSD 55 (Leiden: Brill, 2017); Andrew Charles Edmondson, "An Analysis of the Coherence-based Genealogical Method Using Phylogenetics" (PhD diss., University of Birmingham, 2019); and Gerd Mink, "Problems of a Highly Contaminated Tradition: The New Testament: Stemmata of Variants as a Source of Genealogy for Witnesses," in Pieter van Reenen, August den Hollander, and Margot van Mulken, eds., _Studies in Stemmatology II_ (Philadelphia, PA: Benjamins, 2004), 13–85.
 
 ### Design Philosophy
 
@@ -144,7 +144,7 @@ So if we wanted to create a new database called cache.db using the 3\_john\_coll
 
 	./populate_db -t 100 -z defective -z orthographic --drop-ambiguous examples/3_john_collation.xml cache.db
 
-Please note that at this time, the current database must be overwritten, or a separate one must be created, in order to incorporate any changes to the processing options.
+Please note that at this time, the current database must be overwritten, or a separate one must be created, in order to incorporate any changes to the processing options or to the local stemmata.
 
 To illustrate the effects of the processing arguments, we present several versions of the local stemma for the variation unit at 3 John 1:4/22–26, along with the commands used to populate the database containing their data. In the local stemmata presented below, dashed arrows represent edges of weight 0.
 

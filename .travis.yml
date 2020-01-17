@@ -11,9 +11,6 @@ matrix:
         - cmake .. #invoke CMake, placing the build in the build directory
         - make #build using the generated Makefile
         - make test #test using the generated Makefile
-        - src/populate_db --drop-ambiguous ../examples/3_john_collation.xml cache.db
-        - src/optimize_substemmata cache.db 2464
-        - rm cache.db
     #MacOS, clang
     - os: osx
       compiler: clang
@@ -23,9 +20,6 @@ matrix:
         - cmake .. #invoke CMake, placing the build in the build directory
         - make #build using the generated Makefile
         - make test #test using the generated Makefile
-        - src/populate_db --drop-ambiguous ../examples/3_john_collation.xml cache.db
-        - src/optimize_substemmata cache.db 2464
-        - rm cache.db
     #Windows, Visual Studio
     - os: windows
       script:
@@ -34,9 +28,6 @@ matrix:
         - cmake .. #invoke CMake, placing the build in the build directory
         - cmake --build . --config Debug #build in Debug mode using CMake
         - ctest -C Debug #test using CTest
-        - src/Debug/populate_db.exe --drop-ambiguous ../examples/3_john_collation.xml cache.db
-        - src/Debug/optimize_substemmata.exe cache.db 2464
-        - rm cache.db
     #Windows, g++ and make via MinGW
     - os: windows
       script:
@@ -45,6 +36,3 @@ matrix:
         - cmake -DCMAKE_SH="CMAKE_SH-NOTFOUND" -G "MinGW Makefiles" .. #invoke CMake, placing the build in the build directory
         - mingw32-make #build using the generated Makefile
         - test/autotest #test manually
-        - src/populate_db.exe --drop-ambiguous ../examples/3_john_collation.xml cache.db
-        - src/optimize_substemmata.exe cache.db 2464
-        - rm cache.db

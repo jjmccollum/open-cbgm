@@ -135,7 +135,7 @@ list<string> get_readings_for_variation_unit(sqlite3 * input_db, const string & 
 	list<string> readings = list<string>();
 	int rc; //to store SQLite macros
 	sqlite3_stmt * select_from_readings_stmt;
-	sqlite3_prepare(input_db, "SELECT * FROM READINGS WHERE READINGS.VARIATION_UNIT=?", -1, & select_from_readings_stmt, 0);
+	sqlite3_prepare(input_db, "SELECT * FROM READINGS WHERE READINGS.VARIATION_UNIT=? ORDER BY ROWID", -1, & select_from_readings_stmt, 0);
 	sqlite3_bind_text(select_from_readings_stmt, 1, vu_id.c_str(), -1, SQLITE_STATIC);
 	rc = sqlite3_step(select_from_readings_stmt);
 	while (rc == SQLITE_ROW) {
@@ -192,7 +192,7 @@ local_stemma get_local_stemma_for_variation_unit(sqlite3 * input_db, const strin
 	//Add the vertices of the local stemma:
 	graph.vertices = list<local_stemma_vertex>();
 	sqlite3_stmt * select_from_readings_stmt;
-	sqlite3_prepare(input_db, "SELECT * FROM READINGS WHERE READINGS.VARIATION_UNIT=?", -1, & select_from_readings_stmt, 0);
+	sqlite3_prepare(input_db, "SELECT * FROM READINGS WHERE READINGS.VARIATION_UNIT=? ORDER BY ROWID", -1, & select_from_readings_stmt, 0);
 	sqlite3_bind_text(select_from_readings_stmt, 1, vu_id.c_str(), -1, SQLITE_STATIC);
 	rc = sqlite3_step(select_from_readings_stmt);
 	while (rc == SQLITE_ROW) {
@@ -205,7 +205,7 @@ local_stemma get_local_stemma_for_variation_unit(sqlite3 * input_db, const strin
 	//Add the edges of the local_stemma:
 	graph.edges = list<local_stemma_edge>();
 	sqlite3_stmt * select_from_reading_relations_stmt;
-	sqlite3_prepare(input_db, "SELECT * FROM READING_RELATIONS WHERE READING_RELATIONS.VARIATION_UNIT=?", -1, & select_from_reading_relations_stmt, 0);
+	sqlite3_prepare(input_db, "SELECT * FROM READING_RELATIONS WHERE READING_RELATIONS.VARIATION_UNIT=? ORDER BY ROWID", -1, & select_from_reading_relations_stmt, 0);
 	sqlite3_bind_text(select_from_reading_relations_stmt, 1, vu_id.c_str(), -1, SQLITE_STATIC);
 	rc = sqlite3_step(select_from_reading_relations_stmt);
 	while (rc == SQLITE_ROW) {

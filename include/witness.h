@@ -21,7 +21,7 @@ using namespace std;
 struct genealogical_comparison {
 	Roaring agreements;
 	Roaring explained;
-	int cost;
+	float cost;
 };
 
 class witness {

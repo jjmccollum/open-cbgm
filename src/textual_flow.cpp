@@ -36,8 +36,9 @@ textual_flow::textual_flow() {
  * and a list of witnesses whose potential ancestors have been set.
  */
 textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witnesses) {
-	//Copy the label and connectivity from the variation unit:
+	//Copy the label, readings, and connectivity from the variation unit:
 	label = vu.get_label();
+	readings = vu.get_readings();
 	connectivity = vu.get_connectivity();
 	//Get the variation unit's local stemma:
 	local_stemma ls = vu.get_local_stemma();
@@ -430,9 +431,8 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 		}
 	}
 	//Add a cluster for each reading, including all of the nodes it contains:
-	for (pair<string, list<string>> kv : clusters) {
-		string rdg = kv.first;
-		list<string> cluster = kv.second;
+	for (string rdg : readings) {
+		list<string> cluster = clusters.at(rdg);
 		out << "\tsubgraph cluster_" << rdg << " {\n";
 		out << "\t\tlabeljust=\"c\";\n";
 		out << "\t\tlabel=\"" << rdg << "\";\n";

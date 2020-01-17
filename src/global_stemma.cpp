@@ -52,13 +52,8 @@ global_stemma::global_stemma(const list<witness> & witnesses) {
 		if (global_stemma_ancestor_ids.empty()) {
 			continue;
 		}
-		//Get the maximum number of agreements between this witness and its ancestors:
-		int max_agreements = 0;
-		for (string ancestor_id : global_stemma_ancestor_ids) {
-			genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(ancestor_id);
-			int agreements = comp.agreements.cardinality();
-			max_agreements = max(max_agreements, agreements);
-		}
+		//Get the number of extant passages for this witness:
+		unsigned int extant = wit.get_genealogical_comparison_for_witness(wit_id).explained.cardinality();
 		//Now, add an edge for each ancestor:
 		for (string ancestor_id : global_stemma_ancestor_ids) {
 			witness ancestor = witnesses_by_id.at(ancestor_id);
@@ -66,7 +61,7 @@ global_stemma::global_stemma(const list<witness> & witnesses) {
 			global_stemma_edge e;
 			e.ancestor = ancestor_id;
 			e.descendant = wit_id;
-			e.weight = comp.agreements.cardinality();
+			e.weight = float(comp.agreements.cardinality()) / float(extant);
 			graph.edges.push_back(e);
 		}
 	}
@@ -88,8 +83,9 @@ global_stemma_graph global_stemma::get_graph() const {
 
 /**
  * Given an output stream, writes the global stemma graph to output in .dot format.
+ * An optional flag indicating whether to format edges to reflect proportions of agreements with stemmatic ancestors can also be specified.
  */
-void global_stemma::to_dot(ostream & out) {
+void global_stemma::to_dot(ostream & out, bool format_edges=false) {
 	//Add the graph first:
 	out << "digraph global_stemma {\n";
 	//Add a line indicating that nodes do not have any shape:
@@ -111,13 +107,34 @@ void global_stemma::to_dot(ostream & out) {
 		//Get the numerical indices of the endpoints:
 		string ancestor_id = e.ancestor;
 		string descendant_id = e.descendant;
-		int ancestor_index = id_to_index.at(ancestor_id);
-		int descendant_index = id_to_index.at(descendant_id);
-		float weight = e.weight;
-		out << "\t";
-		out << ancestor_index << " -> " << descendant_index;
-		out << " [weight=" << weight << "]";
-		out << ";\n";
+		int ancestor_ind = id_to_index.at(ancestor_id);
+		int descendant_ind = id_to_index.at(descendant_id);
+		//Handle the conditional formatting of the edge:
+		list<string> format_cmds = list<string>();
+		if (format_edges) {
+			//Format the line style based on the flow strength:
+			if (e.weight <= 0.5) {
+				string edge_style = "style=dotted";
+				format_cmds.push_back(edge_style);
+			}
+			else if (e.weight <= 0.75) {
+				string edge_style = "style=dashed";
+				format_cmds.push_back(edge_style);
+			}
+			else {
+				string edge_style = "style=solid";
+				format_cmds.push_back(edge_style);
+			}
+		}
+		//Add a line describing the edge:
+		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [";
+		for (string format_cmd : format_cmds) {
+			if (format_cmd != format_cmds.front()) {
+				out << ", ";
+			}
+			out << format_cmd;
+		}
+		out << "];\n";
 	}
 	out << "}" << endl;
 	return;

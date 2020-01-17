@@ -94,13 +94,15 @@ unordered_map<string, genealogical_comparison> get_genealogical_comparisons_for_
  */
 int main(int argc, char* argv[]) {
 	//Read in the command-line options:
+	bool format_edges = false;
 	string input_db_name = string();
 	try {
 		cxxopts::Options options("print_global_stemma", "Prints a global stemma graph to a .dot output files. The output file will be placed in the \"global\" directory.");
-		options.custom_help("[-h] input_db");
+		options.custom_help("[-h] [--format-edges] input_db");
 		//options.positional_help("").show_positional_help();
 		options.add_options("")
-				("h,help", "print this help");
+				("h,help", "print this help")
+				("format-edges", "format edges to reflect proportions of agreements with stemmatic ancestors");
 		options.add_options("positional")
 				("input_db", "genealogical cache database", cxxopts::value<vector<string>>());
 		options.parse_positional({"input_db"});
@@ -109,6 +111,9 @@ int main(int argc, char* argv[]) {
 		if (args.count("help")) {
 			cout << options.help({""}) << endl;
 			exit(0);
+		}
+		if (args.count("format-edges")) {
+			format_edges = args["format-edges"].as<bool>();
 		}
 		//Parse the positional arguments:
 		if (!args.count("input_db")) {
@@ -162,7 +167,7 @@ int main(int argc, char* argv[]) {
 	//Then write to file:
 	fstream dot_file;
 	dot_file.open(filepath, ios::out);
-	gs.to_dot(dot_file);
+	gs.to_dot(dot_file, format_edges);
 	dot_file.close();
 	exit(0);
 }

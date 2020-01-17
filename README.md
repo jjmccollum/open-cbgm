@@ -243,7 +243,7 @@ The print\_textual\_flow script accepts the same positional inputs (the database
 
 These arguments can be provided in any combination. If none of them is provided, then it is assumed that the user wants all graphs to be generated. In addition, a `--strengths` argument can be provided, which will format textual flow edges to highlight flow strength, per Edmondson's recommendation.
 
-The print\_global\_stemma scripts takes only a single argument, the database. It optimizes the substemmata of all witnesses (choosing the first option in case of ties), then combines the substemmata into a single global stemma. While this will produce a global stemma graph fully automatically, this graph should be considered a "first-pass" result; users are strongly encouraged to run the optimize\_substemmata script for individual witnesses and modify the graph according to their judgment.
+The print\_global\_stemma script requires at least one input (the database), but it also accepts an optional `--format-edges` argument, which will draw edges connecting stemmatic ancestors to their descendants as dotted, dashed, or solid based on the proportion of passages where they agree. It optimizes the substemmata of all witnesses (choosing the first option in case of ties), then combines the substemmata into a single global stemma. While this will produce a complete global stemma automatically, the resulting graph should be considered a "first-pass" result; users are strongly encouraged to run the optimize\_substemmata script for individual witnesses and modify the graph according to their judgment.
 
 The generated outputs are not image files, but .dot files, which contain textual descriptions of the graphs. To render the images from these files, we must use the `dot` program from the graphviz library. As an example, if the graph description file for the local stemma of 3 John 1:4/22–26 is B25K1V4U22-26-local-stemma.dot, then the command
 
@@ -267,7 +267,7 @@ Coherence in attestations diagrams for all readings in 3 John 1:4/22–26:
 Coherence in variant passages diagram for 3 John 1:4/22–26:
 ![3 John 1:4/22–26 coherence in variant passages diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-coherence-variants.png)
 
-Complete global stemma for 3 John (multiple roots are due to readings with unclear sources):
+Complete global stemma for 3 John (multiple roots are due to readings with unclear sources), with edges formatted to highlight levels of agreement:
 ![3 John global stemma](https://github.com/jjmccollum/open-cbgm/blob/master/images/global-stemma.png)
 
 ## Future Development

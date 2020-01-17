@@ -150,19 +150,19 @@ To illustrate the effects of the processing arguments, we present several versio
 
 	./populate_db examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, no processing](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma.png)
+![3 John 1:4/22–26, no processing](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_local_stemma.png)
 
 	./populate_db -z ambiguous -z defective examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, ambiguous and defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-amb-def.png)
+![3 John 1:4/22–26, ambiguous and defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_local_stemma_amb_def.png)
 
 	./populate_db --drop-ambiguous --merge-splits examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, ambiguous readings dropped and split readings merged](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-drop-merge.png)
+![3 John 1:4/22–26, ambiguous readings dropped and split readings merged](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_local_stemma_drop_merge.png)
 
 	./populate_db -z defective --drop-ambiguous --merge-splits examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, ambiguous readings dropped, split readings merged, defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-drop-merge-def.png)
+![3 John 1:4/22–26, ambiguous readings dropped, split readings merged, defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_local_stemma_drop_merge_def.png)
 
 In the sections that follow, we will assume that the genealogical cache has been populated using the `--drop-ambiguous` argument.
 
@@ -254,21 +254,24 @@ will generate a PNG image file called B25K1V4U22-26-local-stemma.dot.png. (If yo
 Sample images of local stemmata have already been included at the beginning of the "Usage" section. For the sake of completeness, we have included sample images of the other types of graphs below.
 
 Complete textual flow diagram for 3 John 1:4/22–26:
-![3 John 1:4/22–26 complete textual flow diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-textual-flow.png)
+![3 John 1:4/22–26 complete textual flow diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_textual_flow.png)
 
 Coherence in attestations diagrams for all readings in 3 John 1:4/22–26:
-![3 John 1:4/22–26a coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Ra-coherence-attestations.png)
-![3 John 1:4/22–26af coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Raf-coherence-attestations.png)
-![3 John 1:4/22–26b coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rb-coherence-attestations.png)
-![3 John 1:4/22–26c coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rc-coherence-attestations.png)
-![3 John 1:4/22–26d coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd-coherence-attestations.png)
-![3 John 1:4/22–26d2 coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd2-coherence-attestations.png)
+![3 John 1:4/22–26a coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Ra_coherence_attestations.png)
+![3 John 1:4/22–26af coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Raf_coherence_attestations.png)
+![3 John 1:4/22–26b coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rb_coherence_attestations.png)
+![3 John 1:4/22–26c coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rc_coherence_attestations.png)
+![3 John 1:4/22–26d coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd_coherence_attestations.png)
+![3 John 1:4/22–26d2 coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd2_coherence_attestations.png)
 
 Coherence in variant passages diagram for 3 John 1:4/22–26:
-![3 John 1:4/22–26 coherence in variant passages diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-coherence-variants.png)
+![3 John 1:4/22–26 coherence in variant passages diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_coherence_variants.png)
 
 Complete global stemma for 3 John (multiple roots are due to readings with unclear sources), with edges formatted to highlight levels of agreement:
-![3 John global stemma](https://github.com/jjmccollum/open-cbgm/blob/master/images/global-stemma.png)
+![3 John global stemma](https://github.com/jjmccollum/open-cbgm/blob/master/images/global_stemma.png)
+
+Complete global stemma for 3 John, with fragmentary witnesses and variants with unclear reading sources excluded:
+![3 John global stemma](https://github.com/jjmccollum/open-cbgm/blob/master/images/global_stemma_connected.png)
 
 ## Future Development
 

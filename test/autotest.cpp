@@ -1135,6 +1135,24 @@ void autotest::run() {
 			try {
 				//Construct a textual flow instance:
 				textual_flow tf = textual_flow(vu, witnesses);
+				//Make sure its label matches that of the variation unit:
+				string expected_label = vu.get_label();
+				string label = tf.get_label();
+				if (label != expected_label) {
+					u_test.msg += "Expected label == " + expected_label + ", got " + label + "\n";
+				}
+				//Make sure its readings list is the same length as the variation unit's readings list:
+				unsigned int expected_n_readings = vu.get_readings().size();
+				unsigned int n_readings = tf.get_readings().size();
+				if (n_readings != expected_n_readings) {
+					u_test.msg += "Expected readings.size() == " + to_string(expected_n_readings) + ", got " + to_string(n_readings) + "\n";
+				}
+				//Make sure its connectivity value is the same as that of the variation unit:
+				int expected_connectivity = vu.get_connectivity();
+				int connectivity = tf.get_connectivity();
+				if (connectivity != expected_connectivity) {
+					u_test.msg += "Expected connectivity == " + to_string(expected_connectivity) + ", got " + to_string(connectivity) + "\n";
+				}
 				//Check that the diagram has the correct number of vertices:
 				unsigned int expected_n_vertices = 5;
 				unsigned int expected_n_edges = 4;

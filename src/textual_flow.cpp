@@ -143,6 +143,13 @@ string textual_flow::get_label() const {
 }
 
 /**
+ * Returns the readings list of this textual_flow_instance.
+ */
+list<string> textual_flow::get_readings() const {
+	return readings;
+}
+
+/**
  * Returns the connectivity of this textual_flow instance.
  */
 int textual_flow::get_connectivity() const {
@@ -413,13 +420,12 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 	}
 	//Maintain a map of support lists for each reading:
 	map<string, list<string>> clusters = map<string, list<string>>();
+	for (string rdg : readings) {
+		clusters[rdg] = list<string>();
+	}
 	for (textual_flow_vertex v : graph.vertices) {
 		string wit_id = v.id;
 		string wit_rdg = v.rdg;
-		//Add an empty list of witness IDs for this reading, if it hasn't been encountered yet:
-		if (clusters.find(wit_rdg) == clusters.end()) {
-			clusters[wit_rdg] = list<string>();
-		}
 		clusters[wit_rdg].push_back(wit_id);
 	}
 	//Maintain a set of IDs for nodes between which there exists an edge of flow type CHANGE:

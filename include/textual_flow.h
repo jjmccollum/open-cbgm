@@ -39,14 +39,15 @@ struct textual_flow_graph {
 class textual_flow {
 private:
 	string label;
-	int connectivity;
 	list<string> readings;
+	int connectivity;
 	textual_flow_graph graph;
 public:
 	textual_flow();
 	textual_flow(const variation_unit & vu, const list<witness> & witnesses);
 	virtual ~textual_flow();
 	string get_label() const;
+	list<string> get_readings() const;
 	int get_connectivity() const;
 	textual_flow_graph get_graph() const;
 	void textual_flow_to_dot(ostream & out, bool flow_strengths);

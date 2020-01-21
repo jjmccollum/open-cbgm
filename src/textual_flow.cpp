@@ -47,6 +47,11 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 	graph.edges = list<textual_flow_edge>();
 	//Get a copy of the variation unit's reading support map:
 	unordered_map<string, string> reading_support = vu.get_reading_support();
+	//Create a map of witnesses, keyed by ID:
+	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
+	for (witness wit : witnesses) {
+		witnesses_by_id[wit.get_id()] = wit;
+	}
 	//Add vertices and edges for each witness in the input list:
 	for (witness wit : witnesses) {
 		//Get the witness's ID and a list of any readings it has at this variation unit:
@@ -64,7 +69,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 			continue;
 		}
 		//Otherwise, proceed to identify this witness's textual flow ancestor for this variation unit:
-		string textual_flow_ancestor_id;
+		bool textual_flow_ancestor_found = false;
 		int con = -1;
 		int con_value = -1; //connectivity rank only changes when this value changes
 		flow_type type = flow_type::NONE;
@@ -86,45 +91,84 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 				if (con == connectivity) {
 					break;
 				}
-				//If this potential ancestor agrees with the current witness here, then we're done:
-				bool agree = false;
+				//If this potential ancestor agrees with the current witness here, then add an edge for it:
 				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
 					string potential_ancestor_rdg = reading_support.at(potential_ancestor_id);
-					if (ls.path_exists(potential_ancestor_rdg, wit_rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, wit_rdg) == 0) {
-						agree = true;
+					bool agree = ls.path_exists(potential_ancestor_rdg, wit_rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, wit_rdg) == 0;
+					if (agree) {
+						//Set the flag indicating that we've found a textual_flow_ancestor:
+						textual_flow_ancestor_found = true;
+						//Calculate the stability of the textual flow:
+						witness textual_flow_ancestor = witnesses_by_id.at(potential_ancestor_id);
+						genealogical_comparison reverse_comp = textual_flow_ancestor.get_genealogical_comparison_for_witness(wit_id);
+						Roaring extant = wit.get_genealogical_comparison_for_witness(wit_id).explained & textual_flow_ancestor.get_genealogical_comparison_for_witness(potential_ancestor_id).explained;
+						Roaring agreements = comp.agreements;
+						Roaring prior = comp.explained ^ agreements;
+						Roaring posterior = reverse_comp.explained ^ agreements;
+						float strength = float(prior.cardinality() - posterior.cardinality()) / float(extant.cardinality());
+						//Add an edge to the graph connecting the textual flow ancestor to this witness:
+						textual_flow_edge e;
+						e.descendant = wit_id;
+						e.ancestor = potential_ancestor_id;
+						e.type = flow_type::EQUAL;
+						e.connectivity = con;
+						e.strength = strength;
+						graph.edges.push_back(e);
+						break;
 					}
-				}
-				if (agree) {
-					textual_flow_ancestor_id = potential_ancestor_id;
-					type = flow_type::EQUAL;
-					break;
 				}
 			}
 		}
 		//If the witness is lacunose or it does not have a potential ancestor with its reading within the connectivity limit,
-		//then its first potential ancestor is its textual flow ancestor:
-		if (textual_flow_ancestor_id.empty()) {
-			con = 0;
-			textual_flow_ancestor_id = potential_ancestor_ids.front();
-			string textual_flow_ancestor_rdg = reading_support.find(textual_flow_ancestor_id) != reading_support.end() ? reading_support.at(textual_flow_ancestor_id) : "";
-			type = wit_rdg.empty() || textual_flow_ancestor_rdg.empty() ? flow_type::LOSS : flow_type::CHANGE;
+		//then each potential ancestor with a distinct reading within the connectivity limit is a textual flow ancestor:
+		if (!textual_flow_ancestor_found) {
+			con = -1;
+			con_value = -1;
+			list<string> distinct_rdgs = list<string>();
+			for (string potential_ancestor_id : potential_ancestor_ids) {
+				//Update the connectivity rank if the connectivity value changes:
+				genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
+				int agreements = comp.agreements.cardinality();
+				if (agreements != con_value) {
+					con_value = agreements;
+					con++;
+				}
+				//If we reach the connectivity limit, then exit the loop early:
+				if (con == connectivity) {
+					break;
+				}
+				//If this potential ancestor has a reading we haven't encountered yet, then add an edge for it:
+				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
+					string potential_ancestor_rdg = reading_support.at(potential_ancestor_id);
+					bool new_rdg = true;
+					for (string rdg : distinct_rdgs) {
+						if (ls.path_exists(potential_ancestor_rdg, rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, rdg) == 0) {
+							new_rdg = false;
+							break;
+						}
+					}
+					if (new_rdg) {
+						distinct_rdgs.push_back(potential_ancestor_rdg);
+						//Calculate the stability of the textual flow:
+						witness textual_flow_ancestor = witnesses_by_id.at(potential_ancestor_id);
+						genealogical_comparison reverse_comp = textual_flow_ancestor.get_genealogical_comparison_for_witness(wit_id);
+						Roaring extant = wit.get_genealogical_comparison_for_witness(wit_id).explained & textual_flow_ancestor.get_genealogical_comparison_for_witness(potential_ancestor_id).explained;
+						Roaring agreements = comp.agreements;
+						Roaring prior = comp.explained ^ agreements;
+						Roaring posterior = reverse_comp.explained ^ agreements;
+						float strength = float(prior.cardinality() - posterior.cardinality()) / float(extant.cardinality());
+						//Add an edge to the graph connecting the textual flow ancestor to this witness:
+						textual_flow_edge e;
+						e.descendant = wit_id;
+						e.ancestor = potential_ancestor_id;
+						e.type = wit_rdg.empty() ? flow_type::LOSS : flow_type::CHANGE;
+						e.connectivity = con;
+						e.strength = strength;
+						graph.edges.push_back(e);
+					}
+				}
+			}
 		}
-		//Calculate the strength of the textual flow from the textual flow ancestor to its descendant
-		//based on relative proportion of prior readings to extant readings:
-		genealogical_comparison self_comp = wit.get_genealogical_comparison_for_witness(wit_id);
-		genealogical_comparison ancestor_comp = wit.get_genealogical_comparison_for_witness(textual_flow_ancestor_id);
-		Roaring primary_extant = self_comp.explained;
-		Roaring agreements = ancestor_comp.agreements;
-		Roaring explained = ancestor_comp.explained;
-		float strength = float((explained ^ agreements).cardinality()) / float(primary_extant.cardinality());
-		//Add an edge to the graph connecting the current witness to its textual flow ancestor:
-		textual_flow_edge e;
-		e.descendant = wit_id;
-		e.ancestor = textual_flow_ancestor_id;
-		e.type = type;
-		e.connectivity = con;
-		e.strength = strength;
-		graph.edges.push_back(e);
 	}
 }
 
@@ -195,11 +239,18 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false)
 		}
 		out << ";\n";
 	}
-	//Add all of the graph edges:
+	//Add all of the graph edges, except for secondary graph edges for changes:
+	unordered_set<string> processed_destinations = unordered_set<string>();
 	for (textual_flow_edge e : graph.edges) {
 		//Get the indices corresponding to the endpoints' IDs:
 		int ancestor_ind = id_to_index.at(e.ancestor);
 		int descendant_ind = id_to_index.at(e.descendant);
+		//If the destination already has an edge drawn to it, then skip this edge:
+		if (processed_destinations.find(e.descendant) != processed_destinations.end()) {
+			continue;
+		}
+		//Otherwise, add the destination node's ID to the processed set:
+		processed_destinations.insert(e.descendant);
 		//Handle the conditional formatting of the edge:
 		list<string> format_cmds = list<string>();
 		//If the connectivity index is not direct (i.e., 0), then print it in one-based format:

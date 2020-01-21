@@ -1155,7 +1155,7 @@ void autotest::run() {
 				}
 				//Check that the diagram has the correct number of vertices:
 				unsigned int expected_n_vertices = 5;
-				unsigned int expected_n_edges = 4;
+				unsigned int expected_n_edges = 9;
 				textual_flow_graph graph = tf.get_graph();
 				unsigned int n_vertices = graph.vertices.size();
 				unsigned int n_edges = graph.edges.size();

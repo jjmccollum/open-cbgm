@@ -47,6 +47,11 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 	graph.edges = list<textual_flow_edge>();
 	//Get a copy of the variation unit's reading support map:
 	unordered_map<string, string> reading_support = vu.get_reading_support();
+	//Create a map of witnesses keyed by ID:
+	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
+	for (witness wit : witnesses) {
+		witnesses_by_id[wit.get_id()] = wit;
+	}
 	//Add vertices and edges for each witness in the input list:
 	for (witness wit : witnesses) {
 		//Get the witness's ID and a list of any readings it has at this variation unit:
@@ -109,15 +114,16 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 			string textual_flow_ancestor_rdg = reading_support.find(textual_flow_ancestor_id) != reading_support.end() ? reading_support.at(textual_flow_ancestor_id) : "";
 			type = wit_rdg.empty() || textual_flow_ancestor_rdg.empty() ? flow_type::LOSS : flow_type::CHANGE;
 		}
-		//Calculate the strength of the textual flow from the textual flow ancestor to its descendant
-		//based on relative proportion of prior readings to extant readings:
-		genealogical_comparison self_comp = wit.get_genealogical_comparison_for_witness(wit_id);
-		genealogical_comparison ancestor_comp = wit.get_genealogical_comparison_for_witness(textual_flow_ancestor_id);
-		Roaring primary_extant = self_comp.explained;
-		Roaring agreements = ancestor_comp.agreements;
-		Roaring explained = ancestor_comp.explained;
-		float strength = float((explained ^ agreements).cardinality()) / float(primary_extant.cardinality());
-		//Add an edge to the graph connecting the current witness to its textual flow ancestor:
+		//Calculate the stability of the textual flow:
+		witness textual_flow_ancestor = witnesses_by_id.at(textual_flow_ancestor_id);
+		genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(textual_flow_ancestor_id);
+		genealogical_comparison reverse_comp = textual_flow_ancestor.get_genealogical_comparison_for_witness(wit_id);
+		Roaring extant = wit.get_genealogical_comparison_for_witness(wit_id).explained & textual_flow_ancestor.get_genealogical_comparison_for_witness(textual_flow_ancestor_id).explained;
+		Roaring agreements = comp.agreements;
+		Roaring prior = comp.explained ^ agreements;
+		Roaring posterior = reverse_comp.explained ^ agreements;
+		float strength = float(prior.cardinality() - posterior.cardinality()) / float(extant.cardinality());
+		//Add an edge to the graph connecting the textual flow ancestor to this witness:
 		textual_flow_edge e;
 		e.descendant = wit_id;
 		e.ancestor = textual_flow_ancestor_id;

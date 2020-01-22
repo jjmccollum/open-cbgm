@@ -1341,7 +1341,7 @@ void autotest::run() {
 			try {
 				//Test .dot serialization:
 				stringstream ss;
-				gs.to_dot(ss, false);
+				gs.to_dot(ss, false, false);
 				string out = ss.str();
 				if (out.empty()) {
 					u_test.msg += "The .dot serialization was empty.\n";

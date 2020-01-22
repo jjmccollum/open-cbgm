@@ -22,7 +22,8 @@ struct global_stemma_vertex {
 struct global_stemma_edge {
 	string ancestor;
 	string descendant;
-	float weight;
+	float length;
+	float strength;
 };
 struct global_stemma_graph {
 	list<global_stemma_vertex> vertices;
@@ -37,7 +38,7 @@ public:
 	global_stemma(const list<witness> & witnesses);
 	virtual ~global_stemma();
 	global_stemma_graph get_graph() const;
-	void to_dot(ostream & out, bool format_edges);
+	void to_dot(ostream & out, bool print_lengths, bool flow_strengths);
 };
 
 #endif /* GLOBAL_STEMMA_H */

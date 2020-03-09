@@ -191,7 +191,8 @@ void autotest::run() {
 		pugi::xml_node app_node = doc.select_node("descendant::app[@n=\"B00K0V0U6\"]").node();
 		string vu_id = app_node.attribute("n").value();
 		string vu_label = app_node.child("label").text().get();
-		pugi::xml_node graph_node = app_node.child("graph");
+		pugi::xml_node note_node = app_node.child("note");
+		pugi::xml_node graph_node = note_node.child("graph");
 		//Then proceed for each unit test:
 		string current_unit;
 		/**
@@ -245,7 +246,8 @@ void autotest::run() {
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U8\"]").node();
 		vu_id = app_node.attribute("n").value();
 		vu_label = app_node.child("label").text().get();
-		graph_node = app_node.child("graph");
+		note_node = app_node.child("note");
+		graph_node = note_node.child("graph");
 		/**
 		 * Unit test local_stemma_constructor_2
 		 */
@@ -285,7 +287,8 @@ void autotest::run() {
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U4\"]").node();
 		vu_id = app_node.attribute("n").value();
 		vu_label = app_node.child("label").text().get();
-		graph_node = app_node.child("graph");
+		note_node = app_node.child("note");
+		graph_node = note_node.child("graph");
 		local_stemma ls = local_stemma(graph_node, vu_id, vu_label, set<pair<string, string>>(), set<string>(), set<string>());
 		/**
 		 * Unit test local_stemma_path_exists

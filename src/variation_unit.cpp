@@ -140,16 +140,19 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, 
 	//Set the connectivity value, using MAX_INT as a default for absolute connectivity:
 	connectivity = numeric_limits<int>::max();
 	//If there is a connectivity feature with a <numeric> child that has a "value" attribute that parses to an int, then use that value:
-	pugi::xpath_node numeric_path = xml.select_node("fs/f[@name=\"connectivity\"]/numeric");
+	pugi::xpath_node numeric_path = xml.select_node("note/fs/f[@name=\"connectivity\"]/numeric");
 	if (numeric_path) {
 		pugi::xml_node numeric = numeric_path.node();
 		if (numeric.attribute("value") && numeric.attribute("value").as_int() > 0) {
 			connectivity = numeric.attribute("value").as_int();
 		}
 	}
-	//The <graph/> element should contain the local stemma for this variation unit:
-	pugi::xml_node stemma_node = xml.child("graph");
-	stemma = local_stemma(stemma_node, id, label, split_pairs, trivial_readings, dropped_readings);
+	//If there is a <graph/> element, then it contains the local stemma for this variation unit:
+	pugi::xpath_node stemma_path = xml.select_node("note/graph");
+	if (stemma_path) {
+		pugi::xml_node stemma_node = stemma_path.node();
+		stemma = local_stemma(stemma_node, id, label, split_pairs, trivial_readings, dropped_readings);
+	}
 }
 
 /**

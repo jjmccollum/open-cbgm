@@ -18,10 +18,10 @@
 					<ab n="B00K0V0">
 						<!-- Simple local stemma with two readings and a clear relationship -->
 						<app n="B00K0V0U2">
-							<label>Test 0:0/2</label>
 							<rdg n="a" wit="A B C">a</rdg>
 							<rdg n="b" wit="D E">b</rdg>
 							<note>
+								<label>Test 0:0/2</label>
 								<fs>
 									<f name="connectivity">
 										<numeric value="5" />
@@ -36,13 +36,13 @@
 						</app>
 						<!-- Local stemma with four readings and depth 2 -->
 						<app n="B00K0V0U4">
-							<!-- Test with no label -->
 							<rdg n="a" wit="A B">a</rdg>
 							<rdg n="b" wit="C">b</rdg>
 							<rdg n="c" wit="D">c</rdg>
 							<rdg n="d" wit="E">d</rdg>
 							<!-- Test explicit "absolute" connectivity -->
 							<note>
+								<!-- Test with no label -->
 								<fs>
 									<f name="connectivity">
 										<numeric value="absolute" />
@@ -61,14 +61,14 @@
 						</app>
 						<!-- Local stemma with defective and orthographic subvariants -->
 						<app n="B00K0V0U6">
-							<label>Test 0:0/6</label>
 							<rdg n="a" wit="A">a</rdg>
 							<rdg n="b" wit="B">b</rdg>
 							<rdg n="bf" type="defective" wit="C">bf</rdg>
 							<rdg n="c" wit="D">c</rdg>
 							<rdg n="co" type="orthographic" wit="E">co</rdg>
-							<!-- Test default connectivity value -->
 							<note>
+								<label>Test 0:0/6</label>
+								<!-- Test default connectivity value -->
 								<graph type="directed">
 									<node n="a" />
 									<node n="b" />
@@ -84,13 +84,13 @@
 						</app>
 						<!-- Local stemma where the Ausgangstext could be one of two readings, there is a split attestation for one reading, and one witness is lacunose -->
 						<app n="B00K0V0U8">
-							<label>Test 0:0/8</label>
 							<rdg n="a" wit="">a</rdg>
 							<rdg n="b" wit="B">b</rdg>
 							<rdg n="c" wit="D">c</rdg>
 							<rdg n="c2" type="split" wit="C">c</rdg>
 							<rdg n="zw-a/b" type="ambiguous" wit="A">zw-a/b</rdg>
 							<note>
+								<label>Test 0:0/8</label>
 								<fs>
 									<f name="connectivity">
 										<numeric value="5" />

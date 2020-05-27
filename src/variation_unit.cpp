@@ -39,7 +39,13 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, 
 	//Populate the ID, if one is specified:
 	id = xml.attribute("xml:id") ? xml.attribute("xml:id").value() : (xml.attribute("id") ? xml.attribute("id").value() : (xml.attribute("n") ? xml.attribute("n").value() : ""));
 	//Populate the label, if one is specified (if not, use the ID):
-	label = (xml.child("label") && xml.child("label").text()) ? xml.child("label").text().get() : id;
+	pugi::xpath_node label_path = xml.select_node("note/label");
+	if (label_path) {
+		pugi::xml_node label_node = label_path.node();
+		label = label_node.text() ? label_node.text().get() : id;
+	} else {
+		label = id;
+	}
 	//Populate the list of reading IDs and the witness-to-readings map,
 	//keeping track of reading types and splits to merge as necessary:
 	readings = list<string>();

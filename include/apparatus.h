@@ -24,7 +24,7 @@ private:
 	vector<variation_unit> variation_units;
 public:
 	apparatus();
-	apparatus(const pugi::xml_node & xml, bool drop_ambiguous, bool merge_splits, const set<string> & trivial_reading_types);
+	apparatus(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types);
 	virtual ~apparatus();
 	list<string> get_list_wit() const;
 	vector<variation_unit> get_variation_units() const;

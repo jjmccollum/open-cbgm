@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
 	try {
 		cxxopts::Options options("optimize_substemmata", "Get a table of best-found substemmata for the witness with the given ID.");
 		options.custom_help("[-h] [-b bound] input_db witness");
-		//options.positional_help("").show_positional_help();
+		options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("b,bound", "fixed upper bound on substemmata cost; if specified, list all substemmata with costs within this bound", cxxopts::value<float>());

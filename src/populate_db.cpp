@@ -406,20 +406,20 @@ void populate_witnesses_table(sqlite3 * output_db, const list<witness> & witness
 int main(int argc, char* argv[]) {
 	//Read in the command-line options:
 	set<string> trivial_reading_types = set<string>();
-	bool drop_ambiguous = false;
+	set<string> dropped_reading_types = set<string>();
 	bool merge_splits = false;
 	int threshold = 0;
 	string input_xml_name = string();
 	string output_db_name = string();
 	try {
-		cxxopts::Options options("populate_db", "Parses the given collation XML file and populates the genealogical cache in the given SQLite database.");
-		options.custom_help("[-h] [-t threshold] [-z trivial_reading_type_1 -z trivial_reading_type_2 ...] [--drop-ambiguous] [--merge-splits] input_xml output_db");
-		//options.positional_help("").show_positional_help();
+		cxxopts::Options options("populate_db", "Parse the given collation XML file and populate the genealogical cache in the given SQLite database.");
+		options.custom_help("[-h] [-t threshold] [-z trivial_reading_type_1 -z trivial_reading_type_2 ...] [-Z dropped_reading_type_1 -Z dropped_reading_type_2 ...] [--merge-splits] input_xml output_db");
+		options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("t,threshold", "minimum extant readings threshold", cxxopts::value<int>())
 				("z", "reading type to treat as trivial (this may be used multiple times)", cxxopts::value<vector<string>>())
-				("drop-ambiguous", "treat ambiguous readings as lacunose", cxxopts::value<bool>())
+				("Z", "reading type to drop entirely (this may be used multiple times)", cxxopts::value<vector<string>>())
 				("merge-splits", "merge split attestations of the same reading", cxxopts::value<bool>());
 		options.add_options("positional")
 				("input_xml", "collation file in TEI XML format", cxxopts::value<string>())
@@ -440,8 +440,10 @@ int main(int argc, char* argv[]) {
 				trivial_reading_types.insert(trivial_reading_type);
 			}
 		}
-		if (args.count("drop-ambiguous")) {
-			drop_ambiguous = args["drop-ambiguous"].as<bool>();
+		if (args.count("Z")) {
+			for (string dropped_reading_type : args["Z"].as<vector<string>>()) {
+				dropped_reading_types.insert(dropped_reading_type);
+			}
 		}
 		if (args.count("merge-splits")) {
 			merge_splits = args["merge-splits"].as<bool>();
@@ -472,7 +474,7 @@ int main(int argc, char* argv[]) {
 		cerr << "Error: The XML file " << input_xml_name << " does not have a <TEI> element as its root element." << endl;
 		exit(1);
 	}
-	apparatus app = apparatus(tei_node, drop_ambiguous, merge_splits, trivial_reading_types);
+	apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
 	//Get the apparatus's list of variation units:
 	list<variation_unit> variation_units = list<variation_unit>();
 	for (variation_unit vu : app.get_variation_units()) {
@@ -497,7 +499,7 @@ int main(int argc, char* argv[]) {
 	cout << "Initializing all witnesses (this may take a while)... " << endl;
 	list<witness> witnesses = list<witness>();
 	for (string wit_id : list_wit) {
-		cout << "Calculating coherences for witness " << wit_id << "..." << endl;
+		cout << "Calculating coherence for witness " << wit_id << "..." << endl;
 		witness wit = witness(wit_id, list_wit, app);
 		witnesses.push_back(wit);
 	}

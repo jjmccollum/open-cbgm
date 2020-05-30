@@ -26,10 +26,10 @@ apparatus::apparatus() {
 
 /**
  * Constructs an apparatus from a <TEI/> XML element.
- * Boolean flags indicating whether or not to drop ambiguous readings and whether or not to merge split readings
- * and a set of strings indicating reading types that should be treated as trivial are also expected.
+ * A boolean flag indicating whether or not to merge split readings
+ * and sets of strings indicating reading types that should be dropped or treated as trivial are also expected.
  */
-apparatus::apparatus(const pugi::xml_node & xml, bool drop_ambiguous, bool merge_splits, const set<string> & trivial_reading_types) {
+apparatus::apparatus(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types) {
 	//Populate the list of witness IDs first:
 	list_wit = list<string>();
 	for (pugi::xpath_node wit_path : xml.select_nodes("teiHeader/sourceDesc/listWit/witness")) {
@@ -41,7 +41,7 @@ apparatus::apparatus(const pugi::xml_node & xml, bool drop_ambiguous, bool merge
 	variation_units = vector<variation_unit>();
 	for (pugi::xpath_node app_path : xml.select_nodes("descendant::app")) {
 		pugi::xml_node app = app_path.node();
-		variation_unit vu = variation_unit(app, drop_ambiguous, merge_splits, trivial_reading_types);
+		variation_unit vu = variation_unit(app, merge_splits, trivial_reading_types, dropped_reading_types);
 		variation_units.push_back(vu);
 	}
 }

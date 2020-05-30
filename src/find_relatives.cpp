@@ -320,7 +320,7 @@ int main(int argc, char* argv[]) {
 	try {
 		cxxopts::Options options("find_relatives", "Get a table of genealogical relationships between the witness with the given ID and other witnesses at a given passage, as specified by the user.\nOptionally, the user can optionally specify a reading ID for the given passage, in which case the output will be restricted to the witnesses preserving that reading.");
 		options.custom_help("[-h] [-r reading] input_db witness passage");
-		//options.positional_help("").show_positional_help();
+		options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("r,reading", "ID of desired variant reading", cxxopts::value<string>());

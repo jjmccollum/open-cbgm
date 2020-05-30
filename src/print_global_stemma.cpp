@@ -98,9 +98,9 @@ int main(int argc, char* argv[]) {
 	bool flow_strengths = false;
 	string input_db_name = string();
 	try {
-		cxxopts::Options options("print_global_stemma", "Prints a global stemma graph to a .dot output files. The output file will be placed in the \"global\" directory.");
+		cxxopts::Options options("print_global_stemma", "Print a global stemma graph to a .dot output files. The output file will be placed in the \"global\" directory.");
 		options.custom_help("[-h] [--lengths] [--strengths] input_db");
-		//options.positional_help("").show_positional_help();
+		options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("lengths", "print genealogical costs as edge lengths")

@@ -32,12 +32,24 @@ variation_unit::variation_unit() {
 
 /**
  * Constructs a variation unit from an <app/> XML element.
- * Boolean flags indicating whether or not to drop ambiguous readings and whether or not to merge split readings
- * and a set of strings indicating reading types that should be treated as trivial are also expected.
+ * A boolean flag indicating whether or not to merge split readings
+ * and sets of strings indicating reading types that should be dropped or treated as trivial are also expected.
  */
-variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, bool merge_splits, const set<string> & trivial_reading_types) {
+variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types) {
 	//Populate the ID, if one is specified:
 	id = xml.attribute("xml:id") ? xml.attribute("xml:id").value() : (xml.attribute("id") ? xml.attribute("id").value() : (xml.attribute("n") ? xml.attribute("n").value() : ""));
+	//If the "from" and "to" attributes are present 
+	//(as they are in the output of the ITSEE Collation Editor),
+	//then assume that the ID is a verse index and add the unit indices:
+	if (xml.attribute("from") && xml.attribute("to")) {
+		string start_unit = xml.attribute("from").value();
+		string end_unit = xml.attribute("to").value();
+		if (start_unit == end_unit) {
+			id += "U" + start_unit;
+		} else {
+			id += "U" + start_unit + "-" + end_unit;
+		}
+	}
 	//Populate the label, if one is specified (if not, use the ID):
 	pugi::xpath_node label_path = xml.select_node("note/label");
 	if (label_path) {
@@ -71,10 +83,21 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, 
 			rdg_types.insert(rdg_type);
 			type_token = strtok(NULL, delim); //iterate to the next token
 		}
-		//If this reading is ambiguous and we're dropping ambiguous readings, then add it to the set of ambiguous readings and move on to the next reading:
-		if (drop_ambiguous && rdg_types.find("ambiguous") != rdg_types.end()) {
-			dropped_readings.insert(rdg_id);
-			continue;
+		delete [] type_chars;
+		delete [] type_token;
+		//If its reading types are a subset of the dropped reading types, then do not process this reading:
+		if (!rdg_types.empty()) {
+			bool is_subset = true;
+			for (string rdg_type : rdg_types) {
+				if (dropped_reading_types.find(rdg_type) == dropped_reading_types.end()) {
+					is_subset = false;
+					break;
+				}
+			}
+			if (is_subset) {
+				dropped_readings.insert(rdg_id);
+				continue;
+			}
 		}
 		//Otherwise, add it to the map of reading types by reading:
 		reading_types_by_reading[rdg_id] = rdg_types;
@@ -93,6 +116,8 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, 
 			wits.push_back(wit);
 			wit_token = strtok(NULL, delim); //iterate to the next token
 		}
+		delete [] wit_chars;
+		delete [] wit_token;
 		//Add these witnesses to the reading support map:
 		for (string wit : wits) {
 			//Add an empty list for each reading we haven't encountered yet:

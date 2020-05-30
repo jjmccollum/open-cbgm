@@ -267,7 +267,7 @@ int main(int argc, char* argv[]) {
 	try {
 		cxxopts::Options options("print_textual_flow", "Prints multiple types of textual flow diagrams to .dot output files. The output files will be placed in the \"flow\", \"attestations\", and \"variants\" directories.");
 		options.custom_help("[-h] [--flow] [--attestations] [--variants] [--strengths] input_db [passages]");
-		//options.positional_help("").show_positional_help();
+		options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("flow", "print complete textual flow diagrams", cxxopts::value<bool>())

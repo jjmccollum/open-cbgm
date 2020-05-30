@@ -137,34 +137,38 @@ When built, the open-cbgm library contains seven executable scripts: populate\_d
 The populate\_db script reads the input collation XML file, calculates genealogical relationships between all pairs of witnesses, and writes this and other data needed for common CBGM tasks to a SQLite database. Typically, this process will take at least a few minutes, depending on the number of variation units and witnesses in the collation, but the use of a database is intended to make this process one-time work. The script takes the input XML file as a required command-line argument, and it also accepts the following optional arguments for processing the data:
 - `-t` or `--threshold`, which will set a threshold of minimum extant passages for witnesses to be included from the collation. For example, the argument `-t 100` will filter out any witnesses extant in fewer than 100 passages.
 - `-z` followed by a reading type (e.g., `-z defective`), which will treat readings of that type as trivial for the purposes of witness comparison (so using the example already provided, a defective or orthographic subvariant of a reading would be considered to agree with that reading). This argument can be repeated with different reading types (e.g., `-z defective -z orthographic`).
-- `--drop-ambiguous`, which will treat ambiguous readings as lacunae, excluding them from variation units and local stemmata.
+- `-Z`, followed by a reading type (e.g., `-Z lac`), which will ignore readings of that type, excluding them from variation units and local stemmata. Any witnesses having such readings will be treated as lacunose in the variation units where they have them. This argument can be repeated with different reading types (e.g., `-Z lac -Z ambiguous`).
 - `--merge-splits`, which will treat split attestations of the same reading as equivalent for the purposes of witness comparison.
 
-So if we wanted to create a new database called cache.db using the 3\_john\_collation.xml collation file in the examples directory, and we wanted to exclude ambiguous readings and witnesses with fewer than 100 extant readings, and we wanted to ignore orthographic and defective subvariation, then we would use the following command:
+Finally, please note that at this time, the current database must be overwritten, or a separate one must be created, in order to incorporate any changes to the processing options or to the local stemmata.
 
-	./populate_db -t 100 -z defective -z orthographic --drop-ambiguous examples/3_john_collation.xml cache.db
+As an example, if we wanted to create a new database called cache.db using the 3\_john\_collation.xml collation file in the examples directory, excluding ambiguous readings and witnesses with fewer than 100 extant readings while treating orthographic and defective subvariation as trivial, then we would use the following command:
 
-Please note that at this time, the current database must be overwritten, or a separate one must be created, in order to incorporate any changes to the processing options or to the local stemmata.
+	./populate_db -t 100 -z defective -z orthographic -Z ambiguous examples/3_john_collation.xml cache.db
+
+We note that the 3\_john\_collation.xml file encodes lacunae implicitly (so that any witness not attesting to a specified reading is assumed to be lacunose), so lacunae do not have to be excluded explicitly. If we were using a minimally modified output from the ITSEE collation editor (https://github.com/itsee-birmingham/standalone_collation_editor), like the john\_6\_23\_collation.xml example, then we would want to specify that readings of type "lac" be excluded:
+
+    ./populate_db -t 100 -z defective -z orthographic -Z lac -Z ambiguous examples/john_6_23_collation.xml cache.db
 
 To illustrate the effects of the processing arguments, we present several versions of the local stemma for the variation unit at 3 John 1:4/22–26, along with the commands used to populate the database containing their data. In the local stemmata presented below, dashed arrows represent edges of weight 0.
 
 	./populate_db examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, no processing](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_local_stemma.png)
+![3 John 1:4/22–26, no processing](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma.png)
 
 	./populate_db -z ambiguous -z defective examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, ambiguous and defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_local_stemma_amb_def.png)
+![3 John 1:4/22–26, ambiguous and defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-amb-def.png)
 
-	./populate_db --drop-ambiguous --merge-splits examples/3_john_collation.xml cache.db
+	./populate_db -Z ambiguous --merge-splits examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, ambiguous readings dropped and split readings merged](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_local_stemma_drop_merge.png)
+![3 John 1:4/22–26, ambiguous readings dropped and split readings merged](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-drop-merge.png)
 
-	./populate_db -z defective --drop-ambiguous --merge-splits examples/3_john_collation.xml cache.db
+	./populate_db -z defective -Z ambiguous --merge-splits examples/3_john_collation.xml cache.db
 
-![3 John 1:4/22–26, ambiguous readings dropped, split readings merged, defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_local_stemma_drop_merge_def.png)
+![3 John 1:4/22–26, ambiguous readings dropped, split readings merged, defective readings trivial](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-local-stemma-drop-merge-def.png)
 
-In the sections that follow, we will assume that the genealogical cache has been populated using the `--drop-ambiguous` argument.
+In the sections that follow, we will assume that the genealogical cache has been populated using the `-Z ambiguous` argument.
 
 ### Comparison of Witnesses
 
@@ -254,18 +258,18 @@ will generate a PNG image file called B25K1V4U22-26-local-stemma.dot.png. (If yo
 Sample images of local stemmata have already been included at the beginning of the "Usage" section. For the sake of completeness, we have included sample images of the other types of graphs below.
 
 Complete textual flow diagram for 3 John 1:4/22–26:
-![3 John 1:4/22–26 complete textual flow diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_textual_flow.png)
+![3 John 1:4/22–26 complete textual flow diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-textual-flow.png)
 
 Coherence in attestations diagrams for all readings in 3 John 1:4/22–26:
-![3 John 1:4/22–26a coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Ra_coherence_attestations.png)
-![3 John 1:4/22–26af coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Raf_coherence_attestations.png)
-![3 John 1:4/22–26b coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rb_coherence_attestations.png)
-![3 John 1:4/22–26c coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rc_coherence_attestations.png)
-![3 John 1:4/22–26d coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd_coherence_attestations.png)
-![3 John 1:4/22–26d2 coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd2_coherence_attestations.png)
+![3 John 1:4/22–26a coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Ra-coherence-attestations.png)
+![3 John 1:4/22–26af coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Raf-coherence-attestations.png)
+![3 John 1:4/22–26b coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rb-coherence-attestations.png)
+![3 John 1:4/22–26c coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rc-coherence-attestations.png)
+![3 John 1:4/22–26d coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd-coherence-attestations.png)
+![3 John 1:4/22–26d2 coherence in attestations diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26Rd2-coherence-attestations.png)
 
 Coherence in variant passages diagram for 3 John 1:4/22–26:
-![3 John 1:4/22–26 coherence in variant passages diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26_coherence_variants.png)
+![3 John 1:4/22–26 coherence in variant passages diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-coherence-variants.png)
 
 Complete global stemma for 3 John (multiple roots are due to readings with unclear sources), with edges formatted to highlight levels of agreement:
 ![3 John global stemma](https://github.com/jjmccollum/open-cbgm/blob/master/images/global_stemma.png)

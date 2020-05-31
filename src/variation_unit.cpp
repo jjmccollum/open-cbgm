@@ -110,9 +110,14 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 		strcpy(wit_chars, wit_string.c_str());
 		char * wit_token = strtok(wit_chars, delim); //reuse the space delimiter from before
 		while (wit_token) {
-			//Strip each reference of the "#" character and add the resulting ID to the witnesses set:
+			//Strip the reference of any initial "#" character:
 			string wit = string(wit_token);
 			wit = wit.rfind("#", 0) == 0 ? wit.erase(0, 1) : wit;
+			//Strip the reference of any final "*" character:
+			wit = wit.rfind("*") == wit.length() - 1 ? wit.erase(wit.length() - 1) : wit;
+			//Strip the reference of any final "V" character:
+			wit = wit.rfind("V") == wit.length() - 1 ? wit.erase(wit.length() - 1) : wit;
+			//Then add the resulting ID to the witnesses set:
 			wits.push_back(wit);
 			wit_token = strtok(NULL, delim); //iterate to the next token
 		}

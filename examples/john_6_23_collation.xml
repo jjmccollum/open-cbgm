@@ -1,0 +1,539 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <sourceDesc>
+      <listWit>
+        <witness n="basetext"/>
+        <witness n="1"/>
+        <witness n="13"/>
+        <witness n="18"/>
+        <witness n="22"/>
+        <witness n="33"/>
+        <witness n="35"/>
+        <witness n="69"/>
+        <witness n="69C"/>
+        <witness n="109"/>
+        <witness n="109C"/>
+        <witness n="118"/>
+        <witness n="124"/>
+        <witness n="138"/>
+        <witness n="157"/>
+        <witness n="168"/>
+        <witness n="173"/>
+        <witness n="209"/>
+        <witness n="213"/>
+        <witness n="226"/>
+        <witness n="249"/>
+        <witness n="265"/>
+        <witness n="295"/>
+        <witness n="333"/>
+        <witness n="357"/>
+        <witness n="377"/>
+        <witness n="382"/>
+        <witness n="397"/>
+        <witness n="430"/>
+        <witness n="543"/>
+        <witness n="544"/>
+        <witness n="565"/>
+        <witness n="579"/>
+        <witness n="597"/>
+        <witness n="732"/>
+        <witness n="788"/>
+        <witness n="792"/>
+        <witness n="799"/>
+        <witness n="807"/>
+        <witness n="821"/>
+        <witness n="826"/>
+        <witness n="828"/>
+        <witness n="841"/>
+        <witness n="869"/>
+        <witness n="884"/>
+        <witness n="892"/>
+        <witness n="983"/>
+        <witness n="992"/>
+        <witness n="994"/>
+        <witness n="1009"/>
+        <witness n="1010"/>
+        <witness n="1014"/>
+        <witness n="1029"/>
+        <witness n="1071"/>
+        <witness n="1079"/>
+        <witness n="1093"/>
+        <witness n="1128"/>
+        <witness n="1192"/>
+        <witness n="1210"/>
+        <witness n="1219"/>
+        <witness n="1230"/>
+        <witness n="1241"/>
+        <witness n="1242"/>
+        <witness n="1253"/>
+        <witness n="1278"/>
+        <witness n="1293"/>
+        <witness n="1319"/>
+        <witness n="1320"/>
+        <witness n="1321"/>
+        <witness n="1344"/>
+        <witness n="1424"/>
+        <witness n="1424C"/>
+        <witness n="1463"/>
+        <witness n="1546"/>
+        <witness n="1561"/>
+        <witness n="1571S"/>
+        <witness n="1582"/>
+        <witness n="1582C"/>
+        <witness n="1654"/>
+        <witness n="1689"/>
+        <witness n="1788"/>
+        <witness n="1797"/>
+        <witness n="1797C"/>
+        <witness n="2106"/>
+        <witness n="2192"/>
+        <witness n="2193"/>
+        <witness n="2193C"/>
+        <witness n="2223"/>
+        <witness n="226C"/>
+        <witness n="2372"/>
+        <witness n="2411"/>
+        <witness n="2575"/>
+        <witness n="2585"/>
+        <witness n="2615"/>
+        <witness n="2680"/>
+        <witness n="2713"/>
+        <witness n="2718"/>
+        <witness n="2766"/>
+        <witness n="2768"/>
+        <witness n="2786"/>
+        <witness n="2790"/>
+        <witness n="2886"/>
+        <witness n="2561"/>
+      </listWit>
+    </sourceDesc>
+  </teiHeader>
+  <ab xml:id="B04K6V23-APP">
+    <app from="1" n="B04K6V23" to="1" type="main">
+      <lem type="om" wit="basetext"/>
+      <rdg n="a" type="om" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 118 1192 1210 1219 1230 124 1241 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2790 2886 295 33 333 35 357 377 382 397 430 543 544 565 597 69 69C 732 788 792 799 807 821 826 828 841 869 884 892 983 992 994 basetext"/>
+      <rdg n="b" varSeq="2" wit="1242 1788 2561 579">και</rdg>
+      <note>
+        <label>John 6:23/1</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+        </graph>
+      </note>
+    </app>
+    <app from="2" n="B04K6V23" to="2" type="main">
+      <lem wit="basetext">αλλα</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 118 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2790 2886 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 792 799 807 821 826 828 841 869 884 892 983 992 994 basetext">αλλα</rdg>
+      <rdg n="b" varSeq="2" wit="295">αλλω</rdg>
+      <note>
+        <label>John 6:23/2</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+        </graph>
+      </note>
+    </app>
+    <app from="3" n="B04K6V23" to="3" type="main">
+      <lem type="om" wit="basetext"/>
+      <rdg n="a" type="om" varSeq="1" wit="1009 1010 1014 1029 1079 1093 1128 1192 1210 1219 1230 1242 1253 1293 1319 1320 1321 1344 1424C 1463 1561 1571S 1582 1582C 1689 1788 1797 1797C 2106 2192 2193 2193C 2561 2575 2585 2615 2713 2718 2766 2768 2786 2790 2886 33 397 579 983 992 994 basetext"/>
+      <rdg n="b" varSeq="2" wit="1 1071 109 109C 118 124 1241 1278 13 138 1424 1546 157 1654 168 173 18 209 213 22 2223 226 226C 2372 2411 249 265 2680 295 333 35 357 377 382 430 543 544 565 597 69 69C 732 788 799 807 821 826 828 841 869 884 892">δε</rdg>
+      <rdg n="c" varSeq="3" wit="792">[δε]</rdg>
+      <note>
+        <label>John 6:23/3</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+        </graph>
+      </note>
+    </app>
+    <app from="3" n="B04K6V23" to="3" type="main">
+      <lem type="om" wit="basetext"/>
+      <rdg n="a" type="om" varSeq="1" wit="1 118 124 1242 13 138 157 168 18 209 213 22 226 226C 249 2561 265 295 33 333 35 357 382 430 543 544 565 579 69 69C 788 799 821 826 828 841 884 basetext"/>
+      <rdg n="b" varSeq="2" wit="1009 1010 1014 1029 1079 1093 1128 1192 1210 1219 1230 1253 1293 1319 1320 1321 1344 1424C 1463 1561 1571S 1582 1582C 1689 1788 1797 1797C 2106 2192 2193 2193C 2575 2585 2615 2713 2718 2766 2768 2786 2790 2886 983 992 994">δε</rdg>
+      <rdg n="c" varSeq="3" wit="1071 109 109C 1241 1278 1546 173 2223 2372 2411 2680 377 397 597 792 807">πλοιαρια</rdg>
+      <rdg n="d" varSeq="4" wit="1424">η[1-2]</rdg>
+      <rdg n="e" varSeq="5" wit="1654 732">πλοια</rdg>
+      <rdg n="f" varSeq="6" wit="892">ην</rdg>
+      <rdg n="zz" type="lac" varSeq="7" wit="869">lac</rdg>
+      <note>
+        <label>John 6:23/3</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+          <node n="d"/>
+          <node n="e"/>
+          <node n="f"/>
+          <node n="zz"/>
+        </graph>
+      </note>
+    </app>
+    <app from="4" n="B04K6V23" to="4" type="main">
+      <lem wit="basetext">ηλθεν</lem>
+      <rdg n="a" varSeq="1" wit="1010 1079 1219 1278 1293 1321 1344 1546 168 2193 2372 2411 265 2680 597 792 basetext">ηλθεν</rdg>
+      <rdg n="b" varSeq="2" wit="1 1009 1029 1071 124 1241 1242 138 1463 1582 1582C 1654 173 1788 209 2106 2223 2561 2575 2713 2766 2768 2886 33 357 382 397 430 544 565 579 732 884 994">ηλθον</rdg>
+      <rdg n="c" varSeq="3" wit="1014 109 1093 109C 1128 1192 1210 13 1319 1320 1424C 1561 157 1571S 1689 1797C 18 2192 2193C 22 226C 249 2585 2615 2718 2790 295 333 35 543 69 69C 788 826 828 869 983 992">ηλθε</rdg>
+      <rdg n="d" varSeq="4" wit="118">ηλθο</rdg>
+      <rdg n="e" varSeq="5" wit="1797">[2]λθε</rdg>
+      <rdg n="f" varSeq="6" wit="377 807">διηλθον</rdg>
+      <rdg n="g" varSeq="7" wit="841">απηλθε</rdg>
+      <rdg n="h" type="om" varSeq="8" wit="1230 1253 1424 213 226 2786 799 821 892"/>
+      <note>
+        <label>John 6:23/4</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+          <node n="d"/>
+          <node n="e"/>
+          <node n="f"/>
+          <node n="g"/>
+          <node n="h"/>
+        </graph>
+      </note>
+    </app>
+    <app from="6" n="B04K6V23" to="6" type="main">
+      <lem wit="basetext">πλοιαρια</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1079 1093 118 1192 1210 1219 1230 1242 1253 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1561 1571S 1582 1582C 168 1689 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 226 226C 249 2561 2575 2615 265 2713 2718 2766 2768 2790 2886 295 33 333 35 357 382 430 543 544 565 579 69 69C 788 799 826 828 841 869 884 892 983 992 994 basetext">πλοιαρια</rdg>
+      <rdg n="b" varSeq="2" wit="1029 157 2786 821">πλοια</rdg>
+      <rdg n="c" varSeq="3" wit="1128">πλοιναρια</rdg>
+      <rdg n="d" varSeq="4" wit="124">πλοιαροια</rdg>
+      <rdg n="e" varSeq="5" wit="2585">πλοιαρεια</rdg>
+      <rdg n="f" type="om" varSeq="6" wit="1071 109 109C 1241 1278 1546 1654 173 2223 2372 2411 2680 377 397 597 732 792 807"/>
+      <note>
+        <label>John 6:23/6</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+          <node n="d"/>
+          <node n="e"/>
+          <node n="f"/>
+        </graph>
+      </note>
+    </app>
+    <app from="8" n="B04K6V23" to="8" type="main">
+      <lem wit="basetext">εκ</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 118 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2790 2886 295 33 333 35 357 377 382 397 543 544 565 579 597 69 69C 732 788 792 799 807 821 826 828 841 869 884 892 983 992 994 basetext">εκ</rdg>
+      <rdg n="b" type="om" varSeq="2" wit="430"/>
+      <note>
+        <label>John 6:23/8</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+        </graph>
+      </note>
+    </app>
+    <app from="9" n="B04K6V23" to="9" type="main">
+      <lem type="om" wit="basetext"/>
+      <rdg n="a" type="om" varSeq="1" wit="1 1009 1010 1014 1029 1079 109 1128 118 1192 1210 1219 1230 124 1241 1253 1278 1293 13 1319 1320 1321 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 1689 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2575 2585 2615 265 2680 2713 2766 2768 2786 2790 2886 295 33 333 35 357 377 397 430 543 544 565 579 597 69 69C 732 788 792 799 807 821 826 828 869 884 892 983 992 994 basetext"/>
+      <rdg n="b" varSeq="2" wit="1071 1093 109C 1242 1344 168 173 1788 2561 2718 382 841">της</rdg>
+      <note>
+        <label>John 6:23/9</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+        </graph>
+      </note>
+    </app>
+    <app from="10" n="B04K6V23" to="10" type="main">
+      <lem wit="basetext">τιβεριαδος</lem>
+      <rdg n="a" varSeq="1" wit="1 1010 1014 1029 1071 1079 1093 109C 1128 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 173 1788 18 2106 213 2192 2193 2193C 2223 226 226C 2411 249 2561 2575 2615 265 2680 2713 2718 2768 2786 2790 2886 295 33 333 35 357 377 382 397 543 544 597 69 69C 788 792 799 807 821 826 841 869 884 892 983 992 994 basetext">τιβεριαδος</rdg>
+      <rdg n="b" varSeq="2" wit="1009 109 13 1689 2585 579 828">τηβεριαδος</rdg>
+      <rdg n="c" varSeq="3" wit="118 209 2372">τιβεριαδο</rdg>
+      <rdg n="d" varSeq="4" wit="1797">τη̣σβεριαδος</rdg>
+      <rdg n="e" varSeq="5" wit="1797C">τισβεριαδος</rdg>
+      <rdg n="f" varSeq="6" wit="22">τιβεριαδ[ος]</rdg>
+      <rdg n="g" varSeq="7" wit="2766">τησβεριαδος</rdg>
+      <rdg n="h" varSeq="8" wit="565">τιβεριαδ</rdg>
+      <rdg n="i" varSeq="9" wit="732">[τ]ιβεριαδος</rdg>
+      <rdg n="j" type="om" varSeq="10" wit="430"/>
+      <note>
+        <label>John 6:23/10</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+          <node n="d"/>
+          <node n="e"/>
+          <node n="f"/>
+          <node n="g"/>
+          <node n="h"/>
+          <node n="i"/>
+          <node n="j"/>
+        </graph>
+      </note>
+    </app>
+    <app from="11" n="B04K6V23" to="11" type="main">
+      <lem type="om" wit="basetext"/>
+      <rdg n="a" type="om" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 118 1192 1210 1219 124 1241 1242 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2790 2886 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 792 807 826 828 841 869 884 892 983 992 994 basetext"/>
+      <rdg n="b" varSeq="2" wit="1230 1253 213 2786 799">ηλθον</rdg>
+      <rdg n="c" varSeq="3" wit="821">ηλθεν</rdg>
+      <note>
+        <label>John 6:23/11</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+        </graph>
+      </note>
+    </app>
+    <seg>εγγυς</seg>
+    <app from="14" n="B04K6V23" to="14" type="main">
+      <lem wit="basetext">του</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 118 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2790 2886 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 799 807 821 826 828 841 869 884 892 983 992 994 basetext">του</rdg>
+      <rdg n="b" type="om" varSeq="2" wit="792"/>
+      <note>
+        <label>John 6:23/14</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+        </graph>
+      </note>
+    </app>
+    <app from="16" n="B04K6V23" to="16" type="main">
+      <lem wit="basetext">τοπου</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 118 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2790 2886 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 799 807 821 826 828 841 869 884 892 983 992 994 basetext">τοπου</rdg>
+      <rdg n="b" varSeq="2" wit="173">τ̣ο̣που</rdg>
+      <rdg n="c" varSeq="3" wit="792">του</rdg>
+      <note>
+        <label>John 6:23/16</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+        </graph>
+      </note>
+    </app>
+    <app from="18" n="B04K6V23" to="18" type="main">
+      <lem wit="basetext">οπου</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1079 109 1093 109C 1128 118 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2886 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 799 807 821 826 828 841 869 884 892 983 992 994 basetext">οπου</rdg>
+      <rdg n="b" varSeq="2" wit="1071 2790">ου</rdg>
+      <rdg n="c" varSeq="3" wit="792">τοπου</rdg>
+      <note>
+        <label>John 6:23/18</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+        </graph>
+      </note>
+    </app>
+    <app from="20" n="B04K6V23" to="20" type="main">
+      <lem wit="basetext">εφαγον</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2790 2886 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 792 799 807 821 826 828 841 869 884 983 992 994 basetext">εφαγον</rdg>
+      <rdg n="b" varSeq="2" wit="118">εφαγο</rdg>
+      <rdg n="c" varSeq="3" wit="173 2223">εφαγων</rdg>
+      <rdg n="d" varSeq="4" wit="892">εφαγο̣ν̣</rdg>
+      <note>
+        <label>John 6:23/20</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+          <node n="d"/>
+        </graph>
+      </note>
+    </app>
+    <app from="22" n="B04K6V23" to="22" type="main">
+      <lem wit="basetext">τον</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2790 2886 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 792 799 807 821 826 828 841 869 884 983 992 994 basetext">τον</rdg>
+      <rdg n="b" varSeq="2" wit="118">το</rdg>
+      <rdg n="c" varSeq="3" wit="892">τ̣ον</rdg>
+      <note>
+        <label>John 6:23/22</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+        </graph>
+      </note>
+    </app>
+    <app from="24" n="B04K6V23" to="24" type="main">
+      <lem wit="basetext">αρτον</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 213 2192 2193 2193C 22 2223 226 226C 2411 249 2561 2575 2585 2615 265 2680 2713 2718 2766 2768 2786 2790 2886 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 792 799 807 821 826 828 841 869 884 892 983 992 994 basetext">αρτον</rdg>
+      <rdg n="b" varSeq="2" wit="118 2372">αρτο</rdg>
+      <note>
+        <label>John 6:23/24</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+        </graph>
+      </note>
+    </app>
+    <app from="26" n="B04K6V23" to="26" type="main">
+      <lem wit="basetext">ευχαριστησαντος</lem>
+      <rdg n="a" varSeq="1" wit="1009 1010 1014 1029 1071 1079 109 1093 109C 1128 1192 1210 1219 1230 124 1241 1242 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1654 168 1689 1788 1797 1797C 18 2106 213 2193 22 2223 226 226C 2372 2411 249 2561 2575 2585 2615 265 2680 2718 2766 2768 2786 2790 33 333 35 357 377 382 397 430 543 565 579 597 69C 732 792 799 807 821 826 828 841 869 892 983 992 994 basetext">ευχαριστησαντος</rdg>
+      <rdg n="b" varSeq="2" wit="1253 884">ευχαριστησαντο</rdg>
+      <rdg n="c" varSeq="3" wit="173">ευχαρισιησαντος</rdg>
+      <rdg n="d" varSeq="4" wit="2192">ευχαριστησαντες</rdg>
+      <rdg n="e" varSeq="5" wit="295">ευχαριστησαντως</rdg>
+      <rdg n="f" varSeq="6" wit="544">ευλογησαντος</rdg>
+      <rdg n="g" type="om" varSeq="7" wit="1 118 1582C 209 2193C 2713 2886 69 788"/>
+      <note>
+        <label>John 6:23/26</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+          <node n="d"/>
+          <node n="e"/>
+          <node n="f"/>
+          <node n="g"/>
+        </graph>
+      </note>
+    </app>
+    <app from="28" n="B04K6V23" to="28" type="main">
+      <lem wit="basetext">του</lem>
+      <rdg n="a" varSeq="1" wit="1 1009 1010 1014 1029 1071 1079 109 1093 109C 1128 118 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 213 2193 2193C 22 2223 226 226C 2372 2411 249 2561 2575 2585 265 2680 2713 2718 2766 2768 2786 2790 2886 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69C 732 792 799 807 821 826 828 841 869 884 892 983 992 994 basetext">του</rdg>
+      <rdg n="b" varSeq="2" wit="2192">τω</rdg>
+      <rdg n="c" type="om" varSeq="3" wit="2615 69 788"/>
+      <note>
+        <label>John 6:23/28</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+        </graph>
+      </note>
+    </app>
+    <app from="30" n="B04K6V23" to="30" type="main">
+      <lem wit="basetext">κυριου</lem>
+      <rdg n="a" varSeq="1" wit="397 basetext">κυριου</rdg>
+      <rdg n="b" varSeq="2" wit="1 1009 1010 1014 1029 1071 109 1093 109C 1128 118 1192 1210 1230 124 1241 1242 1253 1278 1293 13 1321 1344 138 1424 1424C 1561 157 1582 1582C 1654 168 1689 173 1788 1797 1797C 18 209 2106 213 2193 2193C 22 2223 226 226C 2372 249 2561 2575 2585 2680 2713 2718 2768 2786 2790 2886 295 33 333 35 357 377 382 430 543 565 579 597 69C 732 792 799 807 821 826 828 841 869 884 892 983 994">κυ</rdg>
+      <rdg n="c" varSeq="3" wit="1079 1219 1319 1320 1463 1546 1571S 2411 265 2766 544 992">ιυ</rdg>
+      <rdg n="d" varSeq="4" wit="2192">κω</rdg>
+      <rdg n="e" varSeq="5" wit="2615">του</rdg>
+      <rdg n="f" type="om" varSeq="6" wit="69 788"/>
+      <note>
+        <label>John 6:23/30</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+          <node n="d"/>
+          <node n="e"/>
+          <node n="f"/>
+        </graph>
+      </note>
+    </app>
+    <app from="31" n="B04K6V23" to="31" type="main">
+      <lem type="om" wit="basetext"/>
+      <rdg n="a" type="om" varSeq="1" wit="1009 1010 1014 1029 1071 1079 109 1093 109C 1128 1192 1210 1219 1230 124 1241 1242 1253 1278 1293 13 1319 1320 1321 1344 138 1424 1424C 1463 1546 1561 157 1571S 1582 1654 168 1689 173 1788 1797 1797C 18 2106 213 2192 2193 22 2223 226 226C 2372 2411 249 2561 2575 2585 265 2680 2718 2766 2768 2786 2790 295 33 333 35 357 377 382 397 430 543 544 565 579 597 69 69C 732 788 792 799 807 821 826 828 841 869 884 892 983 992 994 basetext"/>
+      <rdg n="b" varSeq="2" wit="1 1582C 209 2193C 2886">ευχαριστησαντος</rdg>
+      <rdg n="c" varSeq="3" wit="118 2713">ευχαριστησαντο</rdg>
+      <rdg n="d" varSeq="4" wit="2615">σρς</rdg>
+      <note>
+        <label>John 6:23/31</label>
+        <fs>
+          <f name="connectivity">
+            <numeric value="10"/>
+          </f>
+        </fs>
+        <graph type="directed">
+          <node n="a"/>
+          <node n="b"/>
+          <node n="c"/>
+          <node n="d"/>
+        </graph>
+      </note>
+    </app>
+  </ab>
+</TEI>

@@ -191,7 +191,8 @@ void autotest::run() {
 		pugi::xml_node app_node = doc.select_node("descendant::app[@n=\"B00K0V0U6\"]").node();
 		string vu_id = app_node.attribute("n").value();
 		string vu_label = app_node.child("label").text().get();
-		pugi::xml_node graph_node = app_node.child("graph");
+		pugi::xml_node note_node = app_node.child("note");
+		pugi::xml_node graph_node = note_node.child("graph");
 		//Then proceed for each unit test:
 		string current_unit;
 		/**
@@ -245,7 +246,8 @@ void autotest::run() {
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U8\"]").node();
 		vu_id = app_node.attribute("n").value();
 		vu_label = app_node.child("label").text().get();
-		graph_node = app_node.child("graph");
+		note_node = app_node.child("note");
+		graph_node = note_node.child("graph");
 		/**
 		 * Unit test local_stemma_constructor_2
 		 */
@@ -285,7 +287,8 @@ void autotest::run() {
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U4\"]").node();
 		vu_id = app_node.attribute("n").value();
 		vu_label = app_node.child("label").text().get();
-		graph_node = app_node.child("graph");
+		note_node = app_node.child("note");
+		graph_node = note_node.child("graph");
 		local_stemma ls = local_stemma(graph_node, vu_id, vu_label, set<pair<string, string>>(), set<string>(), set<string>());
 		/**
 		 * Unit test local_stemma_path_exists
@@ -427,8 +430,8 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a variation unit with no dropped ambiguous readings, no merging of split readings, and no trivial reading types:
-				variation_unit vu = variation_unit(app_node_1, false, false, set<string>());
+				//Construct a variation unit with no merging of split readings, no dropped reading types, and no trivial reading types:
+				variation_unit vu = variation_unit(app_node_1, false, set<string>(), set<string>());
 				//Check that the ID is the expected value:
 				string expected_id = "B00K0V0U2";
 				string id = vu.get_id();
@@ -482,8 +485,8 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a variation unit with no dropped ambiguous readings, no merging of split readings, and no trivial reading types:
-				variation_unit vu = variation_unit(app_node_2, false, false, set<string>());
+				//Construct a variation unit with no merging of split readings, no dropped reading types, and no trivial reading types:
+				variation_unit vu = variation_unit(app_node_2, false, set<string>(), set<string>());
 				//Check that the label defaults to the ID when not provided:
 				string expected_label = "B00K0V0U4";
 				string label = vu.get_label();
@@ -517,8 +520,8 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a variation unit with no dropped ambiguous readings, no merging of split readings, and where defective readings are treated as trivial:
-				variation_unit vu = variation_unit(app_node_3, false, false, set<string>({"defective"}));
+				//Construct a variation unit with no merging of split readings, no dropped reading types, and where defective readings are treated as trivial:
+				variation_unit vu = variation_unit(app_node_3, false, set<string>({"defective"}), set<string>());
 				//Check that the connectivity is correctly set to the maximum value when no connectivity element is provided:
 				int expected_connectivity = numeric_limits<int>::max();
 				int connectivity = vu.get_connectivity();
@@ -553,8 +556,8 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a variation unit with dropped ambiguous readings, merging of split readings, and no trivial reading types:
-				variation_unit vu = variation_unit(app_node_4, true, true, set<string>());
+				//Construct a variation unit with merging of split readings, ambiguous readings dropped, and no trivial reading types:
+				variation_unit vu = variation_unit(app_node_4, true, set<string>(), set<string>({"ambiguous"}));
 				//Check that the reading support map is the correct size when witnesses are lacunose:
 				unordered_map<string, string> reading_support = vu.get_reading_support();
 				unsigned int expected_reading_support_size = 3;
@@ -598,9 +601,9 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node tei_node = doc.child("TEI");
-		bool drop_ambiguous = false;
 		bool merge_splits = false;
 		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
+		set<string> dropped_reading_types = set<string>();
 		//Then proceed for each unit test:
 		string current_unit;
 		/**
@@ -616,7 +619,7 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct an apparatus:
-				apparatus app = apparatus(tei_node, drop_ambiguous, merge_splits, trivial_reading_types);
+				apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
 				//Check if its number of witnesses is correct:
 				unsigned int expected_n_witnesses = 5;
 				unsigned int n_witnesses = app.get_list_wit().size();
@@ -639,7 +642,7 @@ void autotest::run() {
 			mod_test.units.push_back(u_test);
 		}
 		//Do more pre-test work:
-		apparatus app = apparatus(tei_node, drop_ambiguous, merge_splits, trivial_reading_types);
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
 		/**
 		 * Unit apparatus_get_extant_passages_for_witness
 		 */
@@ -866,10 +869,10 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node tei_node = doc.child("TEI");
-		bool drop_ambiguous = false;
 		bool merge_splits = false;
 		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
-		apparatus app = apparatus(tei_node, drop_ambiguous, merge_splits, trivial_reading_types);
+		set<string> dropped_reading_types = set<string>();
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
 		/**
 		 * Unit witness_constructor_1
 		 */
@@ -1108,10 +1111,10 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node tei_node = doc.child("TEI");
-		bool drop_ambiguous = false;
 		bool merge_splits = false;
 		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
-		apparatus app = apparatus(tei_node, drop_ambiguous, merge_splits, trivial_reading_types);
+		set<string> dropped_reading_types = set<string>();
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
 		variation_unit vu = app.get_variation_units()[3];
 		list<witness> witnesses = list<witness>();
 		for (string wit_id : app.get_list_wit()) {
@@ -1155,7 +1158,7 @@ void autotest::run() {
 				}
 				//Check that the diagram has the correct number of vertices:
 				unsigned int expected_n_vertices = 5;
-				unsigned int expected_n_edges = 4;
+				unsigned int expected_n_edges = 9;
 				textual_flow_graph graph = tf.get_graph();
 				unsigned int n_vertices = graph.vertices.size();
 				unsigned int n_edges = graph.edges.size();
@@ -1277,10 +1280,10 @@ void autotest::run() {
 		pugi::xml_document doc;
 		doc.load_file(TEST_XML.c_str());
 		pugi::xml_node tei_node = doc.child("TEI");
-		bool drop_ambiguous = false;
 		bool merge_splits = false;
 		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
-		apparatus app = apparatus(tei_node, drop_ambiguous, merge_splits, trivial_reading_types);
+		set<string> dropped_reading_types = set<string>();
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
 		list<witness> witnesses = list<witness>();
 		for (string wit_id : app.get_list_wit()) {
 			witness wit = witness(wit_id, app);
@@ -1341,7 +1344,7 @@ void autotest::run() {
 			try {
 				//Test .dot serialization:
 				stringstream ss;
-				gs.to_dot(ss, false);
+				gs.to_dot(ss, false, false);
 				string out = ss.str();
 				if (out.empty()) {
 					u_test.msg += "The .dot serialization was empty.\n";

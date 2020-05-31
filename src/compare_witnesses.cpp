@@ -204,10 +204,10 @@ int main(int argc, char* argv[]) {
 	try {
 		cxxopts::Options options("compare_witnesses", "Get a table of genealogical relationships between the witness with the given ID and other witnesses, as specified by the user.");
 		options.custom_help("[-h] input_db witness [secondary_witnesses]");
-		//options.positional_help("").show_positional_help();
+		options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help");
-		options.add_options("positional arguments")
+		options.add_options("positional")
 				("input_db", "genealogical cache database", cxxopts::value<string>())
 				("witness", "ID of the primary witness to be compared, as found in its <witness> element in the XML file", cxxopts::value<string>())
 				("secondary_witnesses", "IDs of secondary witness to be compared to the primary witness (if not specified, then the primary witness will be compared to all other witnesses)", cxxopts::value<vector<string>>());

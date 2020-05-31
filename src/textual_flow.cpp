@@ -47,7 +47,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 	graph.edges = list<textual_flow_edge>();
 	//Get a copy of the variation unit's reading support map:
 	unordered_map<string, string> reading_support = vu.get_reading_support();
-	//Create a map of witnesses keyed by ID:
+	//Create a map of witnesses, keyed by ID:
 	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
 	for (witness wit : witnesses) {
 		witnesses_by_id[wit.get_id()] = wit;
@@ -69,7 +69,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 			continue;
 		}
 		//Otherwise, proceed to identify this witness's textual flow ancestor for this variation unit:
-		string textual_flow_ancestor_id;
+		bool textual_flow_ancestor_found = false;
 		int con = -1;
 		int con_value = -1; //connectivity rank only changes when this value changes
 		flow_type type = flow_type::NONE;
@@ -91,46 +91,84 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 				if (con == connectivity) {
 					break;
 				}
-				//If this potential ancestor agrees with the current witness here, then we're done:
-				bool agree = false;
+				//If this potential ancestor agrees with the current witness here, then add an edge for it:
 				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
 					string potential_ancestor_rdg = reading_support.at(potential_ancestor_id);
-					if (ls.path_exists(potential_ancestor_rdg, wit_rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, wit_rdg) == 0) {
-						agree = true;
+					bool agree = ls.path_exists(potential_ancestor_rdg, wit_rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, wit_rdg) == 0;
+					if (agree) {
+						//Set the flag indicating that we've found a textual_flow_ancestor:
+						textual_flow_ancestor_found = true;
+						//Calculate the stability of the textual flow:
+						witness textual_flow_ancestor = witnesses_by_id.at(potential_ancestor_id);
+						genealogical_comparison reverse_comp = textual_flow_ancestor.get_genealogical_comparison_for_witness(wit_id);
+						Roaring extant = wit.get_genealogical_comparison_for_witness(wit_id).explained & textual_flow_ancestor.get_genealogical_comparison_for_witness(potential_ancestor_id).explained;
+						Roaring agreements = comp.agreements;
+						Roaring prior = comp.explained ^ agreements;
+						Roaring posterior = reverse_comp.explained ^ agreements;
+						float strength = float(prior.cardinality() - posterior.cardinality()) / float(extant.cardinality());
+						//Add an edge to the graph connecting the textual flow ancestor to this witness:
+						textual_flow_edge e;
+						e.descendant = wit_id;
+						e.ancestor = potential_ancestor_id;
+						e.type = flow_type::EQUAL;
+						e.connectivity = con;
+						e.strength = strength;
+						graph.edges.push_back(e);
+						break;
 					}
-				}
-				if (agree) {
-					textual_flow_ancestor_id = potential_ancestor_id;
-					type = flow_type::EQUAL;
-					break;
 				}
 			}
 		}
 		//If the witness is lacunose or it does not have a potential ancestor with its reading within the connectivity limit,
-		//then its first potential ancestor is its textual flow ancestor:
-		if (textual_flow_ancestor_id.empty()) {
-			con = 0;
-			textual_flow_ancestor_id = potential_ancestor_ids.front();
-			string textual_flow_ancestor_rdg = reading_support.find(textual_flow_ancestor_id) != reading_support.end() ? reading_support.at(textual_flow_ancestor_id) : "";
-			type = wit_rdg.empty() || textual_flow_ancestor_rdg.empty() ? flow_type::LOSS : flow_type::CHANGE;
+		//then each potential ancestor with a distinct reading within the connectivity limit is a textual flow ancestor:
+		if (!textual_flow_ancestor_found) {
+			con = -1;
+			con_value = -1;
+			list<string> distinct_rdgs = list<string>();
+			for (string potential_ancestor_id : potential_ancestor_ids) {
+				//Update the connectivity rank if the connectivity value changes:
+				genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
+				int agreements = comp.agreements.cardinality();
+				if (agreements != con_value) {
+					con_value = agreements;
+					con++;
+				}
+				//If we reach the connectivity limit, then exit the loop early:
+				if (con == connectivity) {
+					break;
+				}
+				//If this potential ancestor has a reading we haven't encountered yet, then add an edge for it:
+				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
+					string potential_ancestor_rdg = reading_support.at(potential_ancestor_id);
+					bool new_rdg = true;
+					for (string rdg : distinct_rdgs) {
+						if (ls.path_exists(potential_ancestor_rdg, rdg) && ls.get_shortest_path_length(potential_ancestor_rdg, rdg) == 0) {
+							new_rdg = false;
+							break;
+						}
+					}
+					if (new_rdg) {
+						distinct_rdgs.push_back(potential_ancestor_rdg);
+						//Calculate the stability of the textual flow:
+						witness textual_flow_ancestor = witnesses_by_id.at(potential_ancestor_id);
+						genealogical_comparison reverse_comp = textual_flow_ancestor.get_genealogical_comparison_for_witness(wit_id);
+						Roaring extant = wit.get_genealogical_comparison_for_witness(wit_id).explained & textual_flow_ancestor.get_genealogical_comparison_for_witness(potential_ancestor_id).explained;
+						Roaring agreements = comp.agreements;
+						Roaring prior = comp.explained ^ agreements;
+						Roaring posterior = reverse_comp.explained ^ agreements;
+						float strength = float(prior.cardinality() - posterior.cardinality()) / float(extant.cardinality());
+						//Add an edge to the graph connecting the textual flow ancestor to this witness:
+						textual_flow_edge e;
+						e.descendant = wit_id;
+						e.ancestor = potential_ancestor_id;
+						e.type = wit_rdg.empty() ? flow_type::LOSS : flow_type::CHANGE;
+						e.connectivity = con;
+						e.strength = strength;
+						graph.edges.push_back(e);
+					}
+				}
+			}
 		}
-		//Calculate the stability of the textual flow:
-		witness textual_flow_ancestor = witnesses_by_id.at(textual_flow_ancestor_id);
-		genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(textual_flow_ancestor_id);
-		genealogical_comparison reverse_comp = textual_flow_ancestor.get_genealogical_comparison_for_witness(wit_id);
-		Roaring extant = wit.get_genealogical_comparison_for_witness(wit_id).explained & textual_flow_ancestor.get_genealogical_comparison_for_witness(textual_flow_ancestor_id).explained;
-		Roaring agreements = comp.agreements;
-		Roaring prior = comp.explained ^ agreements;
-		Roaring posterior = reverse_comp.explained ^ agreements;
-		float strength = float(prior.cardinality() - posterior.cardinality()) / float(extant.cardinality());
-		//Add an edge to the graph connecting the textual flow ancestor to this witness:
-		textual_flow_edge e;
-		e.descendant = wit_id;
-		e.ancestor = textual_flow_ancestor_id;
-		e.type = type;
-		e.connectivity = con;
-		e.strength = strength;
-		graph.edges.push_back(e);
 	}
 }
 
@@ -176,10 +214,17 @@ textual_flow_graph textual_flow::get_graph() const {
 void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false) {
 	//Add the graph first:
 	out << "digraph textual_flow {\n";
-	//Add a line indicating that nodes do not have any shape:
-	out << "\tnode [shape=plaintext];\n";
-	//Add a box node indicating the label of this variation_unit:
-	out << "\tlabel [shape=box, label=\"" << label << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
+	//Add a subgraph for the legend:
+	out << "\tsubgraph cluster_legend {\n";
+	//Add a box node indicating the label of this graph:
+	out << "\t\tlabel [shape=plaintext, label=\"" << label << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
+	out << "\t}\n";
+	//Add a subgraph for the plot:
+	out << "\tsubgraph cluster_plot {\n";
+	//Make its border invisible:
+	out << "\t\tstyle=invis;\n";
+	//Add a line indicating that nodes have an ellipse shape:
+	out << "\t\tnode [shape=ellipse];\n";
 	//Add all of the graph nodes, keeping track of their numerical indices:
 	unordered_map<string, int> id_to_index = unordered_map<string, int>();
 	for (textual_flow_vertex v : graph.vertices) {
@@ -189,23 +234,33 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false)
 		id_to_index[wit_id] = id_to_index.size();
 		int wit_ind = id_to_index.at(wit_id);
 		//Then add the node:
-		out << "\t" << wit_ind;
+		out << "\t\t" << wit_ind;
 		//Format the node based on its readings list:
 		if (wit_rdg.empty()) {
 			//The witness is lacunose at this variation unit:
-			out << " [label=\"" << wit_id << "\", color=gray, shape=ellipse, style=dashed]";
+			out << " [label=\"" << wit_id << "\", color=gray, style=dashed]";
 		}
 		else {
 			//The witness has a reading at this variation unit:
-			out << " [label=\"" << wit_id << " (" << wit_rdg << ")\", shape=ellipse]";
+			out << " [label=\"" << wit_id << " (" << wit_rdg << ")\"]";
 		}
 		out << ";\n";
 	}
-	//Add all of the graph edges:
+	//Add all of the graph edges, except for secondary graph edges for changes:
+	unordered_set<string> processed_destinations = unordered_set<string>();
 	for (textual_flow_edge e : graph.edges) {
+		//Get the endpoints' IDs:
+		string ancestor_id = e.ancestor;
+		string descendant_id = e.descendant;
+		//If the destination already has an edge drawn to it, then skip this edge:
+		if (processed_destinations.find(descendant_id) != processed_destinations.end()) {
+			continue;
+		}
+		//Otherwise, add the destination node's ID to the processed set:
+		processed_destinations.insert(descendant_id);
 		//Get the indices corresponding to the endpoints' IDs:
-		int ancestor_ind = id_to_index.at(e.ancestor);
-		int descendant_ind = id_to_index.at(e.descendant);
+		int ancestor_ind = id_to_index.at(ancestor_id);
+		int descendant_ind = id_to_index.at(descendant_id);
 		//Handle the conditional formatting of the edge:
 		list<string> format_cmds = list<string>();
 		//If the connectivity index is not direct (i.e., 0), then print it in one-based format:
@@ -228,33 +283,25 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false)
 		}
 		if (flow_strengths) {
 			//Format the line style based on the flow strength:
-			if (e.strength <= 0.01) {
+			if (e.strength < 0.01) {
 				string edge_style = "style=dotted";
 				format_cmds.push_back(edge_style);
 			}
-			else if (e.strength <= 0.05) {
+			else if (e.strength < 0.05) {
 				string edge_style = "style=dashed";
 				format_cmds.push_back(edge_style);
 			}
-			else if (e.strength <= 0.1) {
-				string edge_style = "penwidth=1.0";
-				format_cmds.push_back(edge_style);
-			}
-			else if (e.strength <= 0.25) {
-				string edge_style = "penwidth=2.0";
-				format_cmds.push_back(edge_style);
-			}
-			else if (e.strength <= 0.5) {
-				string edge_style = "penwidth=3.0";
+			else if (e.strength < 0.1) {
+				string edge_style = "style=solid";
 				format_cmds.push_back(edge_style);
 			}
 			else {
-				string edge_style = "penwidth=4.0";
+				string edge_style = "style=bold";
 				format_cmds.push_back(edge_style);
 			}
 		}
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [";
+		out << "\t\t" << ancestor_ind << " -> " << descendant_ind << " [";
 		for (string format_cmd : format_cmds) {
 			if (format_cmd != format_cmds.front()) {
 				out << ", ";
@@ -263,6 +310,7 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false)
 		}
 		out << "];\n";
 	}
+	out << "\t}\n";
 	out << "}" << endl;
 	return;
 }
@@ -275,10 +323,17 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false)
 void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string & rdg, bool flow_strengths=false) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
-	//Add a line indicating that nodes do not have any shape:
-	out << "\tnode [shape=plaintext];\n";
-	//Add a box node indicating the label of this variation_unit and the selected reading:
-	out << "\tlabel [shape=box, label=\"" << label << rdg << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
+	//Add a subgraph for the legend:
+	out << "\tsubgraph cluster_legend {\n";
+	//Add a box node indicating the label of this graph:
+	out << "\t\tlabel [shape=plaintext, label=\"" << label << rdg << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
+	out << "\t}\n";
+	//Add a subgraph for the plot:
+	out << "\tsubgraph cluster_plot {\n";
+	//Make its border invisible:
+	out << "\t\tstyle=invis;\n";
+	//Add a line indicating that nodes have an ellipse shape:
+	out << "\t\tnode [shape=ellipse];\n";
 	//Maintain a map of node IDs to numerical indices
 	//and a vector of vertex data structures:
 	unordered_map<string, int> id_to_index = unordered_map<string, int>();
@@ -301,13 +356,14 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		//Otherwise, draw a vertex with its numerical index:
 		int wit_ind = id_to_index.at(wit_id);
 		//Then add the node:
-		out << "\t" << wit_ind;
-		out << " [label=\"" << wit_id << " (" << wit_rdg << ")\", shape=ellipse]";
+		out << "\t\t" << wit_ind;
+		out << " [label=\"" << wit_id << " (" << wit_rdg << ")\"]";
 		out << ";\n";
 		primary_set.insert(wit_id);
 	}
-	//Then add a secondary set of vertices for ancestors of these witnesses with a different reading:
+	//Then add a secondary set of vertices for the primary ancestors of these witnesses with a different reading:
 	unordered_set<string> secondary_set = unordered_set<string>();
+	unordered_set<string> processed_destinations = unordered_set<string>();
 	for (textual_flow_edge e : graph.edges) {
 		//Get the endpoints' IDs:
 		string ancestor_id = e.ancestor;
@@ -321,16 +377,23 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		if (secondary_set.find(ancestor_id) != secondary_set.end()) {
 			continue;
 		}
+		//If the destination already has an edge drawn to it, then skip any secondary ancestors:
+		if (processed_destinations.find(descendant_id) != processed_destinations.end()) {
+			continue;
+		}
+		//Otherwise, add the destination node's ID to the processed set:
+		processed_destinations.insert(descendant_id);
 		//If it's new, then add a vertex for it:
 		int ancestor_ind = id_to_index.at(ancestor_id);
 		textual_flow_vertex v = vertices[ancestor_ind];
 		string ancestor_rdg = v.rdg;
-		out << "\t" << ancestor_ind;
-		out << " [label=\"" << ancestor_id << " (" << ancestor_rdg << ")\", color=blue, shape=ellipse, type=dashed]";
+		out << "\t\t" << ancestor_ind;
+		out << " [label=\"" << ancestor_id << " (" << ancestor_rdg << ")\", color=blue, style=dashed]";
 		out << ";\n";
 		secondary_set.insert(ancestor_id);
 	}
-	//Add all of the graph edges:
+	//Add all of the graph edges, except for secondary graph edges for changes:
+	processed_destinations = unordered_set<string>();
 	for (textual_flow_edge e : graph.edges) {
 		//Get the endpoints' IDs:
 		string ancestor_id = e.ancestor;
@@ -339,6 +402,12 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		if (primary_set.find(descendant_id) == primary_set.end()) {
 			continue;
 		}
+		//If the destination already has an edge drawn to it, then skip this edge:
+		if (processed_destinations.find(descendant_id) != processed_destinations.end()) {
+			continue;
+		}
+		//Otherwise, add the destination node's ID to the processed set:
+		processed_destinations.insert(descendant_id);
 		//Otherwise, get the indices of the endpoints:
 		int ancestor_ind = id_to_index.at(ancestor_id);
 		int descendant_ind = id_to_index.at(descendant_id);
@@ -364,33 +433,25 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		}
 		if (flow_strengths) {
 			//Format the line style based on the flow strength:
-			if (e.strength <= 0.01) {
+			if (e.strength < 0.01) {
 				string edge_style = "style=dotted";
 				format_cmds.push_back(edge_style);
 			}
-			else if (e.strength <= 0.05) {
+			else if (e.strength < 0.05) {
 				string edge_style = "style=dashed";
 				format_cmds.push_back(edge_style);
 			}
-			else if (e.strength <= 0.1) {
-				string edge_style = "penwidth=1.0";
-				format_cmds.push_back(edge_style);
-			}
-			else if (e.strength <= 0.25) {
-				string edge_style = "penwidth=2.0";
-				format_cmds.push_back(edge_style);
-			}
-			else if (e.strength <= 0.5) {
-				string edge_style = "penwidth=3.0";
+			else if (e.strength < 0.1) {
+				string edge_style = "style=solid";
 				format_cmds.push_back(edge_style);
 			}
 			else {
-				string edge_style = "penwidth=4.0";
+				string edge_style = "style=bold";
 				format_cmds.push_back(edge_style);
 			}
 		}
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [";
+		out << "\t\t" << ancestor_ind << " -> " << descendant_ind << " [";
 		for (string format_cmd : format_cmds) {
 			if (format_cmd != format_cmds.front()) {
 				out << ", ";
@@ -399,6 +460,7 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		}
 		out << "];\n";
 	}
+	out << "\t}\n";
 	out << "}" << endl;
 	return;
 }
@@ -410,10 +472,17 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow_strengths=false) {
 	//Add the graph first:
 	out << "digraph textual_flow_diagram {\n";
-	//Add a line indicating that nodes do not have any shape:
-	out << "\tnode [shape=plaintext];\n";
-	//Add a box node indicating the label of this variation_unit:
-	out << "\tlabel [shape=box, label=\"" << label << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
+	//Add a subgraph for the legend:
+	out << "\tsubgraph cluster_legend {\n";
+	//Add a box node indicating the label of this graph:
+	out << "\t\tlabel [shape=plaintext, label=\"" << label << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
+	out << "\t}\n";
+	//Add a subgraph for the plot:
+	out << "\tsubgraph cluster_plot {\n";
+	//Make its border invisible:
+	out << "\t\tstyle=invis;\n";
+	//Add a line indicating that nodes have an ellipse shape:
+	out << "\t\tnode [shape=ellipse];\n";
 	//Maintain a map of node IDs to numerical indices
 	//and a vector of vertex data structures:
 	unordered_map<string, int> id_to_index = unordered_map<string, int>();
@@ -445,9 +514,10 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 	//Add a cluster for each reading, including all of the nodes it contains:
 	for (string rdg : readings) {
 		list<string> cluster = clusters.at(rdg);
-		out << "\tsubgraph cluster_" << rdg << " {\n";
-		out << "\t\tlabeljust=\"c\";\n";
-		out << "\t\tlabel=\"" << rdg << "\";\n";
+		out << "\t\tsubgraph cluster_" << rdg << " {\n";
+		out << "\t\t\tlabeljust=\"c\";\n";
+		out << "\t\t\tlabel=\"" << rdg << "\";\n";
+		out << "\t\t\tstyle=solid;\n";
 		for (string wit_id : cluster) {
 			//If this witness is not at either end of a CHANGE flow edge, then skip it:
 			if (change_wit_ids.find(wit_id) == change_wit_ids.end()) {
@@ -455,11 +525,11 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 			}
 			//Otherwise, add a vertex for it:
 			int wit_ind = id_to_index.at(wit_id);
-			out << "\t\t" << wit_ind;
-			out << " [label=\"" << wit_id << "\", shape=ellipse]";
+			out << "\t\t\t" << wit_ind;
+			out << " [label=\"" << wit_id << "\"]";
 			out << ";\n";
 		}
-		out << "\t}\n";
+		out << "\t\t}\n";
 	}
 	//Finally, add the "CHANGE" edges:
 	for (textual_flow_edge e : graph.edges) {
@@ -492,33 +562,25 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 		}
 		if (flow_strengths) {
 			//Format the line style based on the flow strength:
-			if (e.strength <= 0.01) {
+			if (e.strength < 0.01) {
 				string edge_style = "style=dotted";
 				format_cmds.push_back(edge_style);
 			}
-			else if (e.strength <= 0.05) {
+			else if (e.strength < 0.05) {
 				string edge_style = "style=dashed";
 				format_cmds.push_back(edge_style);
 			}
-			else if (e.strength <= 0.1) {
-				string edge_style = "penwidth=1.0";
-				format_cmds.push_back(edge_style);
-			}
-			else if (e.strength <= 0.25) {
-				string edge_style = "penwidth=2.0";
-				format_cmds.push_back(edge_style);
-			}
-			else if (e.strength <= 0.5) {
-				string edge_style = "penwidth=3.0";
+			else if (e.strength < 0.1) {
+				string edge_style = "style=solid";
 				format_cmds.push_back(edge_style);
 			}
 			else {
-				string edge_style = "penwidth=4.0";
+				string edge_style = "style=bold";
 				format_cmds.push_back(edge_style);
 			}
 		}
 		//Add a line describing the edge:
-		out << "\t" << ancestor_ind << " -> " << descendant_ind << " [";
+		out << "\t\t" << ancestor_ind << " -> " << descendant_ind << " [";
 		for (string format_cmd : format_cmds) {
 			if (format_cmd != format_cmds.front()) {
 				out << ", ";
@@ -527,6 +589,7 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 		}
 		out << "];\n";
 	}
+	out << "\t}\n";
 	out << "}" << endl;
 	return;
 }

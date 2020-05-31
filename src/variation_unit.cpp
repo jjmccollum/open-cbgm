@@ -32,14 +32,32 @@ variation_unit::variation_unit() {
 
 /**
  * Constructs a variation unit from an <app/> XML element.
- * Boolean flags indicating whether or not to drop ambiguous readings and whether or not to merge split readings
- * and a set of strings indicating reading types that should be treated as trivial are also expected.
+ * A boolean flag indicating whether or not to merge split readings
+ * and sets of strings indicating reading types that should be dropped or treated as trivial are also expected.
  */
-variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, bool merge_splits, const set<string> & trivial_reading_types) {
+variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types) {
 	//Populate the ID, if one is specified:
 	id = xml.attribute("xml:id") ? xml.attribute("xml:id").value() : (xml.attribute("id") ? xml.attribute("id").value() : (xml.attribute("n") ? xml.attribute("n").value() : ""));
+	//If the "from" and "to" attributes are present 
+	//(as they are in the output of the ITSEE Collation Editor),
+	//then assume that the ID is a verse index and add the unit indices:
+	if (xml.attribute("from") && xml.attribute("to")) {
+		string start_unit = xml.attribute("from").value();
+		string end_unit = xml.attribute("to").value();
+		if (start_unit == end_unit) {
+			id += "U" + start_unit;
+		} else {
+			id += "U" + start_unit + "-" + end_unit;
+		}
+	}
 	//Populate the label, if one is specified (if not, use the ID):
-	label = (xml.child("label") && xml.child("label").text()) ? xml.child("label").text().get() : id;
+	pugi::xpath_node label_path = xml.select_node("note/label");
+	if (label_path) {
+		pugi::xml_node label_node = label_path.node();
+		label = label_node.text() ? label_node.text().get() : id;
+	} else {
+		label = id;
+	}
 	//Populate the list of reading IDs and the witness-to-readings map,
 	//keeping track of reading types and splits to merge as necessary:
 	readings = list<string>();
@@ -65,10 +83,21 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, 
 			rdg_types.insert(rdg_type);
 			type_token = strtok(NULL, delim); //iterate to the next token
 		}
-		//If this reading is ambiguous and we're dropping ambiguous readings, then add it to the set of ambiguous readings and move on to the next reading:
-		if (drop_ambiguous && rdg_types.find("ambiguous") != rdg_types.end()) {
-			dropped_readings.insert(rdg_id);
-			continue;
+		delete [] type_chars;
+		delete [] type_token;
+		//If its reading types are a subset of the dropped reading types, then do not process this reading:
+		if (!rdg_types.empty()) {
+			bool is_subset = true;
+			for (string rdg_type : rdg_types) {
+				if (dropped_reading_types.find(rdg_type) == dropped_reading_types.end()) {
+					is_subset = false;
+					break;
+				}
+			}
+			if (is_subset) {
+				dropped_readings.insert(rdg_id);
+				continue;
+			}
 		}
 		//Otherwise, add it to the map of reading types by reading:
 		reading_types_by_reading[rdg_id] = rdg_types;
@@ -81,12 +110,19 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, 
 		strcpy(wit_chars, wit_string.c_str());
 		char * wit_token = strtok(wit_chars, delim); //reuse the space delimiter from before
 		while (wit_token) {
-			//Strip each reference of the "#" character and add the resulting ID to the witnesses set:
+			//Strip the reference of any initial "#" character:
 			string wit = string(wit_token);
 			wit = wit.rfind("#", 0) == 0 ? wit.erase(0, 1) : wit;
+			//Strip the reference of any final "*" character:
+			wit = wit.rfind("*") == wit.length() - 1 ? wit.erase(wit.length() - 1) : wit;
+			//Strip the reference of any final "V" character:
+			wit = wit.rfind("V") == wit.length() - 1 ? wit.erase(wit.length() - 1) : wit;
+			//Then add the resulting ID to the witnesses set:
 			wits.push_back(wit);
 			wit_token = strtok(NULL, delim); //iterate to the next token
 		}
+		delete [] wit_chars;
+		delete [] wit_token;
 		//Add these witnesses to the reading support map:
 		for (string wit : wits) {
 			//Add an empty list for each reading we haven't encountered yet:
@@ -140,16 +176,19 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool drop_ambiguous, 
 	//Set the connectivity value, using MAX_INT as a default for absolute connectivity:
 	connectivity = numeric_limits<int>::max();
 	//If there is a connectivity feature with a <numeric> child that has a "value" attribute that parses to an int, then use that value:
-	pugi::xpath_node numeric_path = xml.select_node("fs/f[@name=\"connectivity\"]/numeric");
+	pugi::xpath_node numeric_path = xml.select_node("note/fs/f[@name=\"connectivity\"]/numeric");
 	if (numeric_path) {
 		pugi::xml_node numeric = numeric_path.node();
 		if (numeric.attribute("value") && numeric.attribute("value").as_int() > 0) {
 			connectivity = numeric.attribute("value").as_int();
 		}
 	}
-	//The <graph/> element should contain the local stemma for this variation unit:
-	pugi::xml_node stemma_node = xml.child("graph");
-	stemma = local_stemma(stemma_node, id, label, split_pairs, trivial_readings, dropped_readings);
+	//If there is a <graph/> element, then it contains the local stemma for this variation unit:
+	pugi::xpath_node stemma_path = xml.select_node("note/graph");
+	if (stemma_path) {
+		pugi::xml_node stemma_node = stemma_path.node();
+		stemma = local_stemma(stemma_node, id, label, split_pairs, trivial_readings, dropped_readings);
+	}
 }
 
 /**

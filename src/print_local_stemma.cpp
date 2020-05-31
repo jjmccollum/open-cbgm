@@ -134,9 +134,9 @@ int main(int argc, char* argv[]) {
 	set<string> filter_vu_ids = set<string>();
 	string input_db_name = string();
 	try {
-		cxxopts::Options options("print_local_stemma", "Prints local stemma graphs to .dot output files. The output files will be placed in the \"local\" directory.");
+		cxxopts::Options options("print_local_stemma", "Print local stemma graphs to .dot output files. The output files will be placed in the \"local\" directory.");
 		options.custom_help("[-h] [--weights] input_db [passages]");
-		//options.positional_help("").show_positional_help();
+		options.positional_help("").show_positional_help();
 		options.add_options("")
 				("h,help", "print this help")
 				("weights", "print edge weights", cxxopts::value<bool>());

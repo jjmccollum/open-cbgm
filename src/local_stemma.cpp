@@ -235,16 +235,23 @@ float local_stemma::get_shortest_path_length(const string & r1, const string & r
 void local_stemma::to_dot(ostream & out, bool print_weights=false) {
 	//Add the graph first:
 	out << "digraph local_stemma {\n";
+	//Add a subgraph for the legend:
+	out << "\tsubgraph cluster_legend {\n";
+	//Add a box node indicating the label of this graph:
+	out << "\t\tlabel [shape=plaintext, label=\"" << label << "\"];\n";
+	out << "\t}\n";
+	//Add a subgraph for the plot:
+	out << "\tsubgraph cluster_plot {\n";
+	//Make its border invisible:
+	out << "\t\tstyle=invis;\n";
 	//Add a line indicating that nodes do not have any shape:
-	out << "\tnode [shape=plaintext];\n";
-	//Add a box node indicating the label of this variation_unit:
-	out << "\tlabel [shape=box, label=\"" << label << "\"];\n";
+	out << "\t\tnode [shape=plaintext];\n";
 	//Add all of its nodes, assigning them numerical indices:
 	map<string, int> id_to_index = map<string, int>();
 	for (local_stemma_vertex v : graph.vertices) {
 		//Add the vertex's ID to the map:
 		id_to_index[v.id] = id_to_index.size();
-		out << "\t";
+		out << "\t\t";
 		out << id_to_index.at(v.id);
 		//Use the ID as the node label:
 		out << " [label=\"" << v.id << "\"];";
@@ -263,16 +270,16 @@ void local_stemma::to_dot(ostream & out, bool print_weights=false) {
 		else {
 			edge_style = "style=dashed";
 		}
-		out << "\t";
+		out << "\t\t";
 		if (print_weights) {
 			out << id_to_index.at(prior) << " -> " << id_to_index.at(posterior) << "[" << edge_style << ", label=\"" << fixed << std::setprecision(3) << weight << "\", fontsize=10];";
 		}
 		else {
 			out << id_to_index.at(prior) << " -> " << id_to_index.at(posterior) << "[" << edge_style << "];";
 		}
-
 		out << "\n";
 	}
+	out << "\t}\n";
 	out << "}" << endl;
 	return;
 }

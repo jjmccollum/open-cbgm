@@ -250,7 +250,8 @@ void local_stemma::to_dot(ostream & out, bool print_weights=false) {
 	map<string, int> id_to_index = map<string, int>();
 	for (local_stemma_vertex v : graph.vertices) {
 		//Add the vertex's ID to the map:
-		id_to_index[v.id] = id_to_index.size();
+		unsigned int i = id_to_index.size();
+		id_to_index[v.id] = i;
 		out << "\t\t";
 		out << id_to_index.at(v.id);
 		//Use the ID as the node label:

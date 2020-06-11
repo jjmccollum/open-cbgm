@@ -115,7 +115,8 @@ void global_stemma::to_dot(ostream & out, bool print_lengths=false, bool flow_st
 	unordered_map<string, int> id_to_index = unordered_map<string, int>();
 	for (global_stemma_vertex v : graph.vertices) {
 		string wit_id = v.id;
-		id_to_index[wit_id] = id_to_index.size();
+		unsigned int i = id_to_index.size();
+		id_to_index[wit_id] = i;
 		int index = id_to_index.at(wit_id);
 		out << "\t\t";
 		out << index << " [label=\"" << wit_id << "\"]";

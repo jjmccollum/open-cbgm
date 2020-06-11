@@ -54,7 +54,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 	}
 	//Add vertices and edges for each witness in the input list:
 	for (witness wit : witnesses) {
-		//Get the witness's ID and a list of any readings it has at this variation unit:
+		//Get the witness's ID and its reading at this variation unit:
 		string wit_id = wit.get_id();
 		string wit_rdg = reading_support.find(wit_id) != reading_support.end() ? reading_support.at(wit_id) : "";
 		//Add a vertex for this witness to the graph:
@@ -231,7 +231,8 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths=false)
 		//Map the ID of this vertex to its numerical index:
 		string wit_id = v.id;
 		string wit_rdg = v.rdg;
-		id_to_index[wit_id] = id_to_index.size();
+		unsigned int i = id_to_index.size();
+		id_to_index[wit_id] = i;
 		int wit_ind = id_to_index.at(wit_id);
 		//Then add the node:
 		out << "\t\t" << wit_ind;
@@ -341,7 +342,8 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 	for (textual_flow_vertex v : graph.vertices) {
 		//Map the ID of this vertex to its numerical index:
 		string wit_id = v.id;
-		id_to_index[wit_id] = id_to_index.size();
+		unsigned int i = id_to_index.size();
+		id_to_index[wit_id] = i;
 		vertices.push_back(v);
 	}
 	//Now draw the primary set of vertices corresponding to witnesses with the input reading:
@@ -361,7 +363,8 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		out << ";\n";
 		primary_set.insert(wit_id);
 	}
-	//Then add a secondary set of vertices for the primary ancestors of these witnesses with a different reading:
+	//Then add a secondary set of vertices for the primary ancestors of these witnesses with a different reading,
+	//along with edges indicating changes in reading:
 	unordered_set<string> secondary_set = unordered_set<string>();
 	unordered_set<string> processed_destinations = unordered_set<string>();
 	for (textual_flow_edge e : graph.edges) {
@@ -406,9 +409,7 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		if (processed_destinations.find(descendant_id) != processed_destinations.end()) {
 			continue;
 		}
-		//Otherwise, add the destination node's ID to the processed set:
-		processed_destinations.insert(descendant_id);
-		//Otherwise, get the indices of the endpoints:
+		//Get the indices of the endpoints:
 		int ancestor_ind = id_to_index.at(ancestor_id);
 		int descendant_ind = id_to_index.at(descendant_id);
 		//Handle the conditional formatting of the edge:
@@ -459,6 +460,8 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 			out << format_cmd;
 		}
 		out << "];\n";
+		//Finally, add the destination node's ID to the processed set:
+		processed_destinations.insert(descendant_id);
 	}
 	out << "\t}\n";
 	out << "}" << endl;
@@ -490,7 +493,8 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 	for (textual_flow_vertex v : graph.vertices) {
 		//Map the ID of this vertex to its numerical index:
 		string wit_id = v.id;
-		id_to_index[wit_id] = id_to_index.size();
+		unsigned int i = id_to_index.size();
+		id_to_index[wit_id] = i;
 		vertices.push_back(v);
 	}
 	//Maintain a map of support lists for each reading:

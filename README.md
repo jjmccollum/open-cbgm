@@ -271,7 +271,7 @@ Coherence in attestations diagrams for all readings in 3 John 1:4/22–26:
 Coherence in variant passages diagram for 3 John 1:4/22–26:
 ![3 John 1:4/22–26 coherence in variant passages diagram](https://github.com/jjmccollum/open-cbgm/blob/master/images/B25K1V4U22-26-coherence-variants.png)
 
-Complete global stemma for 3 John (multiple roots are due to readings with unclear sources), with edges formatted to highlight levels of agreement:
+Complete global stemma for 3 John (multiple roots are due to readings with unclear sources):
 ![3 John global stemma](https://github.com/jjmccollum/open-cbgm/blob/master/images/global-stemma.png)
 
 Complete global stemma for 3 John, with fragmentary witnesses and variants with unclear reading sources excluded:

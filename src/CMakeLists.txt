@@ -19,6 +19,9 @@ add_library(roaring STATIC roaring.c)
 add_library(pugixml STATIC pugixml.cpp)
 add_library(open-cbgm STATIC ${SOURCES})
 
+# Link the build targets to external libraries:
+target_link_libraries(open-cbgm PUBLIC roaring pugixml)
+
 # Point the libraries to their include directories:
 target_include_directories(roaring PRIVATE ${HEADERS_DIR})
 target_include_directories(pugixml PRIVATE ${HEADERS_DIR})

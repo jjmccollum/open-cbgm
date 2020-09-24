@@ -3,6 +3,8 @@ Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Ba
 
 [![Build Status](https://travis-ci.com/jjmccollum/open-cbgm.svg?token=nZWB24v9ybTTZm4tWaqm&branch=master)](https://travis-ci.com/jjmccollum/open-cbgm)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://choosealicense.com/licenses/mit/)
+[![DOI](https://zenodo.org/badge/222792228.svg)](https://zenodo.org/badge/latestdoi/222792228)
+[![Version 1.3](https://img.shields.io/badge/version-1.3-blue)](https://github.com/jjmccollum/open-cbgm)
 
 ## About This Project
 
@@ -49,3 +51,7 @@ This will copy the latest version of the repository to an `open-cbgm` subdirecto
 From here, you need to build the project. The precise details of how to do this will depend on your operating system, but in all cases, you will need to have the CMake toolkit installed. The platform-specific installation instructions at https://github.com/jjmccollum/open-cbgm-standalone can be used for this repository.
 
 In the interest of modularity, and to facilitate the incorporation of this library into other applications and APIs, this repository contains only the core classes of the library, without a user-facing interface. A standalone command-line interface that uses a SQLite database as a genealogical cache is available at https://github.com/jjmccollum/open-cbgm-standalone. The core library is included in that interface's git repository as a submodule and can be installed within it using the installation instructions on that page. A web-facing API is also in the works; updates will be posted in the issues for this repository.
+
+## Citation
+
+To cite this software, please use the information associated with its DOI page: [![DOI](https://zenodo.org/badge/222792228.svg)](https://zenodo.org/badge/latestdoi/222792228).

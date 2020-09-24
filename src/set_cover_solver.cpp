@@ -69,7 +69,7 @@ set_cover_solution set_cover_solver::get_solution_from_rows(const Roaring & solu
 		solution.cost += row.cost;
 		agreements |= row.agreements;
 	}
-	solution.agreements = agreements.cardinality();
+	solution.agreements = (int) agreements.cardinality();
 	return solution;
 }
 
@@ -97,7 +97,7 @@ Roaring set_cover_solver::get_unique_rows() const {
 	}
 	//Otherwise, we will construct a union tree from the bitmaps representing the rows;
 	//the tree will consist of 2n - 1 nodes, where n is the number of set cover rows:
-	unsigned int n = rows.size();
+	int n = (int) rows.size();
 	vector<Roaring> union_tree = vector<Roaring>(2*n - 1);
 	//The last n nodes will represent the set cover rows directly:
 	for (int i = n - 1; i >= 0; i--) {
@@ -110,9 +110,9 @@ Roaring set_cover_solver::get_unique_rows() const {
 	}
 	//Now proceed for each column in the target set:
 	for (Roaring::const_iterator it = target.begin(); it != target.end(); it++) {
-		unsigned int col_ind = *it;
+		int col_ind = *it;
 		//Now proceed down the union tree to see if this column is uniquely covered:
-		unsigned int p = 0;
+		int p = 0;
 		while (p < n - 1) {
 			Roaring left = union_tree[2*p + 1];
 			Roaring right = union_tree[2*p + 2];
@@ -135,7 +135,7 @@ Roaring set_cover_solver::get_unique_rows() const {
 		}
 		//If the pointer is at the index of a single row in the union tree, then that row uniquely covers this column:
 		if (p >= n - 1) {
-			unsigned int row_ind = p - (n - 1);
+			int row_ind = p - (n - 1);
 			unique_rows.add(row_ind);
 		}
 	}
@@ -198,7 +198,7 @@ set_cover_solution set_cover_solver::get_trivial_solution() const {
 	for (set_cover_row row : rows) {
 		if (target.isSubset(row.explained) && row.cost < trivial_solution.cost) {
 			trivial_solution.rows = list<set_cover_row>({row});
-			trivial_solution.agreements = row.agreements.cardinality();
+			trivial_solution.agreements = (int) row.agreements.cardinality();
 			trivial_solution.cost = row.cost;
 		}
 	}
@@ -449,11 +449,11 @@ void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 		for (set_cover_row row : solution.rows) {
 			agreements |= row.agreements;
 		}
-		solution.agreements = agreements.cardinality();
+		solution.agreements = (int) agreements.cardinality();
 		solutions.push_back(solution);
 	}
 	//Then sort the solutions:
-	solutions.sort([row_ids_to_inds](const set_cover_solution & s1, const set_cover_solution & s2) {
+	solutions.sort([&](const set_cover_solution & s1, const set_cover_solution & s2) {
 		//Sort first by cost:
 		if (s1.cost < s2.cost) {
 			return true;

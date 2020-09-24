@@ -194,7 +194,7 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 /**
  * Constructs a variation unit using values populated from the genealogical cache.
  */
-variation_unit::variation_unit(const string & _id, const string & _label, const list<string> & _readings, const unordered_map<string, string> & _reading_support, int _connectivity, const local_stemma _stemma) {
+variation_unit::variation_unit(const string & _id, const string & _label, const list<string> & _readings, const unordered_map<string, string> & _reading_support, int _connectivity, const local_stemma & _stemma) {
 	id = _id;
 	label = _label;
 	readings = _readings;

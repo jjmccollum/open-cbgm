@@ -22,47 +22,49 @@ using namespace std;
  * Populates a given shortest paths map
  * by applying Dijkstra's algorithm to the given graph represented by an adjacency map.
  */
-void populate_shortest_paths(const map<string, list<local_stemma_edge>> & adjacency_map, map<pair<string, string>, float> & shortest_paths) {
+void populate_shortest_paths(const map<string, list<local_stemma_edge>> & adjacency_map, map<pair<string, string>, local_stemma_path> & shortest_paths) {
 	//Proceed for each vertex:
 	for (pair<string, list<local_stemma_edge>> kv : adjacency_map) {
 		string s = kv.first;
-		//Initialize a min priority queue of paths proceeding from this source (which we will represent using local_stemma_edge data structures):
-		auto compare = [](local_stemma_edge e1, local_stemma_edge e2) {
-			return e1.weight > e2.weight;
+		//Initialize a min priority queue of paths proceeding from this source:
+		auto compare = [](local_stemma_path p1, local_stemma_path p2) {
+			return p1.weight > p2.weight;
 		};
-		priority_queue<local_stemma_edge, vector<local_stemma_edge>, decltype(compare)> queue = priority_queue<local_stemma_edge, vector<local_stemma_edge>, decltype(compare)>(compare);
-		local_stemma_edge p0;
+		priority_queue<local_stemma_path, vector<local_stemma_path>, decltype(compare)> queue = priority_queue<local_stemma_path, vector<local_stemma_path>, decltype(compare)>(compare);
+		local_stemma_path p0;
 		p0.prior = s;
 		p0.posterior = s;
 		p0.weight = 0;
+		p0.cardinality = 0;
 		queue.push(p0);
 		//Add a shortest path of length 0 from the current source to itself:
-		shortest_paths[pair<string, string>(s, s)] = 0;
+		shortest_paths[pair<string, string>(s, s)] = p0;
 		//Then proceed by best-first search:
 		while (!queue.empty()) {
 			//Pop the minimum-length path from the queue:
-			local_stemma_edge p = queue.top();
+			local_stemma_path p = queue.top();
 			queue.pop();
-			//Get the destination vertex of this edge and the length of the path to it:
-			string u = p.posterior;
-			float p_length = p.weight;
 			//Then proceed for each edge proceeding from the destination vertex:
-			for (local_stemma_edge e : adjacency_map.at(u)) {
-				local_stemma_edge q;
+			for (local_stemma_edge e : adjacency_map.at(p.posterior)) {
+				local_stemma_path q;
 				q.prior = s;
 				q.posterior = e.posterior;
-				q.weight = p_length + e.weight;
-				//Check if the path from the source to the endpoint of this edge has already been processed:
+				q.weight = p.weight + e.weight;
+				q.cardinality = e.weight > 0 ? p.cardinality + 1 : p.cardinality;
+				//Check if a path from the source to the endpoint of this edge has already been processed:
 				pair<string, string> endpoints = pair<string, string>(q.prior, q.posterior);
 				if (shortest_paths.find(endpoints) == shortest_paths.end()) {
-					//If it hasn't, then add its length to the shortest paths map:
-					shortest_paths[endpoints] = q.weight;
-					//Then add the path itself to the queue:
+					//If not, then add this path to the shortest paths map:
+					shortest_paths[endpoints] = q;
+					//Then add it to the queue:
 					queue.push(q);
 				}
 				else {
-					//If it has, then update its length in the shortest paths map if necessary:
-					shortest_paths[endpoints] = min(shortest_paths.at(endpoints), q.weight);
+					//If so, then update the length and cardinality of the current entry in the shortest paths map if necessary:
+					local_stemma_path shortest_path = shortest_paths.at(endpoints);
+					if (q.weight < shortest_path.weight) {
+						shortest_paths[endpoints] = q;
+					}
 				}
 			}
 		}
@@ -84,8 +86,11 @@ local_stemma::local_stemma() {
  * A set of dropped readings may also be specified, whose vertices and edges will not be added.
  */
 local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, const string & vu_label, const set<pair<string, string>> & split_pairs, const set<string> & trivial_readings, const set<string> & dropped_readings) {
-	graph.vertices = list<local_stemma_vertex>();
-	graph.edges = list<local_stemma_edge>();
+	//Populate the vertex and edge lists:
+	vertices = list<local_stemma_vertex>();
+	edges = list<local_stemma_edge>();
+	//At the same time, populate a set of distinct root node IDs:
+	set<string> distinct_roots = set<string>();
 	//Set the ID:
 	id = vu_id;
 	//Set the label:
@@ -103,14 +108,15 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, con
 		}
 		local_stemma_vertex v;
 		v.id = node_id;
-		graph.vertices.push_back(v);
+		vertices.push_back(v);
+		distinct_roots.insert(node_id);
 	}
 	//Add an edge for each <arc/> element:
 	for (pugi::xml_node arc : xml.children("arc")) {
 		local_stemma_edge e;
 		e.prior = arc.attribute("from").value();
 		e.posterior = arc.attribute("to").value();
-		//Don't add any self-loops (these will be handled automatically):
+		//Don't add any self-loops (self-loops will be introduced only for shortest path calculation):
 		if (e.prior == e.posterior) {
 			continue;
 		}
@@ -130,7 +136,9 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, con
 		else {
 			e.weight = 1;
 		}
-		graph.edges.push_back(e);
+		//Remove the destination node from the set of potential root nodes, and add the edge to the graph:
+		distinct_roots.erase(e.posterior);
+		edges.push_back(e);
 	}
 	//Add edges in both directions for all specified split pairs:
 	for (pair<string, string> split_pair : split_pairs) {
@@ -142,40 +150,63 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, con
 		e2.prior = split_pair.second;
 		e2.posterior = split_pair.first;
 		e2.weight = 0;
-		graph.edges.push_back(e1);
-		graph.edges.push_back(e2);
+		edges.push_back(e1);
+		edges.push_back(e2);
 	}
+	//Now construct an ordered list of root vertex IDs from the set of distinct root IDs left over:
+	roots = list<string>();
+	for (local_stemma_vertex v: vertices) {
+		if (distinct_roots.find(v.id) != distinct_roots.end()) {
+			roots.push_back(v.id);
+		}
+	} 
 	//Construct an adjacency map from the graph:
 	map<string, list<local_stemma_edge>> adjacency_map = map<string, list<local_stemma_edge>>();
-	for (local_stemma_vertex v: graph.vertices) {
+	for (local_stemma_vertex v: vertices) {
 		adjacency_map[v.id] = list<local_stemma_edge>();
 	}
-	for (local_stemma_edge e : graph.edges) {
+	for (local_stemma_edge e : edges) {
 		adjacency_map[e.prior].push_back(e);
 	}
 	//Now use Dijkstra's algorithm to populate the map of shortest paths:
-	shortest_paths = map<pair<string, string>, float>();
-	populate_shortest_paths(adjacency_map, shortest_paths);
+	paths = map<pair<string, string>, local_stemma_path>();
+	populate_shortest_paths(adjacency_map, paths);
 }
 
 /**
- * Constructs a local stemma from a variation unit ID, label, and graph data structure populated using the genealogical cache.
+ * Constructs a local stemma from a variation unit ID, label, and lists of vertices and edges populated using the genealogical cache.
  */
-local_stemma::local_stemma(const string & _id, const string & _label, const local_stemma_graph & _graph) {
+local_stemma::local_stemma(const string & _id, const string & _label, const list<local_stemma_vertex> & _vertices, const list<local_stemma_edge> & _edges) {
 	id = _id;
 	label = _label;
-	graph = _graph;
+	vertices = _vertices;
+	edges = _edges;
+	//Populate a set of distinct root node IDs:
+	set<string> distinct_roots = set<string>();
+	for (local_stemma_vertex v : vertices) {
+		distinct_roots.insert(v.id);
+	}
+	for (local_stemma_edge e : edges) {
+		distinct_roots.erase(e.posterior);
+	}
+	//Now construct an ordered list of root vertex IDs from the set of distinct root IDs left over:
+	roots = list<string>();
+	for (local_stemma_vertex v: vertices) {
+		if (distinct_roots.find(v.id) != distinct_roots.end()) {
+			roots.push_back(v.id);
+		}
+	}
 	//Construct an adjacency map from the graph:
 	map<string, list<local_stemma_edge>> adjacency_map = map<string, list<local_stemma_edge>>();
-	for (local_stemma_vertex v: graph.vertices) {
+	for (local_stemma_vertex v: vertices) {
 		adjacency_map[v.id] = list<local_stemma_edge>();
 	}
-	for (local_stemma_edge e : graph.edges) {
+	for (local_stemma_edge e : edges) {
 		adjacency_map[e.prior].push_back(e);
 	}
 	//Now use Dijkstra's algorithm to populate the map of shortest paths:
-	shortest_paths = map<pair<string, string>, float>();
-	populate_shortest_paths(adjacency_map, shortest_paths);
+	paths = map<pair<string, string>, local_stemma_path>();
+	populate_shortest_paths(adjacency_map, paths);
 }
 
 /**
@@ -200,32 +231,61 @@ string local_stemma::get_label() const {
 }
 
 /**
- * Returns the graph structure for this local_stemma.
+ * Returns the list of vertices for this local_stemma.
  */
-local_stemma_graph local_stemma::get_graph() const {
-	return graph;
+list<local_stemma_vertex> local_stemma::get_vertices() const {
+	return vertices;
 }
 
 /**
- * Return the map of shortest paths for this local_stemma's graph.
+ * Returns the list of edges for this local_stemma.
  */
-map<pair<string, string>, float> local_stemma::get_shortest_paths() const {
-	return shortest_paths;
+list<local_stemma_edge> local_stemma::get_edges() const {
+	return edges;
+}
+
+/**
+ * Return the list of root nodes for this local_stemma.
+ */
+list<string> local_stemma::get_roots() const {
+	return roots;
+}
+
+/**
+ * Return the map of shortest paths for this local_stemma.
+ */
+map<pair<string, string>, local_stemma_path> local_stemma::get_paths() const {
+	return paths;
 }
 
 /**
  * Given two reading IDs, checks if a path exists between them in the local stemma.
  */
 bool local_stemma::path_exists(const string & r1, const string & r2) const {
-	return shortest_paths.find(pair<string, string>(r1, r2)) != shortest_paths.end();
+	return paths.find(pair<string, string>(r1, r2)) != paths.end();
 }
 
 /**
- * Given two reading IDs, returns the length of the shortest path between them in the local stemma.
+ * Given two reading IDs, returns the shortest path between them in the local stemma.
  * It is assumed that a path exists between the two readings.
  */
-float local_stemma::get_shortest_path_length(const string & r1, const string & r2) const {
-	return shortest_paths.at(pair<string, string>(r1, r2));
+local_stemma_path local_stemma::get_path(const string & r1, const string & r2) const {
+	return paths.at(pair<string, string>(r1, r2));
+}
+
+/**
+ * Given two reading IDs, checks if they have a common ancestor reading.
+ */
+bool local_stemma::common_ancestor_exists(const string & r1, const string & r2) const {
+	if (path_exists(r1, r2) || path_exists(r2, r1)) {
+		return true;
+	}
+	for (string root : roots) {
+		if (path_exists(root, r1) && path_exists(root, r2)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -248,9 +308,9 @@ void local_stemma::to_dot(ostream & out, bool print_weights=false) {
 	out << "\t\tnode [shape=plaintext];\n";
 	//Add all of its nodes, assigning them numerical indices:
 	map<string, int> id_to_index = map<string, int>();
-	for (local_stemma_vertex v : graph.vertices) {
+	for (local_stemma_vertex v : vertices) {
 		//Add the vertex's ID to the map:
-		unsigned int i = id_to_index.size();
+		unsigned int i = (unsigned int) id_to_index.size();
 		id_to_index[v.id] = i;
 		out << "\t\t";
 		out << id_to_index.at(v.id);
@@ -259,7 +319,7 @@ void local_stemma::to_dot(ostream & out, bool print_weights=false) {
 		out << "\n";
 	}
 	//Add all of its edges:
-	for (local_stemma_edge e : graph.edges) {
+	for (local_stemma_edge e : edges) {
 		string prior = e.prior;
 		string posterior = e.posterior;
 		float weight = e.weight;

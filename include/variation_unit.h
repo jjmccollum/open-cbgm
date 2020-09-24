@@ -33,7 +33,7 @@ private:
 public:
 	variation_unit();
 	variation_unit(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types);
-	variation_unit(const string & _id, const string & _label, const list<string> & _readings, const unordered_map<string, string> & _reading_support, int _connectivity, const local_stemma _stemma);
+	variation_unit(const string & _id, const string & _label, const list<string> & _readings, const unordered_map<string, string> & _reading_support, int _connectivity, const local_stemma & _stemma);
 	virtual ~variation_unit();
 	string get_id() const;
 	string get_label() const;

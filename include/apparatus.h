@@ -26,6 +26,7 @@ public:
 	apparatus();
 	apparatus(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types);
 	virtual ~apparatus();
+	void set_list_wit(const list<string> & _list_wit);
 	list<string> get_list_wit() const;
 	vector<variation_unit> get_variation_units() const;
 	int get_extant_passages_for_witness(const string & wit_id) const;

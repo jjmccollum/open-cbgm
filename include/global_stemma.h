@@ -25,20 +25,18 @@ struct global_stemma_edge {
 	float length;
 	float strength;
 };
-struct global_stemma_graph {
-	list<global_stemma_vertex> vertices;
-	list<global_stemma_edge> edges;
-};
 
 class global_stemma {
 private:
-	global_stemma_graph graph;
+	list<global_stemma_vertex> vertices;
+	list<global_stemma_edge> edges;
 public:
 	global_stemma();
 	global_stemma(const list<witness> & witnesses);
 	virtual ~global_stemma();
-	global_stemma_graph get_graph() const;
-	void to_dot(ostream & out, bool print_lengths, bool flow_strengths);
+	list<global_stemma_vertex> get_vertices() const;
+	list<global_stemma_edge> get_edges() const;
+	void to_dot(ostream & out, bool print_lengths=false, bool flow_strengths=false);
 };
 
 #endif /* GLOBAL_STEMMA_H */

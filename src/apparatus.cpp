@@ -73,6 +73,14 @@ apparatus::~apparatus() {
 }
 
 /**
+ * Sets this apparatus's list of witness IDs.
+ */
+void apparatus::set_list_wit(const list<string> & _list_wit) {
+	list_wit = _list_wit;
+	return;
+}
+
+/**
  * Returns this apparatus's list of witness IDs.
  */
 list<string> apparatus::get_list_wit() const {

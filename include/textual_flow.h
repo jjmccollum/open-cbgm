@@ -31,17 +31,14 @@ struct textual_flow_edge {
 	int connectivity;
 	float strength;
 };
-struct textual_flow_graph {
-	list<textual_flow_vertex> vertices;
-	list<textual_flow_edge> edges;
-};
 
 class textual_flow {
 private:
 	string label;
 	list<string> readings;
 	int connectivity;
-	textual_flow_graph graph;
+	list<textual_flow_vertex> vertices;
+	list<textual_flow_edge> edges;
 public:
 	textual_flow();
 	textual_flow(const variation_unit & vu, const list<witness> & witnesses);
@@ -49,10 +46,11 @@ public:
 	string get_label() const;
 	list<string> get_readings() const;
 	int get_connectivity() const;
-	textual_flow_graph get_graph() const;
-	void textual_flow_to_dot(ostream & out, bool flow_strengths);
-	void coherence_in_attestations_to_dot(ostream & out, const string & rdg, bool flow_strengths);
-	void coherence_in_variant_passages_to_dot(ostream & out, bool flow_strengths);
+	list<textual_flow_vertex> get_vertices() const;
+	list<textual_flow_edge> get_edges() const;
+	void textual_flow_to_dot(ostream & out, bool flow_strengths=false);
+	void coherence_in_attestations_to_dot(ostream & out, const string & rdg, bool flow_strengths=false);
+	void coherence_in_variant_passages_to_dot(ostream & out, bool flow_strengths=false);
 };
 
 #endif /* TEXTUAL_FLOW_H */

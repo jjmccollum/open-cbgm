@@ -10,6 +10,9 @@ set(SOURCES
 	witness.cpp
 	textual_flow.cpp
 	global_stemma.cpp
+	compare_witnesses_table.cpp
+	find_relatives_table.cpp
+	optimize_substemmata_table.cpp
 )
 
 # Combine the object source files into a static library:

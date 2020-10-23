@@ -72,7 +72,6 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		bool textual_flow_ancestor_found = false;
 		int con = -1;
 		int con_value = -1; //connectivity rank only changes when this value changes
-		flow_type type = flow_type::NONE;
 		//If the witness is extant, then attempt to find an ancestor within the connectivity limit that agrees with it here:
 		if (!wit_rdg.empty()) {
 			con = -1;

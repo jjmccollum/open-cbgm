@@ -1,8 +1,8 @@
-#Specify headers directory:
-set(HEADERS_DIR ${PROJECT_SOURCE_DIR}/include)
+#Specify header directories:
+set(OPEN_CBGM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 # Add object source files:
-set(SOURCES
+set(OPEN_CBGM_SOURCES
 	local_stemma.cpp
 	variation_unit.cpp
 	apparatus.cpp
@@ -15,17 +15,16 @@ set(SOURCES
 	optimize_substemmata_table.cpp
 )
 
-# Combine the object source files into a static library:
-# TODO: We could allow the user to specify on the command line if a STATIC or SHARED library is desired instead,
-# to facilitate incorporating the core modules into their own projects.
-add_library(roaring STATIC roaring.c)
-add_library(pugixml STATIC pugixml.cpp)
-add_library(open-cbgm STATIC ${SOURCES})
+# Build the object source files into a shared or static library, depending on the BUILD_SHARED_LIBS variable (default is OFF)
+if(BUILD_SHARED_LIBS)
+	MESSAGE("Building open-cbgm as shared library")
+else()
+	MESSAGE("Building open-cbgm as static library")
+endif()
+add_library(open-cbgm ${OPEN_CBGM_SOURCES})
 
-# Link the build targets to external libraries:
-target_link_libraries(open-cbgm PUBLIC roaring pugixml)
+# Point the library to its include directory:
+target_include_directories(open-cbgm PUBLIC ${OPEN_CBGM_INCLUDE_DIR})
 
-# Point the libraries to their include directories:
-target_include_directories(roaring PRIVATE ${HEADERS_DIR})
-target_include_directories(pugixml PRIVATE ${HEADERS_DIR})
-target_include_directories(open-cbgm PRIVATE ${HEADERS_DIR})
+# Link it to its dependencies:
+target_link_libraries(open-cbgm PUBLIC pugixml roaring)

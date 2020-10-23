@@ -37,6 +37,6 @@ matrix:
         - git submodule update --init --recursive
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory
-        - cmake -G "MSYS Makefiles" .. #invoke CMake, placing the build in the build directory
+        - cmake -DCMAKE_SH="CMAKE_SH-NOTFOUND" -G "MinGW Makefiles" .. #invoke CMake, placing the build in the build directory
         - mingw32-make #build using the generated Makefile
         - bin/autotest #test manually

@@ -5,8 +5,11 @@ matrix:
     #Linux, g++
     - os: linux
       compiler: gcc
-      script:
+      git:
+        submodules: false
+      before_install:
         - git submodule update --init --recursive
+      script:
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory
         - cmake .. #invoke CMake, placing the build in the build directory
@@ -15,8 +18,11 @@ matrix:
     #MacOS, clang
     - os: osx
       compiler: clang
-      script:
+      git:
+        submodules: false
+      before_install:
         - git submodule update --init --recursive
+      script:
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory
         - cmake .. #invoke CMake, placing the build in the build directory
@@ -24,8 +30,11 @@ matrix:
         - make test #test using the generated Makefile
     #Windows, Visual Studio
     - os: windows
-      script:
+      git:
+        submodules: false
+      before_install:
         - git submodule update --init --recursive
+      script:
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory
         - cmake .. #invoke CMake, placing the build in the build directory
@@ -33,8 +42,11 @@ matrix:
         - ctest -C Debug #test using CTest
     #Windows, g++ and make via MinGW
     - os: windows
-      script:
+      git:
+        submodules: false
+      before_install:
         - git submodule update --init --recursive
+      script:
         - mkdir build #create the directory to store the build in
         - cd build #navigate into the directory
         - cmake -DCMAKE_SH="CMAKE_SH-NOTFOUND" -G "MinGW Makefiles" .. #invoke CMake, placing the build in the build directory

@@ -13,7 +13,7 @@
 #include <set> //used instead of unordered_set because pair does not have a default hash function and readings are few enough for tree structures to be more efficient
 #include <map> //used instead of unordered_map because readings are few enough for tree structures to be more efficient
 
-#include "pugixml.h"
+#include "pugixml.hpp"
 #include "local_stemma.h"
 
 using namespace std;

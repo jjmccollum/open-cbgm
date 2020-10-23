@@ -13,7 +13,7 @@
 #include <vector>
 #include <set>
 
-#include "pugixml.h"
+#include "pugixml.hpp"
 #include "variation_unit.h"
 
 using namespace std;

@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <limits>
 
-#include "pugixml.h"
+#include "pugixml.hpp"
 #include "local_stemma.h"
 
 

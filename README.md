@@ -1,7 +1,7 @@
 # open-cbgm
 Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Based Genealogical Method
 
-[![Version 1.3](https://img.shields.io/badge/version-1.3-blue)](https://github.com/jjmccollum/open-cbgm)
+[![Version 1.3.1](https://img.shields.io/badge/version-1.3.1-blue)](https://github.com/jjmccollum/open-cbgm)
 [![Build Status](https://travis-ci.com/jjmccollum/open-cbgm.svg?token=nZWB24v9ybTTZm4tWaqm&branch=master)](https://travis-ci.com/jjmccollum/open-cbgm)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://choosealicense.com/licenses/mit/)
 [![DOI](https://zenodo.org/badge/222792228.svg)](https://zenodo.org/badge/latestdoi/222792228)
@@ -36,7 +36,9 @@ The local stemma, textual flow, and global stemma classes are equipped with meth
 
 ## Installation and Dependencies
 
-As mentioned above, the open-cbgm library uses three external libraries (cxxopts, pugixml, and roaring), but for convenience and performance, we have included the necessary headers and scripts in the library. No separate installation of these libraries is necessary.
+As mentioned above, the open-cbgm library uses three external libraries (cxxopts, pugixml, and roaring). All three libraries are included as Git submodules of this repository; if you do not have the submodules initialized, then you must do so with the command
+
+    git submodule update --init --recursive
 
 With respect to graph outputs, the open-cbgm library does not generate image files directly; instead, for the sake of flexibility, it is designed to generate textual graph description files in `.dot` format, which can subsequently be converted to image files in a variety of formats using graphviz. Platform-specific instructions for installing graphviz and directions on how to get image files from `.dot` outputs using graphviz can be found at https://www.graphviz.org.
 
@@ -54,7 +56,7 @@ In the interest of modularity, and to facilitate the incorporation of this libra
 
 ## Building
 
-If you wish to incorporate the open-cbgm library as a dependency for your own libraries or executables, you can build it by itself either as a static library or as a shared library. For a static library, invoking `cmake` and pointing to the directory containing the root-level `CMakeLists.txt` file will generate all of the appropriate Makefiles or Visual Studio project files to build the library statically. For a shared library, adding the `-DBUILD_SHARED_LIBS` argument after `cmake` will generate the appropriate files to build the library dynamically.
+If you wish to incorporate the open-cbgm library as a dependency for your own libraries or executables, you can build it by itself either as a static library or as a shared library. For a static library, invoking `cmake` and pointing to the directory containing the root-level `CMakeLists.txt` file will generate all of the appropriate Makefiles or Visual Studio project files to build the library statically. For a shared library, adding the `-DBUILD_SHARED_LIBS=ON` argument after `cmake` will generate the appropriate files to build the library dynamically.
 
 ## Citation
 

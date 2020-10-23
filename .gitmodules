@@ -1,0 +1,9 @@
+[submodule "lib/roaring"]
+	path = lib/roaring
+	url = https://github.com/RoaringBitmap/CRoaring.git
+[submodule "lib/pugixml"]
+	path = lib/pugixml
+	url = https://github.com/zeux/pugixml.git
+[submodule "lib/cxxopts"]
+	path = lib/cxxopts
+	url = https://github.com/jarro2783/cxxopts.git

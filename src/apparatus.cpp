@@ -11,7 +11,7 @@
 #include <set> //use ordered set for witnesses here so we can iterate through them in order
 #include <unordered_map>
 
-#include "pugixml.h"
+#include "pugixml.hpp"
 #include "apparatus.h"
 #include "variation_unit.h"
 

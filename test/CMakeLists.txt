@@ -1,20 +1,8 @@
-# Specify test headers directory:
-set(OPEN_CBGM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-
-# Specify external library locations:
-set(CXXOPTS_DIR ${PROJECT_SOURCE_DIR}/lib/cxxopts)
-
 # Add all executable scripts to be generated:
 add_executable(autotest autotest.cpp)
 
-# Point the build targets to their include directories:
-target_include_directories(autotest PUBLIC ${CXXOPTS_DIR})
-
 # Link the build targets to external libraries:
-target_link_libraries(autotest PUBLIC open-cbgm)
-
-# Install the executable in the same location as the library:
-install(TARGETS autotest RUNTIME DESTINATION bin)
+target_link_libraries(autotest cxxopts open-cbgm)
 
 # Register executables as tests:
 add_test(NAME common_read_xml COMMAND autotest -t common_read_xml)

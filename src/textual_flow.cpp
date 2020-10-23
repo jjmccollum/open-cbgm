@@ -16,8 +16,6 @@
 #include <unordered_map> //for large maps keyed by witnesses
 #include <limits>
 
-#include "pugixml.h"
-#include "roaring.hh"
 #include "textual_flow.h"
 #include "witness.h"
 #include "variation_unit.h"

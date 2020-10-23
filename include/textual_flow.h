@@ -11,7 +11,6 @@
 #include <string>
 #include <list>
 
-#include "pugixml.h"
 #include "variation_unit.h"
 #include "witness.h"
 

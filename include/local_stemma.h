@@ -13,7 +13,7 @@
 #include <set>
 #include <map>
 
-#include "pugixml.h"
+#include "pugixml.hpp"
 
 using namespace std;
 

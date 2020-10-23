@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "pugixml.h"
+#include "pugixml.hpp"
 #include "roaring.hh"
 #include "witness.h"
 #include "variation_unit.h"

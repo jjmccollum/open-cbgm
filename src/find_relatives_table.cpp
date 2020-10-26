@@ -275,14 +275,14 @@ void find_relatives_table::to_json(ostream & out) {
         out << "{";
         //Add its key-value pairs:
         out << "\"W2\":" << "\"" << row.id << "\"" << ",";
-		out << "\"DIR\":" << "\"" << (row.dir == -1 ? "<" : (row.dir == 1 ? ">" : "=")) << "\"" << ",";
+		out << "\"DIR\":" << "\"" << (row.dir == -1 ? "%3C" : (row.dir == 1 ? "%3E" : "%3D")) << "\"" << ",";
 		out << "\"NR\":" << "\"" << (row.nr > 0 ? to_string(row.nr) : "") << "\"" << ",";
 		out << "\"RDG\":" << "\"" << row.rdg << "\"" << ",";
 		out << "\"PASS\":" << row.pass << ",";
 		out << "\"EQ\":" << row.eq << ",";
         out << "\"PERC\":" << row.perc << ",";
-		out << "\"W1>W2\":" << row.prior << ",";
-		out << "\"W1<W2\":" << row.posterior << ",";
+		out << "\"W1%3EW2\":" << row.prior << ",";
+		out << "\"W1%3CW2\":" << row.posterior << ",";
 		out << "\"NOREL\":" << row.norel << ",";
         out << "\"UNCL\":" << row.uncl << ",";
         out << "\"EXPL\":" << row.expl << ",";

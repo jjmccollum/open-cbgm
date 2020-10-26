@@ -277,7 +277,7 @@ void find_relatives_table::to_json(ostream & out) {
         out << "\"W2\":" << "\"" << row.id << "\"" << ",";
 		out << "\"DIR\":" << "\"" << (row.dir == -1 ? "<" : (row.dir == 1 ? ">" : "=")) << "\"" << ",";
 		out << "\"NR\":" << "\"" << (row.nr > 0 ? to_string(row.nr) : "") << "\"" << ",";
-		out << "\"RDG\":" << row.rdg << ",";
+		out << "\"RDG\":" << "\"" << row.rdg << "\"" << ",";
 		out << "\"PASS\":" << row.pass << ",";
 		out << "\"EQ\":" << row.eq << ",";
         out << "\"PERC\":" << row.perc << ",";

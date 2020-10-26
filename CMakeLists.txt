@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.4)
 # Set the project name and version:
 project(open-cbgm 
-	VERSION 1.3.1
+	VERSION 1.3.2
 	DESCRIPTION "Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Based Genealogical Method"
 	LANGUAGES C CXX)
+
+include(CTest)
 
 # Set the compilation warning flags:
 set(WARNING_FLAGS "-Wall")
@@ -26,9 +28,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib CACHE PATH "Path to
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib CACHE PATH "Path to build library directory")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin CACHE PATH "Path to build runtime directory")
 
-# Enable testing:
-enable_testing()
-include(CTest)
+# Disable testing unless the BUILD_TESTS option is set:
+option(BUILD_TESTS "Build open-cbgm unit tests" OFF)
 
 # Generate header files that contain the config variable for this make, 
 # so we can access the right example files for unit testing:'
@@ -49,6 +50,9 @@ if (BUILD_SHARED_LIBS)
 	set(ROARING_BUILD_STATIC OFF)
 endif()
 add_subdirectory(lib/roaring)
-# Add the source code and test directories:
+# Add the source code directories:
 add_subdirectory(src)
-add_subdirectory(test)
+# Optionally add the test directory:
+if (BUILD_TESTS)
+	add_subdirectory(test)
+endif()

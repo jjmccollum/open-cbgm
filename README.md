@@ -1,7 +1,7 @@
 # open-cbgm
 Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Based Genealogical Method
 
-[![Version 1.3.1](https://img.shields.io/badge/version-1.3.1-blue)](https://github.com/jjmccollum/open-cbgm)
+[![Version 1.3.2](https://img.shields.io/badge/version-1.3.2-blue)](https://github.com/jjmccollum/open-cbgm)
 [![Build Status](https://travis-ci.com/jjmccollum/open-cbgm.svg?token=nZWB24v9ybTTZm4tWaqm&branch=master)](https://travis-ci.com/jjmccollum/open-cbgm)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://choosealicense.com/licenses/mit/)
 [![DOI](https://zenodo.org/badge/222792228.svg)](https://zenodo.org/badge/latestdoi/222792228)
@@ -56,7 +56,7 @@ In the interest of modularity, and to facilitate the incorporation of this libra
 
 ## Building
 
-If you wish to incorporate the open-cbgm library as a dependency for your own libraries or executables, you can build it by itself either as a static library or as a shared library. For a static library, invoking `cmake` and pointing to the directory containing the root-level `CMakeLists.txt` file will generate all of the appropriate Makefiles or Visual Studio project files to build the library statically. For a shared library, adding the `-DBUILD_SHARED_LIBS=ON` argument after `cmake` will generate the appropriate files to build the library dynamically.
+If you wish to incorporate the open-cbgm library as a dependency for your own libraries or executables, you can build it by itself either as a static library or as a shared library. For a static library, invoking `cmake` and pointing to the directory containing the root-level `CMakeLists.txt` file will generate all of the appropriate Makefiles or Visual Studio project files to build the library statically. For a shared library, adding the `-DBUILD_SHARED_LIBS=ON` argument after `cmake` will generate the appropriate files to build the library dynamically. If you want to generate the unit tests for the library, add the `-DBUILD_TESTS=ON` argument; the test suite will be generated in the `autotest` executable.
 
 ## Citation
 

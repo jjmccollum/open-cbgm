@@ -89,13 +89,14 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 		if (!rdg_types.empty()) {
 		    bool is_dropped = false;
 			for (string rdg_type : rdg_types) {
-				if (dropped_reading_types.find(rdg_type) == dropped_reading_types.end()) {
+				if (dropped_reading_types.find(rdg_type) != dropped_reading_types.end()) {
 				    is_dropped = true;
 					break;
 				}
 			}
 			if (is_dropped) {
 			    dropped_readings.insert(rdg_id);
+			    continue;
 			}
 		}
 		//Otherwise, add it to the map of reading types by reading:

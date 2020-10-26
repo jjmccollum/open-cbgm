@@ -85,18 +85,17 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 		}
 		delete [] type_chars;
 		delete [] type_token;
-		//If its reading types are a subset of the dropped reading types, then do not process this reading:
+		//If it has any of the dropped reading types, then do not process this reading:
 		if (!rdg_types.empty()) {
-			bool is_subset = true;
+		    bool is_dropped = false;
 			for (string rdg_type : rdg_types) {
 				if (dropped_reading_types.find(rdg_type) == dropped_reading_types.end()) {
-					is_subset = false;
+				    is_dropped = true;
 					break;
 				}
 			}
-			if (is_subset) {
-				dropped_readings.insert(rdg_id);
-				continue;
+			if (is_dropped) {
+			    dropped_readings.insert(rdg_id);
 			}
 		}
 		//Otherwise, add it to the map of reading types by reading:
@@ -158,18 +157,18 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 		set<string> rdg_types = set<string>(kv.second);
 		//Ignore split attestations, as they've already been processed:
 		rdg_types.erase("split");
-		//A reading is considered trivial if it has reading types that are a subset of the trivial reading types:
+		//A reading is considered trivial if all of its reading types are trivial reading types:
 		if (rdg_types.empty()) {
 			continue;
 		}
-		bool is_subset = true;
+		bool is_trivial = true;
 		for (string rdg_type : rdg_types) {
 			if (trivial_reading_types.find(rdg_type) == trivial_reading_types.end()) {
-				is_subset = false;
+				is_trivial = false;
 				break;
 			}
 		}
-		if (is_subset) {
+		if (is_trivial) {
 			trivial_readings.insert(rdg_id);
 		}
 	}

@@ -141,7 +141,7 @@ void optimize_substemmata_table::to_tsv(ostream & out) {
 
 /**
  * Given an output stream, prints this substemma optimization table in JavaScript Object Notation (JSON) format.
- * The witness IDs are assumed not to contain tabs; if they do, then they will need to be manually escaped in the output.
+ * The witness IDs are assumed not to contain characters that need to be escaped in URLs.
  */
 void optimize_substemmata_table::to_json(ostream & out) {
     //Open the root object:
@@ -180,7 +180,7 @@ void optimize_substemmata_table::to_json(ostream & out) {
 	}
     //Close the rows array:
     out << "]";
-    //Close the root object, and flush the stream:
-    out << "}" << endl;
+    //Close the root object:
+    out << "}";
 	return;
 }

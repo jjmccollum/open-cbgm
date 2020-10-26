@@ -258,7 +258,7 @@ void find_relatives_table::to_tsv(ostream & out) {
 
 /**
  * Given an output stream, prints this find relatives table in JavaScript Object Notation (JSON) format.
- * The witness IDs are assumed not to contain tabs; if they do, then they will need to be manually escaped in the output.
+ * The witness IDs are assumed not to contain characters that need to be escaped in URLs.
  */
 void find_relatives_table::to_json(ostream & out) {
     //Open the root object:
@@ -275,14 +275,14 @@ void find_relatives_table::to_json(ostream & out) {
         out << "{";
         //Add its key-value pairs:
         out << "\"W2\":" << "\"" << row.id << "\"" << ",";
-		out << "\"DIR\":" << "\"" << (row.dir == -1 ? "%3C" : (row.dir == 1 ? "%3E" : "%3D")) << "\"" << ",";
+		out << "\"DIR\":" << row.dir << ",";
 		out << "\"NR\":" << "\"" << (row.nr > 0 ? to_string(row.nr) : "") << "\"" << ",";
 		out << "\"RDG\":" << "\"" << row.rdg << "\"" << ",";
 		out << "\"PASS\":" << row.pass << ",";
 		out << "\"EQ\":" << row.eq << ",";
         out << "\"PERC\":" << row.perc << ",";
-		out << "\"W1%3EW2\":" << row.prior << ",";
-		out << "\"W1%3CW2\":" << row.posterior << ",";
+		out << "\"PRIOR\":" << row.prior << ",";
+		out << "\"POSTERIOR\":" << row.posterior << ",";
 		out << "\"NOREL\":" << row.norel << ",";
         out << "\"UNCL\":" << row.uncl << ",";
         out << "\"EXPL\":" << row.expl << ",";
@@ -302,7 +302,7 @@ void find_relatives_table::to_json(ostream & out) {
 	}
     //Close the rows array:
     out << "]";
-    //Close the root object, and flush the stream:
-    out << "}" << endl;
+    //Close the root object:
+    out << "}";
 	return;
 }

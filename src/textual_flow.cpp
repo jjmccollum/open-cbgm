@@ -565,7 +565,6 @@ void textual_flow::coherence_in_attestations_to_json(ostream & out, const string
 	    if (witnesses_with_rdg.find(e.ancestor) == witnesses_with_rdg.end()) {
 	        ancestors_without_rdg.insert(e.ancestor);
 	    }
-	    ancestors_without_rdg.insert(e.ancestor);
 	}
 	for (textual_flow_vertex v : vertices) {
 	    if (ancestors_without_rdg.find(v.id) != ancestors_without_rdg.end()) {

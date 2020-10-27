@@ -48,8 +48,11 @@ public:
 	list<textual_flow_vertex> get_vertices() const;
 	list<textual_flow_edge> get_edges() const;
 	void textual_flow_to_dot(ostream & out, bool flow_strengths=false);
+	void textual_flow_to_json(ostream & out);
 	void coherence_in_attestations_to_dot(ostream & out, const string & rdg, bool flow_strengths=false);
+	void coherence_in_attestations_to_json(ostream & out, const string & rdg);
 	void coherence_in_variant_passages_to_dot(ostream & out, bool flow_strengths=false);
+	void coherence_in_variant_passages_to_json(ostream & out);
 };
 
 #endif /* TEXTUAL_FLOW_H */

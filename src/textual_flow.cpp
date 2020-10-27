@@ -190,7 +190,7 @@ list<textual_flow_vertex> textual_flow::get_vertices() const {
 }
 
 /**
- * Returns the this textual_flow's list of edge.
+ * Returns the this textual_flow's list of edges.
  */
 list<textual_flow_edge> textual_flow::get_edges() const {
 	return edges;
@@ -302,6 +302,75 @@ void textual_flow::textual_flow_to_dot(ostream & out, bool flow_strengths) {
 	}
 	out << "\t}\n";
 	out << "}" << endl;
+	return;
+}
+
+/**
+ * Given an output stream, writes a complete textual flow diagram to output in JavaScript Object Notation (JSON) format.
+ */
+void textual_flow::textual_flow_to_json(ostream & out) {
+	//Open the root object:
+    out << "{";
+    //Add the metadata fields:
+	out << "\"label\":" << "\"" << label << "\"" << ",";
+	out << "\"connectivity\":" << connectivity << ",";
+	//Add all of the original vertices:
+	list<textual_flow_vertex> textual_flow_vertices = list<textual_flow_vertex>(vertices);
+	//Add all of the graph edges, except for secondary graph edges for changes:
+    unordered_set<string> processed_descendants = unordered_set<string>();
+    list<textual_flow_edge> textual_flow_edges = list<textual_flow_edge>();
+    for (textual_flow_edge e : edges) {
+	    if (processed_descendants.find(e.descendant) != processed_descendants.end()) {
+	        continue;
+	    }
+	    processed_descendants.insert(e.descendant);
+	    textual_flow_edges.push_back(e);
+	}
+    //Open the vertices array:
+    out << "\"vertices\":" << "[";
+    //Print each vertex as an object:
+	unsigned int vertex_num = 0;
+	for (textual_flow_vertex v : textual_flow_vertices) {
+        //Open the vertex object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"id\":" << "\"" << v.id << "\"" << ",";
+        out << "\"rdg\":" << "\"" << v.rdg << "\"" << ",";
+        //Close the vertex object:
+        out << "}";
+        //Add a comma if this is not the last vertex:
+        if (vertex_num != textual_flow_vertices.size() - 1) {
+            out << ",";
+        }
+		vertex_num++;
+	}
+	//Close the vertices array:
+    out << "]" << ",";
+	//Open the edges array:
+    out << "\"edges\":" << "[";
+    //Print each edge as an object:
+	unsigned int edge_num = 0;
+	for (textual_flow_edge e : textual_flow_edges) {
+        //Open the edge object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"ancestor\":" << "\"" << e.ancestor << "\"" << ",";
+        out << "\"descendant\":" << "\"" << e.descendant << "\"" << ",";
+        out << "\"type\":" << e.type << ",";
+        out << "\"connectivity\":" << e.connectivity << ",";
+        out << "\"strength\":" << e.strength;
+        //Close the edge object:
+        out << "}";
+        //Add a comma if this is not the last edge:
+        if (edge_num != textual_flow_edges.size() - 1) {
+            out << ",";
+        }
+		edge_num++;
+	}
+	//Close the edges array:
+    out << "]";
+    //Close the root object:
+    out << "}";
 	return;
 }
 
@@ -458,6 +527,100 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 }
 
 /**
+ * Given a reading ID and an output stream, writes a coherence in attestations textual flow diagram to output in JavaScript Object Notation (JSON) format.
+ */
+void textual_flow::coherence_in_attestations_to_json(ostream & out, const string & rdg) {
+	//Open the root object:
+    out << "{";
+    //Add the metadata fields:
+	out << "\"label\":" << "\"" << label << "\"" << ",";
+	out << "\"connectivity\":" << connectivity << ",";
+    //Initially filter out any vertices that do not have the given reading:
+    list<textual_flow_vertex> coherence_in_attestations_vertices = list<textual_flow_vertex>(vertices);
+    coherence_in_attestations_vertices.remove_if([&](const textual_flow_vertex & v) {
+		return v.rdg != rdg;
+	});
+    //Add all of the graph edges ending at one of the remaining vertices, except for secondary graph edges for changes:
+    unordered_set<string> witnesses_with_rdg = unordered_set<string>();
+    for (textual_flow_vertex v : coherence_in_attestations_vertices) {
+        witnesses_with_rdg.insert(v.id);
+    }
+    list<textual_flow_edge> edges_with_descendants_with_rdg = list<textual_flow_edge>(edges);
+    edges_with_descendants_with_rdg.remove_if([&](const textual_flow_edge & e) {
+		return witnesses_with_rdg.find(e.descendant) == witnesses_with_rdg.end();
+	});
+	unordered_set<string> processed_descendants = unordered_set<string>();
+	list<textual_flow_edge> distinct_descendant_edges = list<textual_flow_edge>();
+    for (textual_flow_edge e : edges_with_descendants_with_rdg) {
+	    if (processed_descendants.find(e.descendant) != processed_descendants.end()) {
+	        continue;
+	    }
+	    processed_descendants.insert(e.descendant);
+	    distinct_descendant_edges.push_back(e);
+	}
+	list<textual_flow_edge> coherence_in_attestations_edges = list<textual_flow_edge>(distinct_descendant_edges);
+	//Add any ancestors on these edges that do not have the given reading:
+	unordered_set<string> ancestors_without_rdg = unordered_set<string>();
+	for (textual_flow_edge e : distinct_descendant_edges) {
+	    if (witnesses_with_rdg.find(e.ancestor) == witnesses_with_rdg.end()) {
+	        ancestors_without_rdg.insert(e.ancestor);
+	    }
+	    ancestors_without_rdg.insert(e.ancestor);
+	}
+	for (textual_flow_vertex v : vertices) {
+	    if (ancestors_without_rdg.find(v.id) != ancestors_without_rdg.end()) {
+	        coherence_in_attestations_vertices.push_back(v);
+	    }
+	}
+	//Open the vertices array:
+    out << "\"vertices\":" << "[";
+	//Print each vertex as an object:
+	unsigned int vertex_num = 0;
+	for (textual_flow_vertex v : coherence_in_attestations_vertices) {
+        //Open the vertex object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"id\":" << "\"" << v.id << "\"" << ",";
+        out << "\"rdg\":" << "\"" << v.rdg << "\"" << ",";
+        //Close the vertex object:
+        out << "}";
+        //Add a comma if this is not the last vertex:
+        if (vertex_num != coherence_in_attestations_vertices.size() - 1) {
+            out << ",";
+        }
+		vertex_num++;
+	}
+	//Close the vertices array:
+    out << "]" << ",";
+	//Open the edges array:
+    out << "\"edges\":" << "[";
+    //Print each edge as an object:
+	unsigned int edge_num = 0;
+	for (textual_flow_edge e : coherence_in_attestations_edges) {
+        //Open the edge object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"ancestor\":" << "\"" << e.ancestor << "\"" << ",";
+        out << "\"descendant\":" << "\"" << e.descendant << "\"" << ",";
+        out << "\"type\":" << e.type << ",";
+        out << "\"connectivity\":" << e.connectivity << ",";
+        out << "\"strength\":" << e.strength;
+        //Close the edge object:
+        out << "}";
+        //Add a comma if this is not the last edge:
+        if (edge_num != coherence_in_attestations_edges.size() - 1) {
+            out << ",";
+        }
+		edge_num++;
+	}
+	//Close the edges array:
+    out << "]";
+    //Close the root object:
+    out << "}";
+	return;
+}
+
+/**
  * Given an output stream, writes a coherence in variant passages diagram to output in .dot format.
  * An optional flag indicating whether to format edges to reflect flow strength can also be specified.
  */
@@ -582,5 +745,79 @@ void textual_flow::coherence_in_variant_passages_to_dot(ostream & out, bool flow
 	}
 	out << "\t}\n";
 	out << "}" << endl;
+	return;
+}
+
+/**
+ * Given an output stream, writes a coherence in variant passages textual flow diagram to output in JavaScript Object Notation (JSON) format.
+ */
+void textual_flow::coherence_in_variant_passages_to_json(ostream & out) {
+	//Open the root object:
+    out << "{";
+    //Add the metadata fields:
+	out << "\"label\":" << "\"" << label << "\"" << ",";
+	out << "\"connectivity\":" << connectivity << ",";
+	//Start with an initially empty vertex list:
+	list<textual_flow_vertex> coherence_in_variant_passages_vertices = list<textual_flow_vertex>();
+	//Add all of the graph edges representing changes in reading:
+    list<textual_flow_edge> coherence_in_variant_passages_edges = list<textual_flow_edge>(edges);
+    coherence_in_variant_passages_edges.remove_if([&](const textual_flow_edge & e) {
+        return e.type != flow_type::CHANGE;
+    });
+    //Then add all vertices at either endpoint of these edges:
+    unordered_set<string> processed_vertex_ids = unordered_set<string>();
+    for (textual_flow_edge e : coherence_in_variant_passages_edges) {
+        processed_vertex_ids.insert(e.ancestor);
+        processed_vertex_ids.insert(e.descendant);
+    }
+    coherence_in_variant_passages_vertices = list<textual_flow_vertex>(vertices);
+    coherence_in_variant_passages_vertices.remove_if([&](const textual_flow_vertex & v) {
+        return processed_vertex_ids.find(v.id) == processed_vertex_ids.end();
+    });
+    //Open the vertices array:
+    out << "\"vertices\":" << "[";
+    //Print each vertex as an object:
+	unsigned int vertex_num = 0;
+	for (textual_flow_vertex v : coherence_in_variant_passages_vertices) {
+        //Open the vertex object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"id\":" << "\"" << v.id << "\"" << ",";
+        out << "\"rdg\":" << "\"" << v.rdg << "\"" << ",";
+        //Close the vertex object:
+        out << "}";
+        //Add a comma if this is not the last vertex:
+        if (vertex_num != coherence_in_variant_passages_vertices.size() - 1) {
+            out << ",";
+        }
+		vertex_num++;
+	}
+	//Close the vertices array:
+    out << "]" << ",";
+	//Open the edges array:
+    out << "\"edges\":" << "[";
+    //Print each edge as an object:
+	unsigned int edge_num = 0;
+	for (textual_flow_edge e : coherence_in_variant_passages_edges) {
+        //Open the edge object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"ancestor\":" << "\"" << e.ancestor << "\"" << ",";
+        out << "\"descendant\":" << "\"" << e.descendant << "\"" << ",";
+        out << "\"type\":" << e.type << ",";
+        out << "\"connectivity\":" << e.connectivity << ",";
+        out << "\"strength\":" << e.strength;
+        //Close the edge object:
+        out << "}";
+        //Add a comma if this is not the last edge:
+        if (edge_num != coherence_in_variant_passages_edges.size() - 1) {
+            out << ",";
+        }
+		edge_num++;
+	}
+	//Close the edges array:
+    out << "]";
+    //Close the root object:
+    out << "}";
 	return;
 }

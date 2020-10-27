@@ -37,6 +37,7 @@ public:
 	list<global_stemma_vertex> get_vertices() const;
 	list<global_stemma_edge> get_edges() const;
 	void to_dot(ostream & out, bool print_lengths=false, bool flow_strengths=false);
+	void to_json(ostream & out);
 };
 
 #endif /* GLOBAL_STEMMA_H */

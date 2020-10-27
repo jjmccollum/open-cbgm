@@ -56,6 +56,7 @@ public:
 	local_stemma_path get_path(const string & r1, const string & r2) const;
 	bool common_ancestor_exists(const string & r1, const string & r2) const;
 	void to_dot(ostream & out, bool print_weights);
+	void to_json(ostream & out);
 };
 
 #endif /* LOCAL_STEMMA_H */

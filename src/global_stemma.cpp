@@ -167,3 +167,55 @@ void global_stemma::to_dot(ostream & out, bool print_lengths, bool flow_strength
 	out << "}" << endl;
 	return;
 }
+
+/**
+ * Given an output stream, writes the global stemma graph to output in JavaScript Object Notation (JSON) format.
+ */
+void global_stemma::to_json(ostream & out) {
+    //Open the root object:
+    out << "{";
+    //Open the vertices array:
+    out << "\"vertices\":" << "[";
+    //Print each vertex as an object:
+	unsigned int vertex_num = 0;
+	for (global_stemma_vertex v : vertices) {
+        //Open the vertex object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"id\":" << "\"" << v.id << "\"";
+        //Close the vertex object:
+        out << "}";
+        //Add a comma if this is not the last vertex:
+        if (vertex_num != vertices.size() - 1) {
+            out << ",";
+        }
+		vertex_num++;
+	}
+	//Close the vertices array:
+    out << "]" << ",";
+	//Open the edges array:
+    out << "\"edges\":" << "[";
+    //Print each edge as an object:
+	unsigned int edge_num = 0;
+	for (global_stemma_edge e : edges) {
+        //Open the edge object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"ancestor\":" << "\"" << e.ancestor << "\"" << ",";
+        out << "\"descendant\":" << "\"" << e.descendant << "\"" << ",";
+        out << "\"length\":" << e.length << ",";
+        out << "\"strength\":" << e.strength;
+        //Close the edge object:
+        out << "}";
+        //Add a comma if this is not the last edge:
+        if (edge_num != edges.size() - 1) {
+            out << ",";
+        }
+		edge_num++;
+	}
+	//Close the edges array:
+    out << "]";
+    //Close the root object:
+    out << "}";
+	return;
+}

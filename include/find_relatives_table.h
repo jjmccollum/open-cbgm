@@ -40,14 +40,20 @@ struct find_relatives_table_row {
 class find_relatives_table {
 private:
     string id;
+    string label;
+    int connectivity;
     int primary_extant;
+    string primary_rdg;
 	list<find_relatives_table_row> rows;
 public:
 	find_relatives_table();
 	find_relatives_table(const witness & wit, const variation_unit & vu, const list<string> list_wit, const set<string> & filter_wits);
 	virtual ~find_relatives_table();
     string get_id() const;
+    string get_label() const;
+    int get_connectivity() const;
     int get_primary_extant() const;
+    string get_primary_rdg() const;
     list<find_relatives_table_row> get_rows() const;
     void to_fixed_width(ostream & out);
 	void to_csv(ostream & out);

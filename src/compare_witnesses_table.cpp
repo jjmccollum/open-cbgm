@@ -253,8 +253,8 @@ void compare_witnesses_table::to_json(ostream & out) {
     //Open the root object:
     out << "{";
     //Add the metadata fields:
-	out << "\"W1\":" << "\"" << id << "\"" << ",";
-    out << "\"W1_PASS\":" << primary_extant << ",";
+	out << "\"primary_wit\":" << "\"" << id << "\"" << ",";
+    out << "\"primary_extant\":" << primary_extant << ",";
     //Open the rows array:
     out << "\"rows\":" << "[";
     //Print each row as an object:
@@ -263,22 +263,22 @@ void compare_witnesses_table::to_json(ostream & out) {
         //Open the row object:
         out << "{";
         //Add its key-value pairs:
-        out << "\"W2\":" << "\"" << row.id << "\"" << ",";
-		out << "\"DIR\":" << row.dir << ",";
-		out << "\"NR\":" << "\"" << (row.nr > 0 ? to_string(row.nr) : "") << "\"" << ",";
-		out << "\"PASS\":" << row.pass << ",";
-		out << "\"EQ\":" << row.eq << ",";
-        out << "\"PERC\":" << row.perc << ",";
-		out << "\"PRIOR\":" << row.prior << ",";
-		out << "\"POSTERIOR\":" << row.posterior << ",";
-		out << "\"NOREL\":" << row.norel << ",";
-        out << "\"UNCL\":" << row.uncl << ",";
-        out << "\"EXPL\":" << row.expl << ",";
+        out << "\"id\":" << "\"" << row.id << "\"" << ",";
+		out << "\"dir\":" << row.dir << ",";
+		out << "\"nr\":" << "\"" << (row.nr > 0 ? to_string(row.nr) : "") << "\"" << ",";
+		out << "\"pass\":" << row.pass << ",";
+		out << "\"eq\":" << row.eq << ",";
+        out << "\"perc\":" << row.perc << ",";
+		out << "\"prior\":" << row.prior << ",";
+		out << "\"posterior\":" << row.posterior << ",";
+		out << "\"norel\":" << row.norel << ",";
+        out << "\"uncl\":" << row.uncl << ",";
+        out << "\"expl\":" << row.expl << ",";
 		if (row.cost >= 0) {
-			out << "\"COST\":" << "\"" << row.cost << "\"";
+			out << "\"cost\":" << "\"" << row.cost << "\"";
 		}
 		else {
-			out << "\"COST\":" << "\"" << "" << "\"";
+			out << "\"cost\":" << "\"" << "" << "\"";
 		}
         //Close the row object:
         out << "}";

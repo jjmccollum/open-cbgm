@@ -344,3 +344,56 @@ void local_stemma::to_dot(ostream & out, bool print_weights=false) {
 	out << "}" << endl;
 	return;
 }
+
+/**
+ * Given an output stream, writes the local stemma graph to output in JavaScript Object Notation (JSON) format.
+ */
+void local_stemma::to_json(ostream & out) {
+    //Open the root object:
+    out << "{";
+    //Add the metadata fields:
+	out << "\"label\":" << "\"" << label << "\"" << ",";
+    //Open the vertices array:
+    out << "\"vertices\":" << "[";
+    //Print each vertex as an object:
+	unsigned int vertex_num = 0;
+	for (local_stemma_vertex v : vertices) {
+        //Open the vertex object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"id\":" << "\"" << v.id << "\"";
+        //Close the vertex object:
+        out << "}";
+        //Add a comma if this is not the last vertex:
+        if (vertex_num != vertices.size() - 1) {
+            out << ",";
+        }
+		vertex_num++;
+	}
+	//Close the vertices array:
+    out << "]" << ",";
+	//Open the edges array:
+    out << "\"edges\":" << "[";
+    //Print each edge as an object:
+	unsigned int edge_num = 0;
+	for (local_stemma_edge e : edges) {
+        //Open the edge object:
+        out << "{";
+        //Add its key-value pairs:
+        out << "\"prior\":" << "\"" << e.prior << "\"" << ",";
+        out << "\"posterior\":" << "\"" << e.posterior << "\"" << ",";
+        out << "\"weight\":" << e.weight;
+        //Close the edge object:
+        out << "}";
+        //Add a comma if this is not the last edge:
+        if (edge_num != edges.size() - 1) {
+            out << ",";
+        }
+		edge_num++;
+	}
+	//Close the edges array:
+    out << "]";
+    //Close the root object:
+    out << "}";
+	return;
+}

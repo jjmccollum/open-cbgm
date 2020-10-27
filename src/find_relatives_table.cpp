@@ -31,7 +31,10 @@ find_relatives_table::find_relatives_table() {
  find_relatives_table::find_relatives_table(const witness & wit, const variation_unit & vu, const list<string> list_wit, const set<string> & filter_rdgs) {
     rows = list<find_relatives_table_row>();
     id = wit.get_id();
+    label = vu.get_label();
+    connectivity = vu.get_connectivity();
 	unordered_map<string, string> reading_support = vu.get_reading_support();
+	primary_rdg = reading_support.find(id) != reading_support.end() ? reading_support.at(id) : "-";
     //Start by populating the table completely with this witness's comparisons to all other witnesses:
     for (string secondary_wit_id : list_wit) {
         //Get the genealogical comparison of the primary witness to this witness:
@@ -105,10 +108,31 @@ string find_relatives_table::get_id() const {
 }
 
 /**
+ * Returns the label of the variation unit at which this table provides comparisons.
+ */
+string find_relatives_table::get_label() const {
+    return label;
+}
+
+/**
+ * Returns the connectivity limit of the variation unit at which this table provides comparisons.
+ */
+int find_relatives_table::get_connectivity() const {
+    return connectivity;
+}
+
+/**
  * Returns the number of passages at which this table's primary witness is extant.
  */
 int find_relatives_table::get_primary_extant() const {
     return primary_extant;
+}
+
+/**
+ * Returns the reading of the primary witness at the variation unit under consideration.
+ */
+string find_relatives_table::get_primary_rdg() const {
+    return primary_rdg;
 }
 
 /**
@@ -264,8 +288,11 @@ void find_relatives_table::to_json(ostream & out) {
     //Open the root object:
     out << "{";
     //Add the metadata fields:
-	out << "\"W1\":" << "\"" << id << "\"" << ",";
-    out << "\"W1_PASS\":" << primary_extant << ",";
+	out << "\"primary_wit\":" << "\"" << id << "\"" << ",";
+    out << "\"primary_extant\":" << primary_extant << ",";
+    out << "\"label\":" << "\"" << label << "\"" << ",";
+    out << "\"connectivity\":" << connectivity << ",";
+    out << "\"primary_rdg\":" << "\"" << primary_rdg << "\"" << ",";
     //Open the rows array:
     out << "\"rows\":" << "[";
     //Print each row as an object:
@@ -274,23 +301,23 @@ void find_relatives_table::to_json(ostream & out) {
         //Open the row object:
         out << "{";
         //Add its key-value pairs:
-        out << "\"W2\":" << "\"" << row.id << "\"" << ",";
-		out << "\"DIR\":" << row.dir << ",";
-		out << "\"NR\":" << "\"" << (row.nr > 0 ? to_string(row.nr) : "") << "\"" << ",";
-		out << "\"RDG\":" << "\"" << row.rdg << "\"" << ",";
-		out << "\"PASS\":" << row.pass << ",";
-		out << "\"EQ\":" << row.eq << ",";
-        out << "\"PERC\":" << row.perc << ",";
-		out << "\"PRIOR\":" << row.prior << ",";
-		out << "\"POSTERIOR\":" << row.posterior << ",";
-		out << "\"NOREL\":" << row.norel << ",";
-        out << "\"UNCL\":" << row.uncl << ",";
-        out << "\"EXPL\":" << row.expl << ",";
+        out << "\"id\":" << "\"" << row.id << "\"" << ",";
+		out << "\"dir\":" << row.dir << ",";
+		out << "\"nr\":" << "\"" << (row.nr > 0 ? to_string(row.nr) : "") << "\"" << ",";
+		out << "\"rdg\":" << "\"" << row.rdg << "\"" << ",";
+		out << "\"pass\":" << row.pass << ",";
+		out << "\"eq\":" << row.eq << ",";
+        out << "\"perc\":" << row.perc << ",";
+		out << "\"prior\":" << row.prior << ",";
+		out << "\"posterior\":" << row.posterior << ",";
+		out << "\"norel\":" << row.norel << ",";
+        out << "\"uncl\":" << row.uncl << ",";
+        out << "\"expl\":" << row.expl << ",";
 		if (row.cost >= 0) {
-			out << "\"COST\":" << "\"" << row.cost << "\"";
+			out << "\"cost\":" << "\"" << row.cost << "\"";
 		}
 		else {
-			out << "\"COST\":" << "\"" << "" << "\"";
+			out << "\"cost\":" << "\"" << "" << "\"";
 		}
         //Close the row object:
         out << "}";

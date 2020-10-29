@@ -16,6 +16,7 @@
 #include "variation_unit.h"
 
 using namespace std;
+using namespace pugi;
 
 /**
  * Default constructor.
@@ -29,11 +30,11 @@ apparatus::apparatus() {
  * A boolean flag indicating whether or not to merge split readings
  * and sets of strings indicating reading types that should be dropped or treated as trivial are also expected.
  */
-apparatus::apparatus(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types) {
+apparatus::apparatus(const xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types) {
 	//Parse the variation units:
 	variation_units = vector<variation_unit>();
-	for (pugi::xpath_node app_path : xml.select_nodes("descendant::app")) {
-		pugi::xml_node app = app_path.node();
+	for (xpath_node app_path : xml.select_nodes("descendant::app")) {
+		xml_node app = app_path.node();
 		variation_unit vu = variation_unit(app, merge_splits, trivial_reading_types, dropped_reading_types);
 		variation_units.push_back(vu);
 	}
@@ -42,8 +43,8 @@ apparatus::apparatus(const pugi::xml_node & xml, bool merge_splits, const set<st
 	//Check if the XML file contains a witness list under its TEI header:
 	if (xml.select_node("teiHeader/sourceDesc/listWit")) {
 		//If so, then copy from the <witness/> elements directly:
-		for (pugi::xpath_node wit_path : xml.select_nodes("teiHeader/sourceDesc/listWit/witness")) {
-			pugi::xml_node wit = wit_path.node();
+		for (xpath_node wit_path : xml.select_nodes("teiHeader/sourceDesc/listWit/witness")) {
+			xml_node wit = wit_path.node();
 			string wit_id = wit.attribute("xml:id") ? wit.attribute("xml:id").value() : (wit.attribute("id") ? wit.attribute("id").value() : (wit.attribute("n") ? wit.attribute("n").value() : ""));
 			list_wit.push_back(wit_id);
 		}

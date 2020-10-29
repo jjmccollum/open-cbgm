@@ -22,6 +22,7 @@
 #include "local_stemma.h"
 
 using namespace std;
+using namespace pugi;
 
 /**
  * Default constructor.
@@ -35,7 +36,7 @@ variation_unit::variation_unit() {
  * A boolean flag indicating whether or not to merge split readings
  * and sets of strings indicating reading types that should be dropped or treated as trivial are also expected.
  */
-variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types) {
+variation_unit::variation_unit(const xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types) {
 	//Populate the ID, if one is specified:
 	id = xml.attribute("xml:id") ? xml.attribute("xml:id").value() : (xml.attribute("id") ? xml.attribute("id").value() : (xml.attribute("n") ? xml.attribute("n").value() : ""));
 	//If the "from" and "to" attributes are present 
@@ -51,9 +52,9 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 		}
 	}
 	//Populate the label, if one is specified (if not, use the ID):
-	pugi::xpath_node label_path = xml.select_node("note/label");
+	xpath_node label_path = xml.select_node("note/label");
 	if (label_path) {
-		pugi::xml_node label_node = label_path.node();
+		xml_node label_node = label_path.node();
 		label = label_node.text() ? label_node.text().get() : id;
 	} else {
 		label = id;
@@ -67,7 +68,7 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 	map<string, string> text_to_reading = map<string, string>(); //to identify split reading pairs
 	set<string> dropped_readings = set<string>();
 	//Proceed for each <rdg/> element:
-	for (pugi::xml_node rdg : xml.children("rdg")) {
+	for (xml_node rdg : xml.children("rdg")) {
 		//Get the reading's ID and its text:
 		string rdg_id = rdg.attribute("n").value();
 		string rdg_text = rdg.text() ? rdg.text().get() : "";
@@ -181,17 +182,17 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 	//Set the connectivity value, using MAX_INT as a default for absolute connectivity:
 	connectivity = numeric_limits<int>::max();
 	//If there is a connectivity feature with a <numeric> child that has a "value" attribute that parses to an int, then use that value:
-	pugi::xpath_node numeric_path = xml.select_node("note/fs/f[@name=\"connectivity\"]/numeric");
+	xpath_node numeric_path = xml.select_node("note/fs/f[@name=\"connectivity\"]/numeric");
 	if (numeric_path) {
-		pugi::xml_node numeric = numeric_path.node();
+		xml_node numeric = numeric_path.node();
 		if (numeric.attribute("value") && numeric.attribute("value").as_int() > 0) {
 			connectivity = numeric.attribute("value").as_int();
 		}
 	}
 	//If there is a <graph/> element, then it contains the local stemma for this variation unit:
-	pugi::xpath_node stemma_path = xml.select_node("note/graph");
+	xpath_node stemma_path = xml.select_node("note/graph");
 	if (stemma_path) {
-		pugi::xml_node stemma_node = stemma_path.node();
+		xml_node stemma_node = stemma_path.node();
 		stemma = local_stemma(stemma_node, id, label, split_pairs, trivial_readings, dropped_readings);
 	}
 }

@@ -17,6 +17,7 @@
 #include "local_stemma.h"
 
 using namespace std;
+using namespace pugi;
 
 /**
  * Populates a given shortest paths map
@@ -85,7 +86,7 @@ local_stemma::local_stemma() {
  * A set of trivial readings may also be specified, whose in-edges will be assigned weights of 0.
  * A set of dropped readings may also be specified, whose vertices and edges will not be added.
  */
-local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, const string & vu_label, const set<pair<string, string>> & split_pairs, const set<string> & trivial_readings, const set<string> & dropped_readings) {
+local_stemma::local_stemma(const xml_node & xml, const string & vu_id, const string & vu_label, const set<pair<string, string>> & split_pairs, const set<string> & trivial_readings, const set<string> & dropped_readings) {
 	//Populate the vertex and edge lists:
 	vertices = list<local_stemma_vertex>();
 	edges = list<local_stemma_edge>();
@@ -96,7 +97,7 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, con
 	//Set the label:
 	label = vu_label;
 	//Add a vertex for each <node/> element:
-	for (pugi::xml_node node : xml.children("node")) {
+	for (xml_node node : xml.children("node")) {
 		//If the node lacks an "n" attribute, then do not add it:
 		if (!node.attribute("n")) {
 			continue;
@@ -112,7 +113,7 @@ local_stemma::local_stemma(const pugi::xml_node & xml, const string & vu_id, con
 		distinct_roots.insert(node_id);
 	}
 	//Add an edge for each <arc/> element:
-	for (pugi::xml_node arc : xml.children("arc")) {
+	for (xml_node arc : xml.children("arc")) {
 		local_stemma_edge e;
 		e.prior = arc.attribute("from").value();
 		e.posterior = arc.attribute("to").value();

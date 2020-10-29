@@ -18,6 +18,8 @@
 #include "witness.h"
 #include "optimize_substemmata_table.h"
 
+using namespace std;
+
  /**
  * Default constructor.
  */

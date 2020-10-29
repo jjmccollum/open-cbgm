@@ -16,6 +16,8 @@
 #include "witness.h"
 #include "compare_witnesses_table.h"
 
+using namespace std;
+
  /**
  * Default constructor.
  */

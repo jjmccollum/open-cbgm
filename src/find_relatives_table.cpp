@@ -17,6 +17,8 @@
 #include "witness.h"
 #include "find_relatives_table.h"
 
+using namespace std;
+
  /**
  * Default constructor.
  */

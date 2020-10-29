@@ -1,15 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
 	<teiHeader>
-		<sourceDesc>
-			<listWit>
-				<witness n="A" />
-				<witness n="B" />
-				<witness n="C" />
-				<witness n="D" />
-				<witness n="E" />
-			</listWit>
-		</sourceDesc>
+		<fileDesc>
+			<titleStmt>
+				<title>TEI XML collation file for open-cbgm unit tests</title>
+			</titleStmt>
+			<publicationStmt>
+				<p>Temporary publicationStmt for validation</p>
+			</publicationStmt>
+			<sourceDesc>
+				<listWit>
+					<witness xml:id="A" />
+					<witness xml:id="B" />
+					<witness xml:id="C" />
+					<witness xml:id="D" />
+					<witness xml:id="E" />
+				</listWit>
+			</sourceDesc>
+		</fileDesc>
 	</teiHeader>
 	<text xml:lang="GRC">
 		<body>
@@ -18,8 +26,8 @@
 					<ab n="B00K0V0">
 						<!-- Simple local stemma with two readings and a clear relationship -->
 						<app n="B00K0V0U2">
-							<rdg n="a" wit="A B C">a</rdg>
-							<rdg n="b" wit="D E">b</rdg>
+							<rdg n="a" wit="#A #B #C">a</rdg>
+							<rdg n="b" wit="#D #E">b</rdg>
 							<note>
 								<label>Test 0:0/2</label>
 								<fs>
@@ -36,23 +44,18 @@
 						</app>
 						<!-- Local stemma with four readings and depth 2 -->
 						<app n="B00K0V0U4">
-							<rdg n="a" wit="A B">a</rdg>
-							<rdg n="b" wit="C">b</rdg>
-							<rdg n="c" wit="D">c</rdg>
-							<rdg n="d" wit="E">d</rdg>
-							<!-- Test explicit "absolute" connectivity -->
+							<rdg n="a" wit="#A #B">a</rdg>
+							<rdg n="b" wit="#C">b</rdg>
+							<rdg n="c" wit="#D">c</rdg>
+							<rdg n="d" wit="#E">d</rdg>
 							<note>
 								<!-- Test with no label -->
-								<fs>
-									<f name="connectivity">
-										<numeric value="absolute" />
-									</f>
-								</fs>
+								<!-- Test implicit "absolute" connectivity -->
 								<graph type="directed">
-									<node n="a">a</node>
-									<node n="b">b</node>
-									<node n="c">c</node>
-									<node n="d">d</node>
+									<node n="a" />
+									<node n="b" />
+									<node n="c" />
+									<node n="d" />
 									<arc from="a" to="b" />
 									<arc from="a" to="c" />
 									<arc from="c" to="d" />
@@ -61,11 +64,11 @@
 						</app>
 						<!-- Local stemma with defective and orthographic subvariants -->
 						<app n="B00K0V0U6">
-							<rdg n="a" wit="A">a</rdg>
-							<rdg n="b" wit="B">b</rdg>
-							<rdg n="bf" type="defective" wit="C">bf</rdg>
-							<rdg n="c" wit="D">c</rdg>
-							<rdg n="co" type="orthographic" wit="E">co</rdg>
+							<rdg n="a" wit="#A">a</rdg>
+							<rdg n="b" wit="#B">b</rdg>
+							<rdg n="bf" type="defective" wit="#C">bf</rdg>
+							<rdg n="c" wit="#D">c</rdg>
+							<rdg n="co" type="orthographic" wit="#E">co</rdg>
 							<note>
 								<label>Test 0:0/6</label>
 								<!-- Test default connectivity value -->
@@ -84,11 +87,11 @@
 						</app>
 						<!-- Local stemma where the Ausgangstext could be one of two readings, there is a split attestation for one reading, and one witness is lacunose -->
 						<app n="B00K0V0U8">
-							<rdg n="a" wit="">a</rdg>
-							<rdg n="b" wit="B">b</rdg>
-							<rdg n="c" wit="D">c</rdg>
-							<rdg n="c2" type="split" wit="C">c</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="A">zw-a/b</rdg>
+							<rdg n="a">a</rdg>
+							<rdg n="b" wit="#B">b</rdg>
+							<rdg n="c" wit="#D">c</rdg>
+							<rdg n="c2" type="split" wit="#C">c</rdg>
+							<rdg n="zw-a/b" type="ambiguous" wit="#A">zw-a/b</rdg>
 							<note>
 								<label>Test 0:0/8</label>
 								<fs>

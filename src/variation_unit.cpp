@@ -73,18 +73,20 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 		string rdg_text = rdg.text() ? rdg.text().get() : "";
 		//Populate its set of reading types:
 		set<string> rdg_types = set<string>();
-		const string type_string = rdg.attribute("type") ? rdg.attribute("type").value() : "";
-		char * type_chars = new char[type_string.length() + 1];
-		strcpy(type_chars, type_string.c_str());
-		const char delim[] = " ";
-		char * type_token = strtok(type_chars, delim);
-		while (type_token) {
-			string rdg_type = string(type_token);
-			rdg_types.insert(rdg_type);
-			type_token = strtok(NULL, delim); //iterate to the next token
+		if (rdg.attribute("type")) {
+			const string type_string = rdg.attribute("type").value();
+			char * type_chars = new char[type_string.length() + 1];
+			strcpy(type_chars, type_string.c_str());
+			const char delim[] = " ";
+			char * type_token = strtok(type_chars, delim);
+			while (type_token) {
+				string rdg_type = string(type_token);
+				rdg_types.insert(rdg_type);
+				type_token = strtok(NULL, delim); //iterate to the next token
+			}
+			delete [] type_chars;
+			delete [] type_token;
 		}
-		delete [] type_chars;
-		delete [] type_token;
 		//If it has any of the dropped reading types, then do not process this reading:
 		if (!rdg_types.empty()) {
 		    bool is_dropped = false;
@@ -103,26 +105,29 @@ variation_unit::variation_unit(const pugi::xml_node & xml, bool merge_splits, co
 		reading_types_by_reading[rdg_id] = rdg_types;
 		//Add the reading ID to the list:
 		readings.push_back(rdg_id);
-		//Split the witness support attribute into a list of witness strings:
+		//Split the witness support attribute into a list of witness IDs:
 		list<string> wits = list<string>();
-		const string wit_string = rdg.attribute("wit").value();
-		char * wit_chars = new char[wit_string.length() + 1];
-		strcpy(wit_chars, wit_string.c_str());
-		char * wit_token = strtok(wit_chars, delim); //reuse the space delimiter from before
-		while (wit_token) {
-			//Strip the reference of any initial "#" character:
-			string wit = string(wit_token);
-			wit = wit.rfind("#", 0) == 0 ? wit.erase(0, 1) : wit;
-			//Strip the reference of any final "*" character:
-			wit = wit.rfind("*") == wit.length() - 1 ? wit.erase(wit.length() - 1) : wit;
-			//Strip the reference of any final "V" character:
-			wit = wit.rfind("V") == wit.length() - 1 ? wit.erase(wit.length() - 1) : wit;
-			//Then add the resulting ID to the witnesses set:
-			wits.push_back(wit);
-			wit_token = strtok(NULL, delim); //iterate to the next token
+		if (rdg.attribute("wit")) {
+			const string wit_string = rdg.attribute("wit").value();
+			char * wit_chars = new char[wit_string.length() + 1];
+			strcpy(wit_chars, wit_string.c_str());
+			const char delim[] = " ";
+			char * wit_token = strtok(wit_chars, delim); //reuse the space delimiter from before
+			while (wit_token) {
+				string wit = string(wit_token);
+				//Strip the reference of any initial "#" character, if it has one:
+				wit = wit.rfind("#", 0) == 0 ? wit.erase(0, 1) : wit;
+				//Strip the reference of any final sigla:
+				while (wit.rfind("*") == wit.length() - 1 || wit.rfind("T") == wit.length() - 1 || wit.rfind("V") == wit.length() - 1) {
+					wit = wit.erase(wit.length() - 1);
+				}
+				//Then add the resulting ID to the witnesses set:
+				wits.push_back(wit);
+				wit_token = strtok(NULL, delim); //iterate to the next token
+			}
+			delete [] wit_chars;
+			delete [] wit_token;
 		}
-		delete [] wit_chars;
-		delete [] wit_token;
 		//Add these witnesses to the reading support map:
 		for (string wit : wits) {
 			//Add an empty list for each reading we haven't encountered yet:

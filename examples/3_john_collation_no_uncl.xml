@@ -1,147 +1,155 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
 	<teiHeader>
-		<sourceDesc>
-			<listWit>
-				<witness n="A" />
-				<witness n="Byz" />
-				<witness n="P74" />
-				<witness n="01" />
-				<witness n="02" />
-				<witness n="03" />
-				<witness n="04" />
-				<witness n="018" />
-				<witness n="020" />
-				<witness n="025" />
-				<witness n="044" />
-				<witness n="048" />
-				<witness n="049" />
-				<witness n="0142" />
-				<witness n="0251" />
-				<witness n="1" />
-				<witness n="5" />
-				<witness n="6" />
-				<witness n="18" />
-				<witness n="33" />
-				<witness n="35" />
-				<witness n="43" />
-				<witness n="61" />
-				<witness n="69" />
-				<witness n="81" />
-				<witness n="88" />
-				<witness n="93" />
-				<witness n="94" />
-				<witness n="104" />
-				<witness n="180" />
-				<witness n="181" />
-				<witness n="206S" />
-				<witness n="218" />
-				<witness n="252" />
-				<witness n="254" />
-				<witness n="307" />
-				<witness n="319" />
-				<witness n="321" />
-				<witness n="323" />
-				<witness n="326" />
-				<witness n="330" />
-				<witness n="365" />
-				<witness n="378" />
-				<witness n="398" />
-				<witness n="400" />
-				<witness n="424" />
-				<witness n="429" />
-				<witness n="431" />
-				<witness n="436" />
-				<witness n="442" />
-				<witness n="453" />
-				<witness n="459" />
-				<witness n="467" />
-				<witness n="468" />
-				<witness n="522" />
-				<witness n="607" />
-				<witness n="614" />
-				<witness n="617" />
-				<witness n="621" />
-				<witness n="623" />
-				<witness n="629" />
-				<witness n="630" />
-				<witness n="642" />
-				<witness n="720" />
-				<witness n="808" />
-				<witness n="876" />
-				<witness n="915" />
-				<witness n="918" />
-				<witness n="945" />
-				<witness n="996" />
-				<witness n="1067" />
-				<witness n="1127" />
-				<witness n="1175" />
-				<witness n="1241" />
-				<witness n="1243" />
-				<witness n="1270" />
-				<witness n="1292" />
-				<witness n="1297" />
-				<witness n="1359" />
-				<witness n="1409" />
-				<witness n="1448" />
-				<witness n="1490" />
-				<witness n="1501" />
-				<witness n="1505" />
-				<witness n="1523" />
-				<witness n="1524" />
-				<witness n="1563" />
-				<witness n="1595" />
-				<witness n="1609" />
-				<witness n="1611" />
-				<witness n="1661" />
-				<witness n="1678" />
-				<witness n="1718" />
-				<witness n="1729" />
-				<witness n="1735" />
-				<witness n="1739" />
-				<witness n="1751" />
-				<witness n="1799" />
-				<witness n="1827" />
-				<witness n="1831" />
-				<witness n="1832" />
-				<witness n="1836" />
-				<witness n="1837" />
-				<witness n="1838" />
-				<witness n="1842" />
-				<witness n="1844" />
-				<witness n="1845" />
-				<witness n="1846" />
-				<witness n="1852" />
-				<witness n="1874" />
-				<witness n="1875" />
-				<witness n="1881" />
-				<witness n="1890" />
-				<witness n="2138" />
-				<witness n="2147" />
-				<witness n="2186" />
-				<witness n="2200" />
-				<witness n="2243" />
-				<witness n="2298" />
-				<witness n="2344" />
-				<witness n="2374" />
-				<witness n="2412" />
-				<witness n="2423" />
-				<witness n="2464" />
-				<witness n="2492" />
-				<witness n="2541" />
-				<witness n="2544" />
-				<witness n="2652" />
-				<witness n="2718" />
-				<witness n="2774" />
-				<witness n="2805" />
-				<witness n="2818" />
-				<witness n="L596" />
-				<witness n="L921" />
-				<witness n="L938" />
-				<witness n="L1141" />
-				<witness n="L1281" />
-			</listWit>
-		</sourceDesc>
+		<fileDesc>
+			<titleStmt>
+				<title>TEI XML collation file for open-cbgm unit tests</title>
+			</titleStmt>
+			<publicationStmt>
+				<p>Temporary publicationStmt for validation</p>
+			</publicationStmt>
+			<sourceDesc>
+				<listWit>
+					<witness n="A" />
+					<witness n="Byz" />
+					<witness n="P74" />
+					<witness n="01" />
+					<witness n="02" />
+					<witness n="03" />
+					<witness n="04" />
+					<witness n="018" />
+					<witness n="020" />
+					<witness n="025" />
+					<witness n="044" />
+					<witness n="048" />
+					<witness n="049" />
+					<witness n="0142" />
+					<witness n="0251" />
+					<witness n="1" />
+					<witness n="5" />
+					<witness n="6" />
+					<witness n="18" />
+					<witness n="33" />
+					<witness n="35" />
+					<witness n="43" />
+					<witness n="61" />
+					<witness n="69" />
+					<witness n="81" />
+					<witness n="88" />
+					<witness n="93" />
+					<witness n="94" />
+					<witness n="104" />
+					<witness n="180" />
+					<witness n="181" />
+					<witness n="206S" />
+					<witness n="218" />
+					<witness n="252" />
+					<witness n="254" />
+					<witness n="307" />
+					<witness n="319" />
+					<witness n="321" />
+					<witness n="323" />
+					<witness n="326" />
+					<witness n="330" />
+					<witness n="365" />
+					<witness n="378" />
+					<witness n="398" />
+					<witness n="400" />
+					<witness n="424" />
+					<witness n="429" />
+					<witness n="431" />
+					<witness n="436" />
+					<witness n="442" />
+					<witness n="453" />
+					<witness n="459" />
+					<witness n="467" />
+					<witness n="468" />
+					<witness n="522" />
+					<witness n="607" />
+					<witness n="614" />
+					<witness n="617" />
+					<witness n="621" />
+					<witness n="623" />
+					<witness n="629" />
+					<witness n="630" />
+					<witness n="642" />
+					<witness n="720" />
+					<witness n="808" />
+					<witness n="876" />
+					<witness n="915" />
+					<witness n="918" />
+					<witness n="945" />
+					<witness n="996" />
+					<witness n="1067" />
+					<witness n="1127" />
+					<witness n="1175" />
+					<witness n="1241" />
+					<witness n="1243" />
+					<witness n="1270" />
+					<witness n="1292" />
+					<witness n="1297" />
+					<witness n="1359" />
+					<witness n="1409" />
+					<witness n="1448" />
+					<witness n="1490" />
+					<witness n="1501" />
+					<witness n="1505" />
+					<witness n="1523" />
+					<witness n="1524" />
+					<witness n="1563" />
+					<witness n="1595" />
+					<witness n="1609" />
+					<witness n="1611" />
+					<witness n="1661" />
+					<witness n="1678" />
+					<witness n="1718" />
+					<witness n="1729" />
+					<witness n="1735" />
+					<witness n="1739" />
+					<witness n="1751" />
+					<witness n="1799" />
+					<witness n="1827" />
+					<witness n="1831" />
+					<witness n="1832" />
+					<witness n="1836" />
+					<witness n="1837" />
+					<witness n="1838" />
+					<witness n="1842" />
+					<witness n="1844" />
+					<witness n="1845" />
+					<witness n="1846" />
+					<witness n="1852" />
+					<witness n="1874" />
+					<witness n="1875" />
+					<witness n="1881" />
+					<witness n="1890" />
+					<witness n="2138" />
+					<witness n="2147" />
+					<witness n="2186" />
+					<witness n="2200" />
+					<witness n="2243" />
+					<witness n="2298" />
+					<witness n="2344" />
+					<witness n="2374" />
+					<witness n="2412" />
+					<witness n="2423" />
+					<witness n="2464" />
+					<witness n="2492" />
+					<witness n="2541" />
+					<witness n="2544" />
+					<witness n="2652" />
+					<witness n="2718" />
+					<witness n="2774" />
+					<witness n="2805" />
+					<witness n="2818" />
+					<witness n="L596" />
+					<witness n="L921" />
+					<witness n="L938" />
+					<witness n="L1141" />
+					<witness n="L1281" />
+				</listWit>
+			</sourceDesc>
+		</fileDesc>
 	</teiHeader>
 	<text xml:lang="GRC">
 		<body>
@@ -541,7 +549,7 @@
 								χαραν
 							</rdg>
 							<rdg n="h" wit="1359">μειζοτερας ουκ εχω ταυτης χαραν</rdg>
-							<rdg n="i" wit="">μειζοτεραν τουτων ουκ εχω χαριν</rdg>
+							<rdg n="i">μειζοτεραν τουτων ουκ εχω χαριν</rdg>
 							<rdg n="j" wit="03">μειζοτεραν τουτων ουκ εχων χαριν</rdg>
 							<rdg n="k" wit="2298">μειζοτεραν τουτων χαριν ουκ εχω</rdg>
 							<rdg n="l" wit="1243 2492">μειζοτεραν ταυτης χαριν ουκ εχω</rdg>
@@ -638,7 +646,7 @@
 						</app>
 						<!-- <app n="B25K1V4U22-26">
 							<rdg n="a"
-								wit="A Byz 01 018 020 025 044 048 049 0142 1 5 6 18 35 43 69 88 93 94 104 180 181 206S 218 252 254 307 319 321 323 330 378 398 400 424 429 442 453 459 467 468 522 607 614 617 621 623 629 630 642 720 808 876 915 918 996 1067 1127 1175 1241 1243 1292 1359 1448 1490 1501 1505 1523 1524 1563 1609 1611 1661 1718 1729 1739 1751 1799 1827 1831 1832 1836 1838 1842 1844 1845 1846 1874 1875 1890 2138 2147 2186 2200 2243 2298 2374 2412 2423 2464 2492 2544 2652 2718 2774 2805 2818 L596 L921 L938 L1141 L1281">εν αληθεια περιπατουνται</rdg>
+								wit="A Byz 01 018 020 025 044 048 049 0142 1 5 6 18 35 43 69 88 93 94 104 180 181 206S 218 252 254 307 319 321 323 330 378 398 400 424 429 442 453 459 467 468 522 607 614 617 621 623 629 630 642 720 808 876 915 918 996 1067 1127 1175 1241 1243 1292 1359 1448 1490 1501 1505 1523 1524 1563 1609 1611 1661 1718 1729 1739 1751 1799 1827 1831 1832 1836 1838 1842 1844 1845 1846 1874 1875 1890 2138 2147 2186 2200 2243 2298 2374 2412 2423 2464 2492 2544 2652 2718 2774 2805 2818 L596 L921 L938 L1141 L1281">εν αληθεια περιπατουντα</rdg>
 							<rdg n="af" type="defective" wit="1881">εν αληθεια περιπατουντο
 							</rdg>
 							<rdg n="b" wit="02 03 04 33 81 431 436 1409 1735 1852 2541">εν τη αληθεια περιπατουντα</rdg>
@@ -968,8 +976,8 @@
 							<rdg n="e" wit="61">ποιων προπεμπεις</rdg>
 							<rdg n="g" wit="2544">ποιησεις προπεμπων</rdg>
 							<rdg n="h" wit="L921">ποιησεις προπεμψαι</rdg>
-							<rdg n="zw-a/b/c" type="ambiguous" wit="33">zw-a/b/c</rdg>
-							<rdg n="zw-a/b/c-2" type="ambiguous defective" wit="1844">zw-a/b/c
+							<rdg n="zw-a/b/c-1" type="ambiguous" wit="33">zw-a/b/c</rdg>
+							<rdg n="zw-a/b/c-2" type="ambiguous" wit="1844">zw-a/b/c
 							</rdg>
 							<note>
 								<label>3Jo 1:6/20-22</label>
@@ -987,7 +995,7 @@
 									<node n="f" />
 									<node n="g" />
 									<node n="h" />
-									<node n="zw-a/b/c" />
+									<node n="zw-a/b/c-1" />
 									<node n="zw-a/b/c-2" />
 									<arc from="a" to="b" />
 									<arc from="a" to="c" />
@@ -995,11 +1003,11 @@
 									<arc from="a" to="e" />
 									<arc from="a" to="g" />
 									<arc from="a" to="h" />
-									<arc from="a" to="zw-a/b/c" />
+									<arc from="a" to="zw-a/b/c-1" />
 									<arc from="a" to="zw-a/b/c-2" />
-									<arc from="b" to="zw-a/b/c" />
+									<arc from="b" to="zw-a/b/c-1" />
 									<arc from="b" to="zw-a/b/c-2" />
-									<arc from="c" to="zw-a/b/c" />
+									<arc from="c" to="zw-a/b/c-1" />
 									<arc from="c" to="zw-a/b/c-2" />
 								</graph>
 							</note>
@@ -1149,7 +1157,7 @@
 								wit="A Byz 01 02 03 04 018 020 025 044 049 0142 1 6 18 35 43 69 88 93 94 104 180 181 206S 252 254 307 319 321 330 378 398 400 424 429 442 453 459 467 468 522 607 614 621 629 630 720 876 915 918 945 996 1175 1243 1270 1292 1297 1448 1490 1501 1505 1523 1524 1595 1609 1611 1661 1678 1729 1751 1799 1827 1831 1832 1836 1838 1842 1844 1845 1846 1852 1874 1875 1890 2138 2147 2186 2200 2243 2298 2412 2423 2492 2544 2652 2718 2818 L596 L921 L938 L1141">απο</rdg>
 							<rdg n="b"
 								wit="048 5 33 61 81 218 326 431 436 617 623 642 808 1067 1127 1241 1359 1409 1563 1718 1735 1739 1837 1881 2344 2374 2541 2774 2805 L1281">παρα</rdg>
-							<rdg n="zw-a/b" type="ambiguous defective" wit="323">zw-a/b</rdg>
+							<rdg n="zw-a/b" type="ambiguous" wit="323">zw-a/b</rdg>
 							<note>
 								<label>3Jo 1:7/16</label>
 								<fs>
@@ -2511,7 +2519,7 @@
 								wit="A 02 03 04 048 5 69 81 93 323 326 436 623 629 1067 1241 1243 1409 1735 1739 1837 1881 2298 2541">σε ιδειν</rdg>
 							<rdg n="b"
 								wit="Byz 01 018 020 025 044 049 0142 1 6 18 35 43 61 88 94 104 180 181 206S 218 252 254 307 319 321 330 378 398 400 424 429 431 442 453 459 467 468 522 607 614 617 621 630 642 720 808 876 915 945 996 1127 1175 1270 1292 1297 1359 1448 1490 1501 1505 1523 1524 1563 1595 1609 1611 1661 1678 1718 1729 1751 1799 1827 1831 1832 1836 1838 1842 1844 1845 1846 1852 1874 1875 1890 2138 2147 2186 2200 2243 2374 2412 2423 2492 2544 2652 2718 2774 2818 L596 L921 L938 L1141 L1281">ιδειν σε</rdg>
-							<rdg n="zw-a/b" type="ambiguous defective" wit="2805">ιδειν</rdg>
+							<rdg n="zw-a/b" type="ambiguous" wit="2805">ιδειν</rdg>
 							<note>
 								<label>3Jo 1:14/8-10</label>
 								<fs>

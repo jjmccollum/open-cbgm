@@ -16,6 +16,7 @@
 #include "roaring.hh"
 
 using namespace std;
+using namespace roaring;
 
 /**
  * Default constructor.

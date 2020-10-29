@@ -16,16 +16,14 @@
 #include "variation_unit.h"
 #include "witness.h"
 
-using namespace std;
-
  /**
  * Data structure representing a row of the witness comparison table.
  */
 struct find_relatives_table_row {
-	string id; //ID of the secondary witness
+	std::string id; //ID of the secondary witness
 	int dir; //-1 if primary witness is prior; 1 if posterior; 0 otherwise
 	int nr; //rank of the secondary witness as a potential ancestor of the primary witness
-	string rdg; //reading of the secondary witness at the given passage
+	std::string rdg; //reading of the secondary witness at the given passage
 	int pass; //number of passages where both witnesses are extant
 	float perc; //percentage of agreement in passages where both witnesses are extant
 	int eq; //number of passages where both witnesses agree
@@ -39,26 +37,26 @@ struct find_relatives_table_row {
 
 class find_relatives_table {
 private:
-    string id;
-    string label;
+    std::string id;
+    std::string label;
     int connectivity;
     int primary_extant;
-    string primary_rdg;
-	list<find_relatives_table_row> rows;
+    std::string primary_rdg;
+	std::list<find_relatives_table_row> rows;
 public:
 	find_relatives_table();
-	find_relatives_table(const witness & wit, const variation_unit & vu, const list<string> list_wit, const set<string> & filter_wits);
+	find_relatives_table(const witness & wit, const variation_unit & vu, const std::list<std::string> list_wit, const std::set<std::string> & filter_wits);
 	virtual ~find_relatives_table();
-    string get_id() const;
-    string get_label() const;
+    std::string get_id() const;
+    std::string get_label() const;
     int get_connectivity() const;
     int get_primary_extant() const;
-    string get_primary_rdg() const;
-    list<find_relatives_table_row> get_rows() const;
-    void to_fixed_width(ostream & out);
-	void to_csv(ostream & out);
-    void to_tsv(ostream & out);
-    void to_json(ostream & out);
+    std::string get_primary_rdg() const;
+    std::list<find_relatives_table_row> get_rows() const;
+    void to_fixed_width(std::ostream & out);
+	void to_csv(std::ostream & out);
+    void to_tsv(std::ostream & out);
+    void to_json(std::ostream & out);
 };
 
 #endif /* FIND_RELATIVES_TABLE_H */

@@ -21,6 +21,7 @@
 #include "local_stemma.h"
 
 using namespace std;
+using namespace roaring;
 
 /**
  * Default constructor.

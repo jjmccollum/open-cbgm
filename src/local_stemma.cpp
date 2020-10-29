@@ -292,7 +292,7 @@ bool local_stemma::common_ancestor_exists(const string & r1, const string & r2) 
  * Given an output stream, writes the local stemma graph to output in .dot format.
  * An optional flag indicating whether to print edge weights can also be specified.
  */
-void local_stemma::to_dot(ostream & out, bool print_weights=false) {
+void local_stemma::to_dot(ostream & out, bool print_weights) {
 	//Add the graph first:
 	out << "digraph local_stemma {\n";
 	//Add a subgraph for the legend:

@@ -15,8 +15,6 @@
 
 #include "roaring.hh"
 
-using namespace std;
-
 /**
  * Enumeration of states for an accept-reject branch and bound node.
  */
@@ -34,9 +32,9 @@ struct branch_and_bound_node {
  * Data structure representing a set cover row, including the ID of the witness it represents and its cost.
  */
 struct set_cover_row {
-	string id;
-	Roaring agreements;
-	Roaring explained;
+	std::string id;
+	roaring::Roaring agreements;
+	roaring::Roaring explained;
 	float cost;
 };
 
@@ -44,32 +42,32 @@ struct set_cover_row {
  * Data structure representing a set cover solution.
  */
 struct set_cover_solution {
-	list<set_cover_row> rows;
+	std::list<set_cover_row> rows;
 	int agreements;
 	float cost;
 };
 
 class set_cover_solver {
 private:
-	vector<set_cover_row> rows;
-	Roaring target;
-	float fixed_ub = numeric_limits<float>::infinity();
+	std::vector<set_cover_row> rows;
+	roaring::Roaring target;
+	float fixed_ub = std::numeric_limits<float>::infinity();
 public:
 	set_cover_solver();
-	set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target);
-	set_cover_solver(const vector<set_cover_row> & _rows, const Roaring & _target, float _fixed_ub);
+	set_cover_solver(const std::vector<set_cover_row> & _rows, const roaring::Roaring & _target);
+	set_cover_solver(const std::vector<set_cover_row> & _rows, const roaring::Roaring & _target, float _fixed_ub);
 	virtual ~set_cover_solver();
-	set_cover_solution get_solution_from_rows(const Roaring & solution_rows) const;
-	Roaring get_uncovered_columns() const;
-	Roaring get_unique_rows() const;
-	bool is_feasible(const Roaring & solution_rows) const;
-	void remove_redundant_rows_from_solution(Roaring & initial_solution_rows) const;
+	set_cover_solution get_solution_from_rows(const roaring::Roaring & solution_rows) const;
+	roaring::Roaring get_uncovered_columns() const;
+	roaring::Roaring get_unique_rows() const;
+	bool is_feasible(const roaring::Roaring & solution_rows) const;
+	void remove_redundant_rows_from_solution(roaring::Roaring & initial_solution_rows) const;
 	set_cover_solution get_trivial_solution() const;
 	set_cover_solution get_greedy_solution() const;
-	void branch(const Roaring & remaining, stack<branch_and_bound_node> & nodes);
-	float bound(const Roaring & solution_rows) const;
-	void branch_and_bound(list<set_cover_solution> & solutions);
-	void solve(list<set_cover_solution> & solutions);
+	void branch(const roaring::Roaring & remaining, std::stack<branch_and_bound_node> & nodes);
+	float bound(const roaring::Roaring & solution_rows) const;
+	void branch_and_bound(std::list<set_cover_solution> & solutions);
+	void solve(std::list<set_cover_solution> & solutions);
 };
 
 #endif /* SET_COVER_SOLVER_H */

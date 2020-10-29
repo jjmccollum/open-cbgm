@@ -12,40 +12,38 @@
 #include <list>
 #include <map>
 
-using namespace std;
-
 struct unit_test {
-	string name;
-	string msg;
+	std::string name;
+	std::string msg;
 	bool passed;
 };
 
 struct module_test {
-	string name;
-	list<unit_test> units;
+	std::string name;
+	std::list<unit_test> units;
 };
 
 struct library_test {
-	string name;
-	list<module_test> modules;
+	std::string name;
+	std::list<module_test> modules;
 };
 
 class autotest {
 private:
-	string target_module;
-	string target_test;
-	list<string> modules;
-	map<string, list<string>> tests_by_module;
-	map<string, string> parent_module_by_test;
+	std::string target_module;
+	std::string target_test;
+	std::list<std::string> modules;
+	std::map<std::string, std::list<std::string>> tests_by_module;
+	std::map<std::string, std::string> parent_module_by_test;
 	library_test lib_test;
 public:
 	autotest();
-	autotest(const list<string> & _modules, const map<string, list<string>> & _tests_by_module);
+	autotest(const std::list<std::string> & _modules, const std::map<std::string, std::list<std::string>> & _tests_by_module);
 	~autotest();
 	void print_modules() const;
 	void print_tests() const;
-	bool set_target_module(const string & _target_module);
-	bool set_target_test(const string & _target_test);
+	bool set_target_module(const std::string & _target_module);
+	bool set_target_test(const std::string & _target_test);
 	void run();
 	const library_test get_results() const;
 };

@@ -15,13 +15,11 @@
 
 #include "witness.h"
 
-using namespace std;
-
  /**
  * Data structure representing a row of the witness comparison table.
  */
 struct compare_witnesses_table_row {
-	string id; //ID of the secondary witness
+	std::string id; //ID of the secondary witness
 	int dir; //-1 if primary witness is prior; 1 if posterior; 0 otherwise
 	int nr; //rank of the secondary witness as a potential ancestor of the primary witness
 	int pass; //number of passages where both witnesses are extant
@@ -37,20 +35,20 @@ struct compare_witnesses_table_row {
 
 class compare_witnesses_table {
 private:
-    string id;
+    std::string id;
     int primary_extant;
-	list<compare_witnesses_table_row> rows;
+	std::list<compare_witnesses_table_row> rows;
 public:
 	compare_witnesses_table();
-	compare_witnesses_table(const witness & wit, const list<string> list_wit, const set<string> & filter_wits);
+	compare_witnesses_table(const witness & wit, const std::list<std::string> list_wit, const std::set<std::string> & filter_wits);
 	virtual ~compare_witnesses_table();
-    string get_id() const;
+    std::string get_id() const;
     int get_primary_extant() const;
-    list<compare_witnesses_table_row> get_rows() const;
-    void to_fixed_width(ostream & out);
-	void to_csv(ostream & out);
-    void to_tsv(ostream & out);
-    void to_json(ostream & out);
+    std::list<compare_witnesses_table_row> get_rows() const;
+    void to_fixed_width(std::ostream & out);
+	void to_csv(std::ostream & out);
+    void to_tsv(std::ostream & out);
+    void to_json(std::ostream & out);
 };
 
 #endif /* COMPARE_WITNESSES_TABLE_H */

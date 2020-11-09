@@ -41,9 +41,9 @@ apparatus::apparatus(const xml_node & xml, bool merge_splits, const set<string> 
 	//Then populate the list of witness IDs:
 	list_wit = list<string>();
 	//Check if the XML file contains a witness list under its TEI header:
-	if (xml.select_node("teiHeader/sourceDesc/listWit")) {
+	if (xml.select_node("teiHeader/fileDesc/sourceDesc/listWit")) {
 		//If so, then copy from the <witness/> elements directly:
-		for (xpath_node wit_path : xml.select_nodes("teiHeader/sourceDesc/listWit/witness")) {
+		for (xpath_node wit_path : xml.select_nodes("teiHeader/fileDesc/sourceDesc/listWit/witness")) {
 			xml_node wit = wit_path.node();
 			string wit_id = wit.attribute("xml:id") ? wit.attribute("xml:id").value() : (wit.attribute("id") ? wit.attribute("id").value() : (wit.attribute("n") ? wit.attribute("n").value() : ""));
 			list_wit.push_back(wit_id);

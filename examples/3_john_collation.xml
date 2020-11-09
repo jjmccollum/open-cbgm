@@ -6,7 +6,9 @@
 				<title>TEI XML collation file for open-cbgm unit tests</title>
 			</titleStmt>
 			<publicationStmt>
-				<p>Temporary publicationStmt for validation</p>
+				<publisher>Deutsche Bibelgesellschaft</publisher>
+				<pubPlace>Stuttgart</pubPlace>
+				<date>2014</date>
 			</publicationStmt>
 			<sourceDesc>
 				<listWit>

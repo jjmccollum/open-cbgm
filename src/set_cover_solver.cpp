@@ -406,14 +406,19 @@ void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 	if (subproblem_target.isEmpty()) {
 		set_cover_solution solution = get_solution_from_rows(unique_rows);
 		solutions.push_back(solution);
-		//If we're just looking for a minimum-cost solution, then this is is the unique lowest-cost solution, and we're done:
+		//If we're just looking for a minimum-cost solution, then this is the unique lowest-cost solution, and we're done:
 		if (fixed_ub == numeric_limits<float>::infinity()) {
 			return;
 		}
 	}
 	//Otherwise, solve the subproblem using branch-and-bound:
 	vector<set_cover_row> subproblem_rows = vector<set_cover_row>();
-	for (set_cover_row row : rows) {
+	for (unsigned int row_ind = 0; row_ind < rows.size(); row_ind++) {
+		//Exclude all rows that uniquely cover one or more columns (and therefore must already be included in the solution of the original problem):
+		if (unique_rows.contains(row_ind)) {
+			continue;
+		}
+		set_cover_row row = rows[row_ind];
 		//If the row has a cost that exceeds the upper bound of the subproblem, then exclude it:
 		if (row.cost > subproblem_ub) {
 			continue;

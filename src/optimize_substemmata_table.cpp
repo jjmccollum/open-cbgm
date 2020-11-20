@@ -82,7 +82,8 @@ list<optimize_substemmata_table_row> optimize_substemmata_table::get_rows() cons
  */
 void optimize_substemmata_table::to_fixed_width(ostream & out) {
     //Print the caption:
-	out << "Optimal substemmata for witness W1 = " << id << ":\n\n";
+	out << "Substemmata for witness W1 = " << id << " (" << primary_extant << " extant passages):";
+	out << "\n\n";
 	//Print the header row:
 	out << std::left << std::setw(48) << "ANCESTORS";
 	out << std::right << std::setw(8) << "COST";

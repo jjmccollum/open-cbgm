@@ -60,4 +60,4 @@ If you wish to incorporate the open-cbgm library as a dependency for your own li
 
 ## Citation
 
-To cite this software, please use the information associated with its DOI page: [![DOI](https://zenodo.org/badge/222792228.svg)](https://zenodo.org/badge/latestdoi/222792228).
+To cite this software, please use the information associated with its DOI page: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4048498.svg)](https://doi.org/10.5281/zenodo.4048498).

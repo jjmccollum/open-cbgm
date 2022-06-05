@@ -38,6 +38,7 @@ private:
 	std::list<textual_flow_edge> edges;
 public:
 	textual_flow();
+	textual_flow(const variation_unit & vu, const std::list<witness> & witnesses, int _connectivity);
 	textual_flow(const variation_unit & vu, const std::list<witness> & witnesses);
 	virtual ~textual_flow();
 	std::string get_label() const;

@@ -30,14 +30,15 @@ textual_flow::textual_flow() {
 }
 
 /**
- * Constructs a textual flow instance from a variation unit
- * and a list of witnesses (whose lists of potential ancestors are assumed to be populated).
+ * Constructs a textual flow instance from a variation unit,
+ * a list of witnesses (whose lists of potential ancestors are assumed to be populated),
+ * and a desired connectivity limit (to override the default limit in the variation unit).
  */
-textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witnesses) {
+textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witnesses, int _connectivity) {
 	//Copy the label, readings, and connectivity from the variation unit:
 	label = vu.get_label();
 	readings = vu.get_readings();
-	connectivity = vu.get_connectivity();
+	connectivity = _connectivity;
 	//Get the variation unit's local stemma:
 	local_stemma ls = vu.get_local_stemma();
 	//Initialize the vertex and edge lists as empty:
@@ -153,6 +154,13 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		}
 	}
 }
+
+/**
+ * Constructs a textual flow instance from a variation unit
+ * and a list of witnesses (whose lists of potential ancestors are assumed to be populated),
+ * using the variation unit's default connectivity value as the connectivity value.
+ */
+textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witnesses) : textual_flow::textual_flow(vu, witnesses, vu.get_connectivity()) {}
 
 /**
  * Default destructor.
@@ -385,7 +393,7 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 	//Add a subgraph for the legend:
 	out << "\tsubgraph cluster_legend {\n";
 	//Add a box node indicating the label of this graph:
-	out << "\t\tlabel [shape=plaintext, label=\"" << label << rdg << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
+	out << "\t\tlabel [shape=plaintext, label=\"" << label << ", " << rdg << "\\nCon = " << (connectivity == numeric_limits<int>::max() ? "Absolute" : to_string(connectivity)) << "\"];\n";
 	out << "\t}\n";
 	//Add a subgraph for the plot:
 	out << "\tsubgraph cluster_plot {\n";
@@ -404,69 +412,66 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 		id_to_index[wit_id] = i;
 		indexed_vertices.push_back(v);
 	}
-	//Now draw the primary set of vertices corresponding to witnesses with the input reading:
-	unordered_set<string> primary_set = unordered_set<string>();
+	//Initially filter out any vertices that do not have the given reading:
+    list<textual_flow_vertex> coherence_in_attestations_vertices = list<textual_flow_vertex>(vertices);
+    coherence_in_attestations_vertices.remove_if([&](const textual_flow_vertex & v) {
+		return v.rdg != rdg;
+	});
+    //Add all of the graph edges ending at one of the remaining vertices, except for secondary graph edges for changes:
+    unordered_set<string> witnesses_with_rdg = unordered_set<string>();
+	for (textual_flow_vertex v : coherence_in_attestations_vertices) {
+		witnesses_with_rdg.insert(v.id);
+	}
+    list<textual_flow_edge> edges_with_descendants_with_rdg = list<textual_flow_edge>(edges);
+    edges_with_descendants_with_rdg.remove_if([&](const textual_flow_edge & e) {
+		return witnesses_with_rdg.find(e.descendant) == witnesses_with_rdg.end();
+	});
+	//Then add the secondary graph edges, taking only the first one for each descendant:
+	unordered_set<string> processed_descendants = unordered_set<string>();
+	list<textual_flow_edge> distinct_descendant_edges = list<textual_flow_edge>();
+    for (textual_flow_edge e : edges_with_descendants_with_rdg) {
+	    if (processed_descendants.find(e.descendant) != processed_descendants.end()) {
+	        continue;
+	    }
+	    processed_descendants.insert(e.descendant);
+	    distinct_descendant_edges.push_back(e);
+	}
+	list<textual_flow_edge> coherence_in_attestations_edges = list<textual_flow_edge>(distinct_descendant_edges);
+	//Add any ancestors on these edges that do not have the given reading:
+	unordered_set<string> ancestors_without_rdg = unordered_set<string>();
+	for (textual_flow_edge e : distinct_descendant_edges) {
+	    if (witnesses_with_rdg.find(e.ancestor) == witnesses_with_rdg.end()) {
+	        ancestors_without_rdg.insert(e.ancestor);
+	    }
+	}
 	for (textual_flow_vertex v : vertices) {
-		//If this witness does not have the specified reading, then skip it:
+	    if (ancestors_without_rdg.find(v.id) != ancestors_without_rdg.end()) {
+	        coherence_in_attestations_vertices.push_back(v);
+	    }
+	}
+	//Now draw the vertices:
+	for (textual_flow_vertex v : coherence_in_attestations_vertices) {
+		//Does this vertex correspond to a witness with the specified reading?
 		string wit_id = v.id;
-		string wit_rdg = v.rdg;
-		if (wit_rdg != rdg) {
-			continue;
-		}
-		//Otherwise, draw a vertex with its numerical index:
 		int wit_ind = id_to_index.at(wit_id);
-		//Then add the node:
-		out << "\t\t" << wit_ind;
-		out << " [label=\"" << wit_id << " (" << wit_rdg << ")\"]";
-		out << ";\n";
-		primary_set.insert(wit_id);
+		string wit_rdg = v.rdg;
+		if (witnesses_with_rdg.find(v.id) != witnesses_with_rdg.end()) {
+			//If so, then draw it normally:
+			out << "\t\t" << wit_ind;
+			out << " [label=\"" << wit_id << " (" << wit_rdg << ")\"]";
+			out << ";\n";
+		} else {
+			//Otherwise, it has a distinct reading and should be drawn differently:
+			out << "\t\t" << wit_ind;
+			out << " [label=\"" << wit_id << " (" << wit_rdg << ")\", color=blue, style=dashed]";
+			out << ";\n";
+		}
 	}
-	//Then add a secondary set of vertices for the primary ancestors of these witnesses with a different reading,
-	//along with edges indicating changes in reading:
-	unordered_set<string> secondary_set = unordered_set<string>();
-	unordered_set<string> processed_destinations = unordered_set<string>();
-	for (textual_flow_edge e : edges) {
+	//The draw the edges:
+	for (textual_flow_edge e : coherence_in_attestations_edges) {
 		//Get the endpoints' IDs:
 		string ancestor_id = e.ancestor;
 		string descendant_id = e.descendant;
-		//If the descendant is not in the primary vertex set, or the ancestor is, then skip:
-		if (primary_set.find(descendant_id) == primary_set.end() || primary_set.find(ancestor_id) != primary_set.end()) {
-			continue;
-		}
-		//Otherwise, we have an ancestor with a reading other than the specified one;
-		//skip it if we've added it already:
-		if (secondary_set.find(ancestor_id) != secondary_set.end()) {
-			continue;
-		}
-		//If the destination already has an edge drawn to it, then skip any secondary ancestors:
-		if (processed_destinations.find(descendant_id) != processed_destinations.end()) {
-			continue;
-		}
-		//Otherwise, add the destination node's ID to the processed set:
-		processed_destinations.insert(descendant_id);
-		//If it's new, then add a vertex for it:
-		int ancestor_ind = id_to_index.at(ancestor_id);
-		textual_flow_vertex v = indexed_vertices[ancestor_ind];
-		string ancestor_rdg = v.rdg;
-		out << "\t\t" << ancestor_ind;
-		out << " [label=\"" << ancestor_id << " (" << ancestor_rdg << ")\", color=blue, style=dashed]";
-		out << ";\n";
-		secondary_set.insert(ancestor_id);
-	}
-	//Add all of the graph edges, except for secondary graph edges for changes:
-	processed_destinations = unordered_set<string>();
-	for (textual_flow_edge e : edges) {
-		//Get the endpoints' IDs:
-		string ancestor_id = e.ancestor;
-		string descendant_id = e.descendant;
-		//If the descendant is not in the primary vertex set, then skip this edge:
-		if (primary_set.find(descendant_id) == primary_set.end()) {
-			continue;
-		}
-		//If the destination already has an edge drawn to it, then skip this edge:
-		if (processed_destinations.find(descendant_id) != processed_destinations.end()) {
-			continue;
-		}
 		//Get the indices of the endpoints:
 		int ancestor_ind = id_to_index.at(ancestor_id);
 		int descendant_ind = id_to_index.at(descendant_id);
@@ -518,8 +523,6 @@ void textual_flow::coherence_in_attestations_to_dot(ostream & out, const string 
 			out << format_cmd;
 		}
 		out << "];\n";
-		//Finally, add the destination node's ID to the processed set:
-		processed_destinations.insert(descendant_id);
 	}
 	out << "\t}\n";
 	out << "}" << endl;
@@ -533,7 +536,7 @@ void textual_flow::coherence_in_attestations_to_json(ostream & out, const string
 	//Open the root object:
     out << "{";
     //Add the metadata fields:
-	out << "\"label\":" << "\"" << label << "\"" << ",";
+	out << "\"label\":" << "\"" << label << ", " << rdg << "\"" << ",";
 	out << "\"connectivity\":" << connectivity << ",";
     //Initially filter out any vertices that do not have the given reading:
     list<textual_flow_vertex> coherence_in_attestations_vertices = list<textual_flow_vertex>(vertices);

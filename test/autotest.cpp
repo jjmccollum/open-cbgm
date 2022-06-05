@@ -1304,9 +1304,9 @@ void autotest::run() {
 			witnesses.push_back(wit);
 		}
 		/**
-		 * Unit textual_flow_constructor
+		 * Unit textual_flow_constructor_1
 		 */
-		current_unit = "textual_flow_constructor";
+		current_unit = "textual_flow_constructor_1";
 		if (target_test.empty() || target_test == current_unit) {
 			//Initialize a container for module-wide test results:
 			unit_test u_test;
@@ -1315,7 +1315,55 @@ void autotest::run() {
 			u_test.msg = "";
 			//Run the test:
 			try {
-				//Construct a textual flow instance:
+				//Construct a textual flow instance with a connectivity of 2:
+				textual_flow tf = textual_flow(vu, witnesses, 2);
+				//Make sure its label matches that of the variation unit:
+				string expected_label = vu.get_label();
+				string label = tf.get_label();
+				if (label != expected_label) {
+					u_test.msg += "Expected label == " + expected_label + ", got " + label + "\n";
+				}
+				//Make sure its readings list is the same length as the variation unit's readings list:
+				unsigned int expected_n_readings = (unsigned int) vu.get_readings().size();
+				if (tf.get_readings().size() != expected_n_readings) {
+					u_test.msg += "Expected readings.size() == " + to_string(expected_n_readings) + ", got " + to_string(tf.get_readings().size()) + "\n";
+				}
+				//Make sure its connectivity value is the specified amount:
+				int expected_connectivity = 2;
+				if (tf.get_connectivity() != expected_connectivity) {
+					u_test.msg += "Expected connectivity == " + to_string(expected_connectivity) + ", got " + to_string(tf.get_connectivity()) + "\n";
+				}
+				//Check that the diagram has the correct number of vertices:
+				unsigned int expected_n_vertices = 5;
+				unsigned int expected_n_edges = 9;
+				if (tf.get_vertices().size() != expected_n_vertices) {
+					u_test.msg += "Expected vertices.size() == " + to_string(expected_n_vertices) + ", got " + to_string(tf.get_vertices().size()) + "\n";
+				}
+				if (tf.get_edges().size() != expected_n_edges) {
+					u_test.msg += "Expected edges.size() == " + to_string(expected_n_edges) + ", got " + to_string(tf.get_edges().size()) + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		/**
+		 * Unit textual_flow_constructor_2
+		 */
+		current_unit = "textual_flow_constructor_2";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Construct a textual flow instance without a specified connectivity:
 				textual_flow tf = textual_flow(vu, witnesses);
 				//Make sure its label matches that of the variation unit:
 				string expected_label = vu.get_label();
@@ -1608,7 +1656,7 @@ int main(int argc, char* argv[]) {
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
 		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_trivial_solution", "set_cover_solver_get_greedy_solution"}},
 		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_get_substemmata"}},
-		{"textual_flow", {"textual_flow_constructor", "textual_flow_textual_flow_to_dot", "textual_flow_coherence_in_attestations_to_dot", "textual_flow_coherence_in_variant_passages_to_dot"}},
+		{"textual_flow", {"textual_flow_constructor_1", "textual_flow_constructor_2", "textual_flow_textual_flow_to_dot", "textual_flow_coherence_in_attestations_to_dot", "textual_flow_coherence_in_variant_passages_to_dot"}},
 		{"global_stemma", {"global_stemma_constructor", "global_stemma_to_dot"}}
 	});
 	//Initialize an autotest instance with these containers:

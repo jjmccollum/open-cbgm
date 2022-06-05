@@ -4,7 +4,7 @@ Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Ba
 [![Version 1.5.0](https://img.shields.io/badge/version-1.5.0-blue)](https://github.com/jjmccollum/open-cbgm)
 [![Build Status](https://travis-ci.com/jjmccollum/open-cbgm.svg?token=nZWB24v9ybTTZm4tWaqm&branch=master)](https://travis-ci.com/jjmccollum/open-cbgm)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://choosealicense.com/licenses/mit/)
-[![DOI](https://zenodo.org/badge/222792228.svg)](https://zenodo.org/badge/latestdoi/222792228)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4048498.svg)](https://doi.org/10.5281/zenodo.4048498)
 
 ## About This Project
 

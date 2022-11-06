@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4)
 # Set the project name and version:
 project(open-cbgm 
-	VERSION 1.4.0
+	VERSION 1.5.0
 	DESCRIPTION "Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Based Genealogical Method"
 	LANGUAGES C CXX)
 

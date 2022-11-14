@@ -272,7 +272,7 @@ local_stemma variation_unit::get_local_stemma() const {
 string variation_unit::get_base_siglum(const string & wit_string, const list<string> & ignored_suffixes, const unordered_set<string> & base_sigla) const {
 	string base_siglum = string(wit_string);
 	//Strip the witness siglum of any initial "#" character, if it has one:
-	if (base_siglum.starts_with("#")) {
+	if (base_siglum.substr(0, 1) == "#") {
 		base_siglum.erase(0, 1);
 	}
 	//If the resulting siglum is already a base siglum, then return it as-is:
@@ -285,7 +285,7 @@ string variation_unit::get_base_siglum(const string & wit_string, const list<str
 		suffix_found = false;
 		//Check for and remove any suffix that occurs in the specified list:
 		for (string suffix : ignored_suffixes) {
-			if (base_siglum.ends_with(suffix)) {
+			if (base_siglum.substr(base_siglum.size() - suffix.size(), base_siglum.size()) == suffix) {
 				base_siglum.erase(base_siglum.end() - suffix.size(), base_siglum.end());
 				suffix_found = true;
 				break;

@@ -12,6 +12,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <unordered_set>
 #include <unordered_map>
 #include <limits>
 
@@ -482,6 +483,8 @@ void autotest::run() {
 		pugi::xml_node app_node_2 = doc.select_node("descendant::app[@n=\"B00K0V0U4\"]").node();
 		pugi::xml_node app_node_3 = doc.select_node("descendant::app[@n=\"B00K0V0U6\"]").node();
 		pugi::xml_node app_node_4 = doc.select_node("descendant::app[@n=\"B00K0V0U8\"]").node();
+		list<string> ignored_suffixes = list<string>({"*", "T"});
+		unordered_set<string> base_sigla = unordered_set<string>({"A", "B", "C", "D", "E", "MT"});
 		//Then proceed for each unit test:
 		string current_unit;
 		/**
@@ -497,7 +500,7 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct a variation unit with no merging of split readings, no dropped reading types, and no trivial reading types:
-				variation_unit vu = variation_unit(app_node_1, false, set<string>(), set<string>());
+				variation_unit vu = variation_unit(app_node_1, false, set<string>(), set<string>(), ignored_suffixes, base_sigla);
 				//Check that the ID is the expected value:
 				string expected_id = "B00K0V0U2";
 				string id = vu.get_id();
@@ -552,7 +555,7 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct a variation unit with no merging of split readings, no dropped reading types, and no trivial reading types:
-				variation_unit vu = variation_unit(app_node_2, false, set<string>(), set<string>());
+				variation_unit vu = variation_unit(app_node_2, false, set<string>(), set<string>(), ignored_suffixes, base_sigla);
 				//Check that the label defaults to the ID when not provided:
 				string expected_label = "B00K0V0U4";
 				string label = vu.get_label();
@@ -587,7 +590,7 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct a variation unit with no merging of split readings, no dropped reading types, and where defective readings are treated as trivial:
-				variation_unit vu = variation_unit(app_node_3, false, set<string>({"defective"}), set<string>());
+				variation_unit vu = variation_unit(app_node_3, false, set<string>({"defective"}), set<string>(), ignored_suffixes, base_sigla);
 				//Check that the connectivity is correctly set to the maximum value when no connectivity element is provided:
 				int expected_connectivity = numeric_limits<int>::max();
 				int connectivity = vu.get_connectivity();
@@ -622,7 +625,7 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct a variation unit with merging of split readings, ambiguous readings dropped, and no trivial reading types:
-				variation_unit vu = variation_unit(app_node_4, true, set<string>(), set<string>({"ambiguous"}));
+				variation_unit vu = variation_unit(app_node_4, true, set<string>(), set<string>({"ambiguous"}), ignored_suffixes, base_sigla);
 				//Check that the reading support map is the correct size when witnesses are lacunose:
 				unordered_map<string, string> reading_support = vu.get_reading_support();
 				unsigned int expected_reading_support_size = 3;
@@ -651,6 +654,65 @@ void autotest::run() {
 			}
 			mod_test.units.push_back(u_test);
 		}
+		/**
+		 * Unit test variation_unit_get_base_siglum
+		 */
+		current_unit = "variation_unit_get_base_siglum";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Construct a variation unit with no merging of split readings, no dropped reading types, and no trivial reading types:
+				variation_unit vu = variation_unit(app_node_1, false, set<string>(), set<string>(), ignored_suffixes, base_sigla);
+				//Check that a witness siglum that is already a base siglum is returned as-is:
+				string expected_base_siglum = "A";
+				string base_siglum = vu.get_base_siglum("A", ignored_suffixes, base_sigla);
+				if (base_siglum != expected_base_siglum) {
+					u_test.msg += "Expected get_base_siglum(\"A\", ignored_suffixes, base_sigla) == " + expected_base_siglum + ", got " + base_siglum + "\n";
+				}
+				//Check that a witness siglum that is already a base siglum is returned without any URI prefix:
+				expected_base_siglum = "A";
+				base_siglum = vu.get_base_siglum("#A", ignored_suffixes, base_sigla);
+				if (base_siglum != expected_base_siglum) {
+					u_test.msg += "Expected get_base_siglum(\"#A\", ignored_suffixes, base_sigla) == " + expected_base_siglum + ", got " + base_siglum + "\n";
+				}
+				//Check that a witness siglum with a single-character suffix is returned without this suffix:
+				expected_base_siglum = "A";
+				base_siglum = vu.get_base_siglum("A*", ignored_suffixes, base_sigla);
+				if (base_siglum != expected_base_siglum) {
+					u_test.msg += "Expected get_base_siglum(\"A*\", ignored_suffixes, base_sigla) == " + expected_base_siglum + ", got " + base_siglum + "\n";
+				}
+				//Check that a witness siglum with a multi-character suffix is returned without this suffix:
+				expected_base_siglum = "A";
+				base_siglum = vu.get_base_siglum("AT*", ignored_suffixes, base_sigla);
+				if (base_siglum != expected_base_siglum) {
+					u_test.msg += "Expected get_base_siglum(\"AT*\", ignored_suffixes, base_sigla) == " + expected_base_siglum + ", got " + base_siglum + "\n";
+				}
+				//Check that a witness siglum whose base siglum ends in a normally ignored suffix is returned with this suffix:
+				expected_base_siglum = "MT";
+				base_siglum = vu.get_base_siglum("MT", ignored_suffixes, base_sigla);
+				if (base_siglum != expected_base_siglum) {
+					u_test.msg += "Expected get_base_siglum(\"MT\", ignored_suffixes, base_sigla) == " + expected_base_siglum + ", got " + base_siglum + "\n";
+				}
+				//Check that a witness siglum that corresponds to no base siglum is returned as an empty string:
+				expected_base_siglum = "";
+				base_siglum = vu.get_base_siglum("F", ignored_suffixes, base_sigla);
+				if (base_siglum != expected_base_siglum) {
+					u_test.msg += "Expected get_base_siglum(\"F\", ignored_suffixes, base_sigla) == " + expected_base_siglum + ", got " + base_siglum + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
 		lib_test.modules.push_back(mod_test);
 	}
 	/**
@@ -669,6 +731,7 @@ void autotest::run() {
 		bool merge_splits = false;
 		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
 		set<string> dropped_reading_types = set<string>();
+		list<string> ignored_suffixes = list<string>({"*", "T"});
 		//Then proceed for each unit test:
 		string current_unit;
 		/**
@@ -684,7 +747,7 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Construct an apparatus:
-				apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
+				apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types, ignored_suffixes);
 				//Check if its number of witnesses is correct:
 				unsigned int expected_n_witnesses = 5;
 				unsigned int n_witnesses = (unsigned int) app.get_list_wit().size();
@@ -707,7 +770,7 @@ void autotest::run() {
 			mod_test.units.push_back(u_test);
 		}
 		//Do more pre-test work:
-		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types, ignored_suffixes);
 		/**
 		 * Unit apparatus_get_extant_passages_for_witness
 		 */
@@ -937,7 +1000,8 @@ void autotest::run() {
 		bool merge_splits = false;
 		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
 		set<string> dropped_reading_types = set<string>({"ambiguous"});
-		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
+		list<string> ignored_suffixes = list<string>({"*", "T"});
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types, ignored_suffixes);
 		/**
 		 * Unit witness_constructor_1
 		 */
@@ -1296,7 +1360,8 @@ void autotest::run() {
 		bool merge_splits = false;
 		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
 		set<string> dropped_reading_types = set<string>();
-		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
+		list<string> ignored_suffixes = list<string>({"*", "T"});
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types, ignored_suffixes);
 		variation_unit vu = app.get_variation_units()[3];
 		list<witness> witnesses = list<witness>();
 		for (string wit_id : app.get_list_wit()) {
@@ -1505,7 +1570,8 @@ void autotest::run() {
 		bool merge_splits = false;
 		set<string> trivial_reading_types = set<string>({"defective", "orthographic"});
 		set<string> dropped_reading_types = set<string>();
-		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types);
+		list<string> ignored_suffixes = list<string>({"*", "T"});
+		apparatus app = apparatus(tei_node, merge_splits, trivial_reading_types, dropped_reading_types, ignored_suffixes);
 		list<witness> witnesses = list<witness>();
 		for (string wit_id : app.get_list_wit()) {
 			witness wit = witness(wit_id, app);
@@ -1652,7 +1718,7 @@ int main(int argc, char* argv[]) {
 	map<string, list<string>> tests_by_module = map<string, list<string>>({
 		{"common", {"common_read_xml"}},
 		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_common_ancestor_exists", "local_stemma_to_dot"}},
-		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4"}},
+		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4", "variation_unit_get_base_siglum"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
 		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_trivial_solution", "set_cover_solver_get_greedy_solution"}},
 		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_get_substemmata"}},

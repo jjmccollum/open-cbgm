@@ -153,7 +153,7 @@
 			</sourceDesc>
 		</fileDesc>
 	</teiHeader>
-	<text xml:lang="GRC">
+	<text xml:lang="grc">
 		<body>
 			<div type="book" n="B25">
 				<div type="chapter" n="B25K1">
@@ -558,8 +558,8 @@
 							<rdg n="m" wit="1838">μειζοτεραν ταυτην ουκ εχω χαριν</rdg>
 							<rdg n="n" wit="614 2412">μειζονα τουτων εχω χαραν</rdg>
 							<rdg n="p" wit="1844">μειζοτεραν την τουτων χαριν</rdg>
-							<rdg n="zw-a/i" type="ambiguous" wit="252">zw-a/i</rdg>
-							<rdg n="zw-b/k" type="ambiguous" wit="1241">zw-b/k</rdg>
+							<witDetail n="zw-a/i" type="ambiguous" wit="252" target="a i">zw-a/i</witDetail>
+							<witDetail n="zw-b/k" type="ambiguous" wit="1241" target="b k">zw-b/k</witDetail>
 							<note>
 								<label>3Jo 1:4/2-10</label>
 								<fs>
@@ -655,7 +655,7 @@
 							<rdg n="c" wit="945 1270 1297 1595">περιπατουντα εν αληθεια</rdg>
 							<rdg n="d" wit="61 326 1837">τη αληθεια περιπατουντα</rdg>
 							<rdg n="d2" type="split" wit="2344">τη αληθεια περιπατουντα</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="1678">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="1678" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:4/22-26</label>
 								<fs>
@@ -745,7 +745,7 @@
 							<rdg n="ao" type="orthographic"
 								wit="044 93 218 808 1127 1359 1490 1563 1718 1739 1831 2298">αν</rdg>
 							<rdg n="b" wit="630 1881" />
-							<rdg n="zw-a/ao" type="ambiguous" wit="048">zw-a/ao</rdg>
+							<witDetail n="zw-a/ao" type="ambiguous" wit="048" target="a ao">zw-a/ao</witDetail>
 							<note>
 								<label>3Jo 1:5/10</label>
 								<fs>
@@ -771,7 +771,7 @@
 							<rdg n="af" type="defective" wit="1844">ειργαση</rdg>
 							<rdg n="b"
 								wit="02 044 436 630 876 945 1067 1127 1270 1292 1297 1409 1505 1595 1611 1729 1735 1832 2138 2200 2541">εργαζη</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="048">zw-a/ao</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="048" target="a ao">zw-a/ao</witDetail>
 							<note>
 								<label>3Jo 1:5/12</label>
 								<fs>
@@ -978,8 +978,8 @@
 							<rdg n="e" wit="61">ποιων προπεμπεις</rdg>
 							<rdg n="g" wit="2544">ποιησεις προπεμπων</rdg>
 							<rdg n="h" wit="L921">ποιησεις προπεμψαι</rdg>
-							<rdg n="zw-a/b/c-1" type="ambiguous" wit="33">zw-a/b/c</rdg>
-							<rdg n="zw-a/b/c-2" type="ambiguous" wit="1844">zw-a/b/c</rdg>
+							<witDetail n="zw-a/b/c-1" type="ambiguous" wit="33" target="a b c">zw-a/b/c</witDetail>
+							<witDetail n="zw-a/b/c-2" type="ambiguous" wit="1844" target="a b c">zw-a/b/c</witDetail>
 							<note>
 								<label>3Jo 1:6/20-22</label>
 								<fs>
@@ -1020,7 +1020,7 @@
 							<rdg n="c" wit="1735">αξιως</rdg>
 							<rdg n="d" wit="61 621 1875 L1141">αξιως τω θεω</rdg>
 							<rdg n="e" wit="1838">αξιους τω θεω</rdg>
-							<rdg n="zw-a/d" type="ambiguous" wit="048">zw-a/d</rdg>
+							<witDetail n="zw-a/d" type="ambiguous" wit="048" target="a d">zw-a/d</witDetail>
 							<note>
 								<label>3Jo 1:6/24-28</label>
 								<fs>
@@ -1114,7 +1114,7 @@
 							<rdg n="a"
 								wit="A Byz 02 04 018 020 025 044 048 049 0142 1 5 6 18 33 35 43 61 81 88 93 94 104 180 181 206S 218 252 254 307 319 321 323 326 330 378 398 400 424 429 431 436 442 453 459 467 468 522 607 614 617 621 623 629 630 642 720 808 876 915 918 945 996 1067 1127 1175 1243 1270 1292 1297 1359 1409 1448 1490 1501 1505 1523 1524 1563 1595 1609 1611 1661 1678 1718 1729 1735 1739 1751 1799 1827 1831 1832 1836 1837 1838 1842 1844 1845 1846 1852 1874 1875 1881 1890 2138 2147 2186 2200 2243 2298 2344 2374 2412 2423 2492 2541 2544 2652 2718 2774 2805 2818 L596 L921 L938 L1141 L1281">εξηλθον</rdg>
 							<rdg n="ao" type="orthographic" wit="01 03">εξηλθαν</rdg>
-							<rdg n="zw-a/ao" type="ambiguous" wit="1241">zw-a/ao</rdg>
+							<witDetail n="zw-a/ao" type="ambiguous" wit="1241" target="a ao">zw-a/ao</witDetail>
 							<note>
 								<label>3Jo 1:7/10</label>
 								<fs>
@@ -1158,7 +1158,7 @@
 								wit="A Byz 01 02 03 04 018 020 025 044 049 0142 1 6 18 35 43 69 88 93 94 104 180 181 206S 252 254 307 319 321 330 378 398 400 424 429 442 453 459 467 468 522 607 614 621 629 630 720 876 915 918 945 996 1175 1243 1270 1292 1297 1448 1490 1501 1505 1523 1524 1595 1609 1611 1661 1678 1729 1751 1799 1827 1831 1832 1836 1838 1842 1844 1845 1846 1852 1874 1875 1890 2138 2147 2186 2200 2243 2298 2412 2423 2492 2544 2652 2718 2818 L596 L921 L938 L1141">απο</rdg>
 							<rdg n="b"
 								wit="048 5 33 61 81 218 326 431 436 617 623 642 808 1067 1127 1241 1359 1409 1563 1718 1735 1739 1837 1881 2344 2374 2541 2774 2805 L1281">παρα</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="323">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="323" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:7/16</label>
 								<fs>
@@ -1257,7 +1257,7 @@
 							<rdg n="b"
 								wit="Byz 018 020 025 049 1 18 35 43 88 93 94 104 180 181 206S 218 252 254 307 319 321 330 378 398 400 424 429 431 453 459 467 522 607 614 621 629 630 642 720 808 876 915 918 945 996 1067 1127 1175 1270 1292 1297 1359 1409 1448 1490 1501 1505 1523 1524 1563 1595 1609 1611 1661 1678 1718 1729 1735 1751 1799 1827 1831 1832 1836 1838 1842 1844 1874 1875 1890 2138 2147 2186 2200 2243 2298 2374 2412 2423 2492 2652 2718 2818 L921 L938 L1141">απολαμβανειν</rdg>
 							<rdg n="c" wit="468 2544">λαμβανειν</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="048 69 1241">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="048 69 1241" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:8/8</label>
 								<fs>
@@ -1301,7 +1301,7 @@
 							<rdg n="b" wit="04 104 181 442 1297 1836 1845 1846 1890">γινομεθα</rdg>
 							<rdg n="c"
 								wit="018 048 049 5 33 43 61 88 254 307 321 323 326 378 400 429 436 453 459 522 614 621 623 629 720 876 915 918 1067 1243 1292 1359 1490 1505 1524 1563 1595 1611 1661 1678 1718 1729 1735 1799 1831 1832 1837 1838 1842 1844 1852 1874 2138 2147 2186 2243 2344 2412 2541 2652 2774 2805 2818">γενωμεθα</rdg>
-							<rdg n="zw-a/c" type="ambiguous" wit="1523">zw-a/c</rdg>
+							<witDetail n="zw-a/c" type="ambiguous" wit="1523" target="a c">zw-a/c</witDetail>
 							<note>
 								<label>3Jo 1:8/18</label>
 								<fs>
@@ -1560,7 +1560,7 @@
 							<rdg n="a"
 								wit="A Byz 01 02 03 04 018 020 025 044 048 049 0142 1 6 18 33 35 43 61 81 88 93 94 104 180 181 206S 218 252 254 307 319 321 323 330 378 398 400 424 429 431 442 453 459 467 468 607 614 617 621 623 629 630 642 720 808 876 915 918 945 996 1067 1127 1175 1243 1270 1292 1297 1359 1409 1448 1490 1501 1505 1523 1524 1563 1595 1609 1611 1678 1718 1729 1735 1739 1751 1799 1827 1831 1832 1836 1838 1842 1844 1845 1846 1852 1874 1875 1890 2138 2147 2186 2200 2243 2298 2344 2374 2412 2423 2492 2544 2652 2718 2774 2805 2818 L596 L921 L938 L1141 L1281">ημας</rdg>
 							<rdg n="b" wit="5 326 436 522 1241 1661 1837 1881 2541">υμας</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="69">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="69" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:9/24</label>
 								<fs>
@@ -1691,7 +1691,7 @@
 							<rdg n="af2" type="defective" wit="1838">λογους πονηροις</rdg>
 							<rdg n="b" wit="1241">λογοις πονηριας</rdg>
 							<rdg n="c" wit="1874">λογοις</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="1523 2541">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="1523 2541" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:10/22-24</label>
 								<fs>
@@ -1753,7 +1753,7 @@
 							<rdg n="a"
 								wit="A Byz 01 02 03 04 018 020 025 044 048 049 1 5 6 18 35 43 61 69 88 93 94 104 180 181 206S 218 252 254 307 319 321 323 326 330 398 400 424 429 431 436 442 453 459 467 468 522 607 614 617 621 623 629 630 642 720 808 876 915 918 945 996 1067 1127 1175 1243 1270 1292 1297 1359 1409 1448 1490 1501 1523 1524 1563 1595 1609 1611 1678 1718 1729 1739 1751 1799 1827 1831 1832 1836 1837 1838 1842 1844 1845 1846 1852 1874 1875 1890 2138 2147 2186 2200 2243 2298 2344 2374 2412 2423 2492 2541 2544 2652 2718 2774 2805 2818 L596 L921 L938 L1141 L1281">ημας</rdg>
 							<rdg n="b" wit="0142 81 378 1241 1505 1661 1735 1881">υμας</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="33">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="33" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:10/28</label>
 								<fs>
@@ -1808,7 +1808,7 @@
 							<rdg n="a"
 								wit="A Byz 01 02 03 04 018 020 025 044 049 0142 1 5 6 18 33 35 43 61 69 88 93 94 104 180 181 206S 218 252 254 307 319 321 323 326 330 378 398 400 424 429 431 436 442 453 459 467 468 522 607 614 617 621 623 629 630 642 720 808 876 915 918 945 996 1067 1127 1175 1241 1243 1270 1292 1297 1359 1409 1448 1490 1501 1505 1523 1524 1563 1595 1609 1611 1661 1678 1718 1729 1735 1739 1751 1799 1827 1831 1832 1836 1837 1838 1842 1844 1845 1846 1852 1874 1875 1881 1890 2138 2147 2186 2200 2243 2298 2344 2374 2412 2423 2492 2541 2544 2652 2718 2774 2805 2818 L596 L921 L938 L1141 L1281">ουτε</rdg>
 							<rdg n="b" wit="81">ουδε</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="048">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="048" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:10/40</label>
 								<fs>
@@ -1832,7 +1832,7 @@
 							<rdg n="af" type="defective" wit="69">επεδεχεται</rdg>
 							<rdg n="b" wit="630 1611 2200 2374 2805">υποδεχεται</rdg>
 							<rdg n="c" wit="1409">αποδεχεται</rdg>
-							<rdg n="zw-a/b/c" type="ambiguous" wit="048">zw-a/b/c</rdg>
+							<witDetail n="zw-a/b/c" type="ambiguous" wit="048" target="a b c">zw-a/b/c</witDetail>
 							<note>
 								<label>3Jo 1:10/44</label>
 								<fs>
@@ -2090,7 +2090,7 @@
 							<rdg n="ao" type="orthographic" wit="03 252 1846 2818">ουχ εορακεν τον θεον
 							</rdg>
 							<rdg n="b" wit="1661">τον θεον ουχ εωρακεν</rdg>
-							<rdg n="zw-a/ao" type="ambiguous" wit="33">zw-a/ao</rdg>
+							<witDetail n="zw-a/ao" type="ambiguous" wit="33" target="a ao">zw-a/ao</witDetail>
 							<note>
 								<label>3Jo 1:11/34-40</label>
 								<fs>
@@ -2320,7 +2320,7 @@
 							<rdg n="d"
 								wit="Byz 018 020 025 049 0142 1 18 35 43 94 180 206S 252 307 319 321 330 378 398 400 424 429 453 467 468 522 607 614 617 642 720 808 918 996 1127 1175 1490 1501 1609 1661 1678 1729 1751 1799 1831 1874 1890 2147 2186 2412 2423 2492 2544 2652 2718 2818 L921 L938 L1141 L1281">γραφειν</rdg>
 							<rdg n="e" wit="048">σοι γραψαι</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="33">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="33" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:13/6-8</label>
 								<fs>
@@ -2412,7 +2412,7 @@
 								wit="218 642 808 945 1127 1359 1563 1718 1751 1837">γραψαι σοι</rdg>
 							<rdg n="e" wit="0142 1842">γραψαι</rdg>
 							<rdg n="f" wit="61" />
-							<rdg n="zw-b/d" type="ambiguous" wit="33">zw-b/d</rdg>
+							<witDetail n="zw-b/d" type="ambiguous" wit="33" target="b d">zw-b/d</witDetail>
 							<note>
 								<label>3Jo 1:13/24-26</label>
 								<fs>
@@ -2520,7 +2520,7 @@
 								wit="A 02 03 04 048 5 69 81 93 323 326 436 623 629 1067 1241 1243 1409 1735 1739 1837 1881 2298 2541">σε ιδειν</rdg>
 							<rdg n="b"
 								wit="Byz 01 018 020 025 044 049 0142 1 6 18 35 43 61 88 94 104 180 181 206S 218 252 254 307 319 321 330 378 398 400 424 429 431 442 453 459 467 468 522 607 614 617 621 630 642 720 808 876 915 945 996 1127 1175 1270 1292 1297 1359 1448 1490 1501 1505 1523 1524 1563 1595 1609 1611 1661 1678 1718 1729 1751 1799 1827 1831 1832 1836 1838 1842 1844 1845 1846 1852 1874 1875 1890 2138 2147 2186 2200 2243 2374 2412 2423 2492 2544 2652 2718 2774 2818 L596 L921 L938 L1141 L1281">ιδειν σε</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="2805">ιδειν</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="2805" target="a b">ιδειν</witDetail>
 							<note>
 								<label>3Jo 1:14/8-10</label>
 								<fs>
@@ -2584,7 +2584,7 @@
 							<rdg n="c" wit="61 81 720 2374 2774 2805 L921">λαλησαι</rdg>
 							<rdg n="d"
 								wit="88 104 442 459 915 1735 1842 1845 1846 1875 L596">λαλησαι σοι</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="048">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="048" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>3Jo 1:14/20</label>
 								<fs>

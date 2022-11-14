@@ -22,7 +22,7 @@ private:
 	std::vector<variation_unit> variation_units;
 public:
 	apparatus();
-	apparatus(const pugi::xml_node & xml, bool merge_splits, const std::set<std::string> & trivial_reading_types, const std::set<std::string> & dropped_reading_types);
+	apparatus(const pugi::xml_node & xml, bool merge_splits, const std::set<std::string> & trivial_reading_types, const std::set<std::string> & dropped_reading_types, const std::list<std::string> & ignored_suffixes);
 	virtual ~apparatus();
 	void set_list_wit(const std::list<std::string> & _list_wit);
 	std::list<std::string> get_list_wit() const;

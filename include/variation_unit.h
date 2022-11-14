@@ -13,6 +13,7 @@
 #include <list>
 #include <vector>
 #include <set>
+#include <unordered_set>
 #include <unordered_map>
 #include <limits>
 
@@ -29,7 +30,7 @@ private:
 	local_stemma stemma;
 public:
 	variation_unit();
-	variation_unit(const pugi::xml_node & xml, bool merge_splits, const std::set<std::string> & trivial_reading_types, const std::set<std::string> & dropped_reading_types);
+	variation_unit(const pugi::xml_node & xml, bool merge_splits, const std::set<std::string> & trivial_reading_types, const std::set<std::string> & dropped_reading_types, const std::list<std::string> & ignored_suffixes, const std::unordered_set<std::string> & base_sigla);
 	variation_unit(const std::string & _id, const std::string & _label, const std::list<std::string> & _readings, const std::unordered_map<std::string, std::string> & _reading_support, int _connectivity, const local_stemma & _stemma);
 	virtual ~variation_unit();
 	std::string get_id() const;
@@ -38,6 +39,7 @@ public:
 	std::unordered_map<std::string, std::string> get_reading_support() const;
 	int get_connectivity() const;
 	local_stemma get_local_stemma() const;
+	std::string get_base_siglum(const std::string & wit_string, const std::list<std::string> & ignored_suffixes, const std::unordered_set<std::string> & base_sigla) const;
 };
 
 #endif /* VARIATION_UNIT_H */

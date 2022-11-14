@@ -12,6 +12,7 @@
 #include <set>
 #include <map> //for small maps keyed by readings
 #include <unordered_map> //for large maps keyed by witnesses
+#include <unordered_set> //for large sets of witness sigla
 #include <algorithm>
 #include <limits>
 
@@ -35,8 +36,9 @@ variation_unit::variation_unit() {
  * Constructs a variation unit from an <app/> XML element.
  * A boolean flag indicating whether or not to merge split readings
  * and sets of strings indicating reading types that should be dropped or treated as trivial are also expected.
+ * A list of suffixes to ignore in witness sigla and an unordered set of base witness sigla are also expected.
  */
-variation_unit::variation_unit(const xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types) {
+variation_unit::variation_unit(const xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types, const list<string> & ignored_suffixes, const unordered_set<string> & base_sigla) {
 	//Populate the ID, if one is specified:
 	id = xml.attribute("xml:id") ? xml.attribute("xml:id").value() : (xml.attribute("id") ? xml.attribute("id").value() : (xml.attribute("n") ? xml.attribute("n").value() : ""));
 	//If the "from" and "to" attributes are present 
@@ -79,17 +81,15 @@ variation_unit::variation_unit(const xml_node & xml, bool merge_splits, const se
 		set<string> rdg_types = set<string>();
 		if (rdg.attribute("type")) {
 			const string type_string = rdg.attribute("type").value();
-			char * type_chars = new char[type_string.length() + 1];
-			strcpy(type_chars, type_string.c_str());
-			const char delim[] = " ";
-			char * type_token = strtok(type_chars, delim);
-			while (type_token) {
-				string rdg_type = string(type_token);
-				rdg_types.insert(rdg_type);
-				type_token = strtok(NULL, delim); //iterate to the next token
+			string delim = " ";
+			size_t start = 0;
+    		size_t end = type_string.find(delim);
+			while (end != string::npos) {
+				rdg_types.insert(type_string.substr(start, end - start));
+				start = end + delim.size();
+				end = type_string.find(delim, start);
 			}
-			delete [] type_chars;
-			delete [] type_token;
+			rdg_types.insert(type_string.substr(start, end)); //add the last token
 		}
 		//If it has any of the dropped reading types, then do not process this reading:
 		if (!rdg_types.empty()) {
@@ -113,24 +113,28 @@ variation_unit::variation_unit(const xml_node & xml, bool merge_splits, const se
 		list<string> wits = list<string>();
 		if (rdg.attribute("wit")) {
 			const string wit_string = rdg.attribute("wit").value();
-			char * wit_chars = new char[wit_string.length() + 1];
-			strcpy(wit_chars, wit_string.c_str());
-			const char delim[] = " ";
-			char * wit_token = strtok(wit_chars, delim); //reuse the space delimiter from before
-			while (wit_token) {
-				string wit = string(wit_token);
-				//Strip the reference of any initial "#" character, if it has one:
-				wit = wit.rfind("#", 0) == 0 ? wit.erase(0, 1) : wit;
-				//Strip the reference of any final sigla:
-				while (wit.rfind("*") == wit.length() - 1 || wit.rfind("T") == wit.length() - 1 || wit.rfind("V") == wit.length() - 1) {
-					wit = wit.erase(wit.length() - 1);
+			string delim = " ";
+			size_t start = 0;
+    		size_t end = wit_string.find(delim);
+			string wit = ""; //placeholder for extracted tokens
+			while (end != string::npos) {
+				wit = wit_string.substr(start, end - start);
+				//Strip any ignored suffixes as necessary:
+				wit = get_base_siglum(wit, ignored_suffixes, base_sigla);
+				//If the resulting siglum is a base siglum, then add it to the list:
+				if (base_sigla.find(wit) != base_sigla.end()) {
+					wits.push_back(wit);
 				}
-				//Then add the resulting ID to the witnesses set:
-				wits.push_back(wit);
-				wit_token = strtok(NULL, delim); //iterate to the next token
+				start = end + delim.size();
+				end = wit_string.find(delim, start);
 			}
-			delete [] wit_chars;
-			delete [] wit_token;
+			wit = wit_string.substr(start, end - start);
+			//Strip any ignored suffixes as necessary:
+			wit = get_base_siglum(wit, ignored_suffixes, base_sigla);
+			//If the resulting siglum is a base siglum, then add it to the list:
+			if (base_sigla.find(wit) != base_sigla.end()) {
+				wits.push_back(wit);
+			}
 		}
 		//Add these witnesses to the reading support map:
 		for (string wit : wits) {
@@ -259,4 +263,44 @@ int variation_unit::get_connectivity() const {
  */
 local_stemma variation_unit::get_local_stemma() const {
 	return stemma;
+}
+
+/**
+ * Returns the longest prefix of the given witness siglum string corresponding to a base siglum in the given set, stripping it of all suffixes in the given list as necessary.
+ * If none of the specified suffixes in the list can be found in the string, then an empty string is returned.
+ */
+string variation_unit::get_base_siglum(const string & wit_string, const list<string> & ignored_suffixes, const unordered_set<string> & base_sigla) const {
+	string base_siglum = string(wit_string);
+	//Strip the witness siglum of any initial "#" character, if it has one:
+	if (base_siglum.starts_with("#")) {
+		base_siglum.erase(0, 1);
+	}
+	//If the resulting siglum is already a base siglum, then return it as-is:
+	if (base_sigla.find(base_siglum) != base_sigla.end()) {
+		return base_siglum;
+	}
+	//Then continue to strip off prefixes until we can't anymore:
+	bool suffix_found = true;
+	while (suffix_found) {
+		suffix_found = false;
+		//Check for and remove any suffix that occurs in the specified list:
+		for (string suffix : ignored_suffixes) {
+			if (base_siglum.ends_with(suffix)) {
+				base_siglum.erase(base_siglum.end() - suffix.size(), base_siglum.end());
+				suffix_found = true;
+				break;
+			}
+		}
+		//If the siglum does not have any suffixes to remove, then exit this loop:
+		if (!suffix_found) {
+			break;
+		}
+		//Otherwise, if the resulting string corresponds to a base siglum, then return it,
+		//and if not, then continue in the loop:
+		if (base_sigla.find(base_siglum) != base_sigla.end()) {
+			return base_siglum;
+		}
+	}
+	//If we get here, then no prefix of the witness siglum corresponds to a base siglum; return an empty string:
+	return "";
 }

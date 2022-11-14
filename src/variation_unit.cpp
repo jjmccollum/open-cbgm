@@ -67,11 +67,14 @@ variation_unit::variation_unit(const xml_node & xml, bool merge_splits, const se
 	map<string, string> reading_to_text = map<string, string>(); //to identify split reading pairs
 	map<string, string> text_to_reading = map<string, string>(); //to identify split reading pairs
 	set<string> dropped_readings = set<string>();
-	//Proceed for each <rdg/> element:
-	for (xml_node rdg : xml.children("rdg")) {
+	//Proceed for each <rdg/> or <witDetail/> element:
+	for (xml_node rdg : xml.children()) {
+		if (strcmp(rdg.name(), "rdg") != 0 && strcmp(rdg.name(), "witDetail") != 0) {
+			continue;
+		}
 		//Get the reading's ID and its text:
-		string rdg_id = rdg.attribute("n").value();
-		string rdg_text = rdg.text() ? rdg.text().get() : "";
+		string rdg_id = rdg.attribute("xml:id") ? rdg.attribute("xml:id").value() : (rdg.attribute("id") ? rdg.attribute("id").value() : (rdg.attribute("n") ? rdg.attribute("n").value() : ""));
+    	string rdg_text = rdg.text() ? rdg.text().get() : "";
 		//Populate its set of reading types:
 		set<string> rdg_types = set<string>();
 		if (rdg.attribute("type")) {

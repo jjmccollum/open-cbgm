@@ -1,7 +1,7 @@
 # open-cbgm
 Fast, compact, open-source, TEI-compliant C++ implementation of the Coherence-Based Genealogical Method
 
-[![Version 1.5.0](https://img.shields.io/badge/version-1.5.0-blue)](https://github.com/jjmccollum/open-cbgm)
+[![Version 1.6.0](https://img.shields.io/badge/version-1.6.0-blue)](https://github.com/jjmccollum/open-cbgm)
 [![Build Status](https://travis-ci.com/jjmccollum/open-cbgm.svg?token=nZWB24v9ybTTZm4tWaqm&branch=master)](https://travis-ci.com/jjmccollum/open-cbgm)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://choosealicense.com/licenses/mit/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4048498.svg)](https://doi.org/10.5281/zenodo.4048498)
@@ -36,12 +36,6 @@ The local stemma, textual flow, and global stemma classes are equipped with meth
 
 ## Installation and Dependencies
 
-As mentioned above, the open-cbgm library uses three external libraries (cxxopts, pugixml, and roaring). All three libraries are included as Git submodules of this repository; if you do not have the submodules initialized, then you must do so with the command
-
-    git submodule update --init --recursive
-
-With respect to graph outputs, the open-cbgm library does not generate image files directly; instead, for the sake of flexibility, it is designed to generate textual graph description files in `.dot` format, which can subsequently be converted to image files in a variety of formats using graphviz. Platform-specific instructions for installing graphviz and directions on how to get image files from `.dot` outputs using graphviz can be found at https://www.graphviz.org.
-
 To install the library on your system, you can clone this Git repository or download its contents in a `.zip` archive (click the "Code" tab near the top of this page). If you have Git installed (https://git-scm.com/), you can clone this repository from the command line using the command
 
     git clone git://github.com/jjmccollum/open-cbgm.git
@@ -50,7 +44,13 @@ This will copy the latest version of the repository to an `open-cbgm` subdirecto
 
     cd open-cbgm
 
-From here, you need to build the project. The precise details of how to do this will depend on your operating system, but in all cases, you will need to have the CMake toolkit installed. The platform-specific installation instructions at https://github.com/jjmccollum/open-cbgm-standalone can be used for this repository.
+As mentioned above, the open-cbgm library uses three external libraries (cxxopts, pugixml, and roaring). All three libraries are included as Git submodules of this repository; if you do not have the submodules initialized, then you must do so with the command
+
+    git submodule update --init --recursive
+
+With respect to graph outputs, the open-cbgm library does not generate image files directly; instead, for the sake of flexibility, it is designed to generate textual graph description files in `.dot` format, which can subsequently be converted to image files in a variety of formats using graphviz. Platform-specific instructions for installing graphviz and directions on how to get image files from `.dot` outputs using graphviz can be found at https://www.graphviz.org.
+
+Once you have all dependencies installed, you need to build the project. The precise details of how to do this will depend on your operating system, but in all cases, you will need to have the CMake toolkit installed. The platform-specific installation instructions at https://github.com/jjmccollum/open-cbgm-standalone can be used for this repository.
 
 In the interest of modularity, and to facilitate the incorporation of this library into other applications and APIs, this repository contains only the core classes of the library, without a user-facing interface. A standalone command-line interface that uses a SQLite database as a genealogical cache is available at https://github.com/jjmccollum/open-cbgm-standalone. The core library is included in that interface's git repository as a submodule and can be installed within it using the installation instructions on that page. A web-facing API is also in the works; updates will be posted in the issues for this repository.
 

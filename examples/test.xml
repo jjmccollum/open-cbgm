@@ -91,7 +91,7 @@
 							<rdg n="b" wit="#B">b</rdg>
 							<rdg n="c" wit="#D">c</rdg>
 							<rdg n="c2" type="split" wit="#C">c</rdg>
-							<rdg n="zw-a/b" type="ambiguous" wit="#A">zw-a/b</rdg>
+							<witDetail n="zw-a/b" type="ambiguous" wit="#A" target="a b">zw-a/b</witDetail>
 							<note>
 								<label>Test 0:0/8</label>
 								<fs>

@@ -7,6 +7,7 @@ set(OPEN_CBGM_SOURCES
 	witness.cpp
 	textual_flow.cpp
 	global_stemma.cpp
+	enumerate_relationships_table.cpp
 	compare_witnesses_table.cpp
 	find_relatives_table.cpp
 	optimize_substemmata_table.cpp

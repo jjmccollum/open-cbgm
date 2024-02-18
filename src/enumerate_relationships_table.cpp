@@ -344,7 +344,11 @@ void enumerate_relationships_table::to_json(ostream & out, const set<string> & f
 	if (filter_relationship_types.find("extant") != filter_relationship_types.end()) {
 		out << "\"extant\":" << "[";
 		for (string vu_id : extant) {
-			out << "\"" << vu_id << "\"" << "\n";
+			out << "\"" << vu_id << "\"";
+			//If this is not the last ID in the list, then add a comma:
+			if (vu_id != extant.back()) {
+				out << ",";
+			}
 		}
     	out << "]";
 		//Increment the number of relationship types processed so far:
@@ -357,7 +361,11 @@ void enumerate_relationships_table::to_json(ostream & out, const set<string> & f
 	if (filter_relationship_types.find("agree") != filter_relationship_types.end()) {
 		out << "\"agree\":" << "[";
 		for (string vu_id : agreements) {
-			out << "\"" << vu_id << "\"" << "\n";
+			out << "\"" << vu_id << "\"";
+			//If this is not the last ID in the list, then add a comma:
+			if (vu_id != agreements.back()) {
+				out << ",";
+			}
 		}
 		out << "]";
 		//Increment the number of relationship types processed so far:
@@ -370,7 +378,11 @@ void enumerate_relationships_table::to_json(ostream & out, const set<string> & f
 	if (filter_relationship_types.find("prior") != filter_relationship_types.end()) {
 		out << "\"prior\":" << "[";
 		for (string vu_id : prior) {
-			out << "\"" << vu_id << "\"" << "\n";
+			out << "\"" << vu_id << "\"";
+			//If this is not the last ID in the list, then add a comma:
+			if (vu_id != prior.back()) {
+				out << ",";
+			}
 		}
 		out << "]";
 		//Increment the number of relationship types processed so far:
@@ -383,7 +395,11 @@ void enumerate_relationships_table::to_json(ostream & out, const set<string> & f
 	if (filter_relationship_types.find("posterior") != filter_relationship_types.end()) {
 		out << "\"posterior\":" << "[";
 		for (string vu_id : posterior) {
-			out << "\"" << vu_id << "\"" << "\n";
+			out << "\"" << vu_id << "\"";
+			//If this is not the last ID in the list, then add a comma:
+			if (vu_id != posterior.back()) {
+				out << ",";
+			}
 		}
 		out << "]";
 		//Increment the number of relationship types processed so far:
@@ -396,7 +412,11 @@ void enumerate_relationships_table::to_json(ostream & out, const set<string> & f
 	if (filter_relationship_types.find("norel") != filter_relationship_types.end()) {
 		out << "\"norel\":" << "[";
 		for (string vu_id : norel) {
-			out << "\"" << vu_id << "\"" << "\n";
+			out << "\"" << vu_id << "\"";
+			//If this is not the last ID in the list, then add a comma:
+			if (vu_id != norel.back()) {
+				out << ",";
+			}
 		}
 		out << "]";
 		//Increment the number of relationship types processed so far:
@@ -409,7 +429,11 @@ void enumerate_relationships_table::to_json(ostream & out, const set<string> & f
 	if (filter_relationship_types.find("unclear") != filter_relationship_types.end()) {
 		out << "\"unclear\":" << "[";
 		for (string vu_id : unclear) {
-			out << vu_id << "\n";
+			out << "\"" << vu_id << "\"";
+			//If this is not the last ID in the list, then add a comma:
+			if (vu_id != unclear.back()) {
+				out << ",";
+			}
 		}
 		out << "]";
 		//Increment the number of relationship types processed so far:
@@ -422,7 +446,11 @@ void enumerate_relationships_table::to_json(ostream & out, const set<string> & f
 	if (filter_relationship_types.find("explained") != filter_relationship_types.end()) {
 		out << "\"explained\":" << "[";
 		for (string vu_id : explained) {
-			out << vu_id << "\n";
+			out << "\"" << vu_id << "\"";
+			//If this is not the last ID in the list, then add a comma:
+			if (vu_id != explained.back()) {
+				out << ",";
+			}
 		}
 		out << "]";
 		//Increment the number of relationship types processed so far:

@@ -109,9 +109,9 @@ variation_unit::variation_unit(const xml_node & xml, bool merge_splits, const se
 		reading_types_by_reading[rdg_id] = rdg_types;
 		//Add the reading ID to the list:
 		readings.push_back(rdg_id);
-		//Split the witness support attribute into a list of witness IDs:
+		//If the reading has a non-empty wit attribute, then split its contents into a list of witness IDs:
 		list<string> wits = list<string>();
-		if (rdg.attribute("wit")) {
+		if (rdg.attribute("wit") && strcmp(rdg.attribute("wit").value(), "") != 0) {
 			const string wit_string = rdg.attribute("wit").value();
 			string delim = " ";
 			size_t start = 0;

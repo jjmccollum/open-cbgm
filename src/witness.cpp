@@ -69,8 +69,8 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 			string reading_for_this = reading_support.at(id);
 			string reading_for_other = reading_support.at(other_id);
 			local_stemma ls = vu.get_local_stemma();
-			//If either witness's reading has a trivial (length-0) path to the other's, then they are equivalent, and we can move on:
-			if ((ls.path_exists(reading_for_this, reading_for_other) && ls.get_path(reading_for_this, reading_for_other).weight == 0) || (ls.path_exists(reading_for_other, reading_for_this) && ls.get_path(reading_for_other, reading_for_this).weight == 0)) {
+			//If either witness's reading agrees with the other's, then we can move on:
+			if (ls.readings_agree(reading_for_this, reading_for_other)) {
 				comp.agreements.add(vu_ind);
 				comp.explained.add(vu_ind);
 				vu_ind++;

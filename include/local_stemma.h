@@ -53,6 +53,7 @@ public:
 	bool path_exists(const std::string & r1, const std::string & r2) const;
 	local_stemma_path get_path(const std::string & r1, const std::string & r2) const;
 	bool common_ancestor_exists(const std::string & r1, const std::string & r2) const;
+	bool readings_agree(const std::string & r1, const std::string & r2) const;
 	void to_dot(std::ostream & out, bool print_weights=false);
 	void to_json(std::ostream & out);
 };

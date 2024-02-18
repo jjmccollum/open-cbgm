@@ -224,10 +224,10 @@ void autotest::run() {
 					u_test.msg += "For variation unit B00K0V0U6, expected label " + expected_label + ", got " + label + "\n";
 				}
 				//Check that the graph is the size we expect:
-				unsigned int expected_n_vertices = 5;
-				unsigned int expected_n_edges = 4;
+				unsigned int expected_n_vertices = 6;
+				unsigned int expected_n_edges = 5;
 				unsigned int expected_n_roots = 1;
-				unsigned int expected_n_paths = 11;
+				unsigned int expected_n_paths = 14;
 				if (ls.get_vertices().size() != expected_n_vertices) {
 					u_test.msg += "For variation unit B00K0V0U6, expected vertices.size() == " + to_string(expected_n_vertices) + ", got " + to_string(ls.get_vertices().size()) + "\n";
 				}
@@ -387,6 +387,46 @@ void autotest::run() {
 				path_cardinality = ls.get_path("a", "d").cardinality;
 				if (path_cardinality != expected_path_cardinality) {
 					u_test.msg += "For variation unit B00K0V0U4, expected get_path(\"a\", \"d\").cardinality == " + to_string(expected_path_cardinality) + ", got " + to_string(path_cardinality) + "\n";
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		//Do more pre-test work:
+		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U6\"]").node();
+		vu_id = app_node.attribute("n").value();
+		vu_label = app_node.child("label").text().get();
+		note_node = app_node.child("note");
+		graph_node = note_node.child("graph");
+		ls = local_stemma(graph_node, vu_id, vu_label, set<pair<string, string>>(), set<string>({"bf1", "bf2", "co"}), set<string>());
+		/**
+		 * Unit test local_stemma_readings_agree
+		 */
+		current_unit = "local_stemma_readings_agree";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//A reading should agree with itself:
+				if (!ls.readings_agree("a", "a")) {
+					u_test.msg += "For variation unit B00K0V0U6, expected readings_agree(\"a\", \"a\") == true, got false\n";
+				}
+				//A reading should agree with a reading to which it is connected by a path of weight 0:
+				if (!ls.readings_agree("c", "co")) {
+					u_test.msg += "For variation unit B00K0V0U6, expected readings_agree(\"c\", \"co\") == true, got false\n";
+				}
+				//Two readings connected to a common ancestor by paths of weight 0 should agree:
+				if (!ls.readings_agree("bf1", "bf2")) {
+					u_test.msg += "For variation unit B00K0V0U6, expected readings_agree(\"bf1\", \"bf2\") == true, got false\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -600,8 +640,8 @@ void autotest::run() {
 				//Check that the local stemma for this variation unit has a weight-0 edge where the defective variant is introduced:
 				local_stemma ls = vu.get_local_stemma();
 				float expected_path_weight = 0;
-				if (ls.get_path("b", "bf").weight != expected_path_weight) {
-					u_test.msg += "Expected get_local_stemma().get_path(\"b\", \"bf\").weight == " + to_string(expected_path_weight) + ", got " + to_string(ls.get_path("b", "bf").weight) + "\n";
+				if (ls.get_path("b", "bf1").weight != expected_path_weight) {
+					u_test.msg += "Expected get_local_stemma().get_path(\"b\", \"bf1\").weight == " + to_string(expected_path_weight) + ", got " + to_string(ls.get_path("b", "bf1").weight) + "\n";
 				}
 				if (u_test.msg.empty()) {
 					u_test.passed = true;
@@ -1717,7 +1757,7 @@ int main(int argc, char* argv[]) {
 	//Initialize the map of unit tests, keyed by parent module name:
 	map<string, list<string>> tests_by_module = map<string, list<string>>({
 		{"common", {"common_read_xml"}},
-		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_common_ancestor_exists", "local_stemma_to_dot"}},
+		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_common_ancestor_exists", "local_stemma_readings_agree", "local_stemma_to_dot"}},
 		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4", "variation_unit_get_base_siglum"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
 		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_trivial_solution", "set_cover_solver_get_greedy_solution"}},

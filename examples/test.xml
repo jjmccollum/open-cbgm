@@ -66,7 +66,8 @@
 						<app n="B00K0V0U6">
 							<rdg n="a" wit="#A">a</rdg>
 							<rdg n="b" wit="#B">b</rdg>
-							<rdg n="bf" type="defective" wit="#C">bf</rdg>
+							<rdg n="bf1" type="defective" wit="#C">bf1</rdg>
+							<rdg n="bf2" type="defective" wit="">bf2</rdg>
 							<rdg n="c" wit="#D">c</rdg>
 							<rdg n="co" type="orthographic" wit="#E">co</rdg>
 							<note>
@@ -75,12 +76,14 @@
 								<graph type="directed">
 									<node n="a" />
 									<node n="b" />
-									<node n="bf" />
+									<node n="bf1" />
+									<node n="bf2" />
 									<node n="c" />
 									<node n="co" />
 									<arc from="a" to="b" />
 									<arc from="a" to="c" />
-									<arc from="b" to="bf" />
+									<arc from="b" to="bf1" />
+									<arc from="b" to="bf2" />
 									<arc from="c" to="co" />
 								</graph>
 							</note>

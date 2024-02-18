@@ -290,6 +290,27 @@ bool local_stemma::common_ancestor_exists(const string & r1, const string & r2) 
 }
 
 /**
+ * Given two reading IDs, checks if they agree after trivial edges are collapsed.
+ * Most obviously, if the reading IDs are equal, then they agree.
+ * But they also count as agreeing if there is a path of weight 0 from one to the other
+ * or if they have a common ancestor with a path of weight 0 to each of them.
+*/
+bool local_stemma::readings_agree(const string & r1, const string & r2) const {
+	if (r1 == r2) {
+		return true;
+	}
+	if ((path_exists(r1, r2) && get_path(r1, r2).weight == 0) || (path_exists(r2, r1) && get_path(r2, r1).weight == 0)) {
+		return true;
+	}
+	for (local_stemma_vertex vertex : vertices) {
+		if ((path_exists(vertex.id, r1) && get_path(vertex.id, r1).weight == 0) && (path_exists(vertex.id, r2) && get_path(vertex.id, r2).weight == 0)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
  * Given an output stream, writes the local stemma graph to output in .dot format.
  * An optional flag indicating whether to print edge weights can also be specified.
  */

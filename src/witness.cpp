@@ -216,8 +216,10 @@ list<string> witness::get_potential_ancestor_ids() const {
  * Returns a list of all minimum-cost substemmata for this witness.
  * Optionally, an upper bound on substemma cost can be specified,
  * in which case all substemmata within that cost bound will be returned.
+ * A boolean flag indicating whether a single solution is desired can also be specified,
+ * in which case the cost bound will be ignored and an optimized version of the branch-and-bound procedure will be used.
  */
- list<set_cover_solution> witness::get_substemmata(float ub) const {
+ list<set_cover_solution> witness::get_substemmata(float ub, bool single_solution) const {
 	list<set_cover_solution> substemmata = list<set_cover_solution>();
 	//Populate a vector of set cover rows using genealogical comparisons with this witness's potential ancestors:
 	vector<set_cover_row> rows = vector<set_cover_row>();
@@ -237,8 +239,8 @@ list<string> witness::get_potential_ancestor_ids() const {
 	//Initialize the bitmap of the target set to be covered:
 	Roaring target = genealogical_comparisons.at(id).extant;
 	//Then populate the rows of this table using the solver:
-	set_cover_solver solver = ub > 0 ? set_cover_solver(rows, target, ub) : set_cover_solver(rows, target);
-	solver.solve(substemmata);
+	set_cover_solver solver = (ub > 0 && !single_solution) ? set_cover_solver(rows, target, ub) : set_cover_solver(rows, target);
+	solver.solve(substemmata, single_solution);
 	return substemmata;
  }
 

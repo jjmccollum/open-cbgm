@@ -62,12 +62,12 @@ public:
 	roaring::Roaring get_unique_rows() const;
 	bool is_feasible(const roaring::Roaring & solution_rows) const;
 	void remove_redundant_rows_from_solution(roaring::Roaring & initial_solution_rows) const;
-	set_cover_solution get_trivial_solution() const;
-	set_cover_solution get_greedy_solution() const;
+	roaring::Roaring get_greedy_solution() const;
 	void branch(const roaring::Roaring & remaining, std::stack<branch_and_bound_node> & nodes);
 	float bound(const roaring::Roaring & solution_rows) const;
 	void branch_and_bound(std::list<set_cover_solution> & solutions);
-	void solve(std::list<set_cover_solution> & solutions);
+	void branch_and_bound_single_solution(std::list<set_cover_solution> & solutions);
+	void solve(std::list<set_cover_solution> & solutions, bool single_solution=false);
 };
 
 #endif /* SET_COVER_SOLVER_H */

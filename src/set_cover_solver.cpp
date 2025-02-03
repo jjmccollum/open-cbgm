@@ -410,6 +410,15 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 				distinct_row_sets[serialized] = solution_rows;
 			}
 		}
+		//Check if there is any feasible solution under the current node:
+		if (is_feasible(accepted | remaining)) {
+			//Lower-bound the cost of any solution under the current node:
+			float lb = bound(accepted);
+			//If this lower bound is strictly below the upper bound, then branch on this node:
+			if (lb < ub) {
+				branch(remaining, nodes);
+			}
+		}
 	}
 	//For each distinct set of solution rows, add a set cover solution data structure to the solutions list:
 	for (pair<string, Roaring> kv : distinct_row_sets) {

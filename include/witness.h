@@ -47,7 +47,7 @@ public:
 	std::unordered_map<std::string, genealogical_comparison> get_genealogical_comparisons() const;
 	genealogical_comparison get_genealogical_comparison_for_witness(const std::string & other_id) const;
 	std::list<std::string> get_potential_ancestor_ids() const;
-	std::list<set_cover_solution> get_substemmata(float ub=0) const;
+	std::list<set_cover_solution> get_substemmata(float ub=0, bool single_solution=false) const;
 	void set_stemmatic_ancestor_ids(const std::list<std::string> & witnesses);
 	std::list<std::string> get_stemmatic_ancestor_ids() const;
 };

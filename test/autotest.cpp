@@ -930,51 +930,6 @@ void autotest::run() {
 			}
 			mod_test.units.push_back(u_test);
 		}
-		/**
-		 * Unit set_cover_solver_get_trivial_solution
-		 */
-		current_unit = "set_cover_solver_get_trivial_solution";
-		if (target_test.empty() || target_test == current_unit) {
-			//Initialize a container for module-wide test results:
-			unit_test u_test;
-			u_test.name = current_unit;
-			u_test.passed = false;
-			u_test.msg = "";
-			//Run the test:
-			try {
-				//Make sure that the trivial solution is correct:
-				set_cover_solution trivial_solution = scs.get_trivial_solution();
-				//Trivial solution should consist of one row:
-				list<set_cover_row> solution_rows = trivial_solution.rows;
-				unsigned int expected_solution_rows_size = 1;
-				unsigned int solution_rows_size = (unsigned int) solution_rows.size();
-				if (solution_rows_size != expected_solution_rows_size) {
-					u_test.msg += "Expected trivial_solution.rows.size() == " + to_string(expected_solution_rows_size) + ", got " + to_string(solution_rows_size) + "\n";
-				}
-				else {
-					//That row should be row "C":
-					set_cover_row solution_row = solution_rows.front();
-					string expected_id = "C";
-					string id = solution_row.id;
-					if (id != expected_id) {
-						u_test.msg += "Expected trivial solution ID to be " + expected_id + ", got " + id + "\n";
-					}
-				}
-				//Make sure the trivial solution has the correct cost:
-				float expected_cost = 4;
-				float cost = trivial_solution.cost;
-				if (cost != expected_cost) {
-					u_test.msg += "Expected trivial_solution.cost == " + to_string(expected_cost) + ", got " + to_string(cost) + "\n";
-				}
-				if (u_test.msg.empty()) {
-					u_test.passed = true;
-				}
-			}
-			catch (const exception & e) {
-				u_test.msg += string(e.what()) + "\n";
-			}
-			mod_test.units.push_back(u_test);
-		}
 		//Do more pre-test work:
 		rows.pop_back(); //remove row C, which is a trivial solution
 		set_cover_row row_d;
@@ -997,17 +952,16 @@ void autotest::run() {
 			//Run the test:
 			try {
 				//Make sure that the greedy solution is correct:
-				set_cover_solution greedy_solution = scs.get_greedy_solution();
+				Roaring greedy_solution_rows = scs.get_greedy_solution();
 				//Greedy solution should consist of two rows:
-				list<set_cover_row> solution_rows = greedy_solution.rows;
 				unsigned int expected_solution_rows_size = 2;
-				unsigned int solution_rows_size = (unsigned int) solution_rows.size();
+				unsigned int solution_rows_size = (unsigned int) greedy_solution_rows.cardinality();
 				if (solution_rows_size != expected_solution_rows_size) {
 					u_test.msg += "Expected greedy_solution.rows.size() == " + to_string(expected_solution_rows_size) + ", got " + to_string(solution_rows_size) + "\n";
 				}
 				//Make sure the greedy solution has the correct cost:
 				float expected_cost = 3;
-				float cost = greedy_solution.cost;
+				float cost = scs.bound(greedy_solution_rows);
 				if (cost != expected_cost) {
 					u_test.msg += "Expected greedy_solution.cost == " + to_string(expected_cost) + ", got " + to_string(cost) + "\n";
 				}
@@ -1341,6 +1295,60 @@ void autotest::run() {
 				//Check if a witness has the expected number of minimum-cost substemmata:
 				witness wit = witness("C", app);
 				list<set_cover_solution> substemmata = wit.get_substemmata();
+				unsigned int expected_substemmata_size = 1;
+				unsigned int substemmata_size = (unsigned int) substemmata.size();
+				if (substemmata_size != expected_substemmata_size) {
+					u_test.msg += "Expected substemmata.size() == " + to_string(expected_substemmata_size) + ", got " + to_string(substemmata_size) + "\n";
+				} else {
+					//Check if a witness's minimum-cost substemma consists of the correct number of ancestors:
+					set_cover_solution substemma = substemmata.front();
+					unsigned int expected_substemma_rows_size = 1;
+					unsigned int substemma_rows_size = (unsigned int) substemma.rows.size();
+					if (substemma_rows_size != expected_substemma_rows_size) {
+						u_test.msg += "Expected substemma.rows.size() == " + to_string(expected_substemma_rows_size) + ", got " + to_string(substemma_rows_size) + "\n";
+					} else {
+						//Check if the ancestors are correct:
+						string expected_substemma_row_id = "B";
+						string substemma_row_id = substemma.rows.front().id;
+						if (substemma_row_id != expected_substemma_row_id) {
+							u_test.msg += "Expected substemma.rows.front().id == {" + expected_substemma_row_id + "}, got {" + substemma_row_id + "}\n";
+						}
+					}
+					float expected_substemma_cost = 2;
+					float substemma_cost = substemma.cost;
+					if (substemma_cost != expected_substemma_cost) {
+						u_test.msg += "Expected substemma.cost == " + to_string(expected_substemma_cost) + ", got " + to_string(substemma_cost) + "\n";
+					}
+					unsigned int expected_substemma_agreements = 2;
+					unsigned int substemma_agreements = substemma.agreements;
+					if (substemma_agreements != expected_substemma_agreements) {
+						u_test.msg += "Expected substemma.agreements == " + to_string(expected_substemma_agreements) + ", got " + to_string(substemma_agreements) + "\n";
+					}
+				}
+				if (u_test.msg.empty()) {
+					u_test.passed = true;
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			mod_test.units.push_back(u_test);
+		}
+		/**
+		 * Unit witness_get_substemmata_single_solution
+		 */
+		current_unit = "witness_get_substemmata_single_solution";
+		if (target_test.empty() || target_test == current_unit) {
+			//Initialize a container for module-wide test results:
+			unit_test u_test;
+			u_test.name = current_unit;
+			u_test.passed = false;
+			u_test.msg = "";
+			//Run the test:
+			try {
+				//Check if a witness has the expected number of minimum-cost substemmata:
+				witness wit = witness("C", app);
+				list<set_cover_solution> substemmata = wit.get_substemmata(0, true);
 				unsigned int expected_substemmata_size = 1;
 				unsigned int substemmata_size = (unsigned int) substemmata.size();
 				if (substemmata_size != expected_substemmata_size) {
@@ -1760,8 +1768,8 @@ int main(int argc, char* argv[]) {
 		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_common_ancestor_exists", "local_stemma_readings_agree", "local_stemma_to_dot"}},
 		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4", "variation_unit_get_base_siglum"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
-		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_trivial_solution", "set_cover_solver_get_greedy_solution"}},
-		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_get_substemmata"}},
+		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_greedy_solution"}},
+		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_get_substemmata", "witness_get_substemmata_single_solution"}},
 		{"textual_flow", {"textual_flow_constructor_1", "textual_flow_constructor_2", "textual_flow_textual_flow_to_dot", "textual_flow_coherence_in_attestations_to_dot", "textual_flow_coherence_in_variant_passages_to_dot"}},
 		{"global_stemma", {"global_stemma_constructor", "global_stemma_to_dot"}}
 	});

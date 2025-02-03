@@ -185,31 +185,9 @@ void set_cover_solver::remove_redundant_rows_from_solution(Roaring & solution_ro
 }
 
 /**
- * Returns a trivial set cover solution consisting of the lowest-cost row that covers the target columns.
- * If the current witness has the Ausgangstext as a potential ancestor (which should hold for all non-fragmentary witnesses)
- * and the Ausgangstext explains all other readings
- * (i.e., if all local stemmata are connected, which is necessary for the global stemma to be connected),
- * then at least one such solution is guaranteed to exist.
+ * Returns the bitmap representing the set cover solution found by the basic greedy heuristic.
  */
-set_cover_solution set_cover_solver::get_trivial_solution() const {
-	set_cover_solution trivial_solution;
-	trivial_solution.rows = list<set_cover_row>();
-	trivial_solution.agreements = 0;
-	trivial_solution.cost = numeric_limits<float>::infinity();
-	for (set_cover_row row : rows) {
-		if (target.isSubset(row.explained) && row.cost < trivial_solution.cost) {
-			trivial_solution.rows = list<set_cover_row>({row});
-			trivial_solution.agreements = (int) row.agreements.cardinality();
-			trivial_solution.cost = row.cost;
-		}
-	}
-	return trivial_solution;
-}
-
-/**
- * Returns the set cover solution found by the basic greedy heuristic.
- */
-set_cover_solution set_cover_solver::get_greedy_solution() const {
+Roaring set_cover_solver::get_greedy_solution() const {
 	Roaring greedy_solution_rows = Roaring();
 	Roaring uncovered = Roaring(target);
 	//Until the target is completely covered, choose the row with the lowest cost-to-coverage proportion:
@@ -239,8 +217,7 @@ set_cover_solution set_cover_solver::get_greedy_solution() const {
 	}
 	//Now remove any redundant columns from this solution:
 	remove_redundant_rows_from_solution(greedy_solution_rows);
-	set_cover_solution greedy_solution = get_solution_from_rows(greedy_solution_rows);
-	return greedy_solution;
+	return greedy_solution_rows;
 }
 
 /**
@@ -290,13 +267,12 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 	remaining.addRange(0, rows.size());
 	//Initialize a stack of branch-and-bound nodes:
 	stack<branch_and_bound_node> nodes = stack<branch_and_bound_node>();
-	//If no fixed upper bound is specified, then obtain a good initial upper bound quickly using the trivial solution and the greedy solution:
+	//If no fixed upper bound is specified, then obtain a good initial upper bound quickly using the greedy solution:
 	float ub = fixed_ub;
 	bool is_ub_fixed = fixed_ub < numeric_limits<float>::infinity();
 	if (!is_ub_fixed) {
-		set_cover_solution trivial_solution = get_trivial_solution();
-		set_cover_solution greedy_solution = get_greedy_solution();
-		ub = min(trivial_solution.cost, greedy_solution.cost);
+		Roaring greedy_solution_rows = get_greedy_solution();
+		ub = bound(greedy_solution_rows);
 	}
 	//Initialize the stack of branch and bound nodes with the first node:
 	branch(remaining, nodes);
@@ -370,11 +346,92 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 }
 
 /**
+ * Populates a list of set cover solutions via branch and bound, under the assumption that only a single lowest-cost solution is needed.
+ * Any fixed upper bound for the solver will be ignored.
+ * This is an optimization intended to be used for global stemma construction, where only one solution is used even if there are multiple of equal cost.
+ */
+void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution> & solutions) {
+	//Initialize a map of solution row set bitmaps, keyed by their serializations:
+	unordered_map<string, Roaring> distinct_row_sets = unordered_map<string, Roaring>();
+	//Initialize bitmaps representing rows included in the current solution and rows to be processed:
+	Roaring accepted = Roaring();
+	Roaring remaining = Roaring();
+	remaining.addRange(0, rows.size());
+	//Initialize a stack of branch-and-bound nodes:
+	stack<branch_and_bound_node> nodes = stack<branch_and_bound_node>();
+	//Obtain a good initial upper bound quickly using the greedy solution:
+	float ub = numeric_limits<float>::infinity();
+	Roaring greedy_solution_rows = get_greedy_solution();
+	ub = bound(greedy_solution_rows);
+	//Add the solution row bitmap to the solution set:
+	string serialized = greedy_solution_rows.toString();
+	distinct_row_sets[serialized] = greedy_solution_rows;
+	//Initialize the stack of branch and bound nodes with the first node:
+	branch(remaining, nodes);
+	//Then continue with branch and bound until there is nothing left to be processed:
+	while (!nodes.empty()) {
+		//Get the current node from the stack:
+		branch_and_bound_node & node = nodes.top();
+		//Adjust the set partitions to reflect the candidate solution representing by the current node:
+		unsigned int row = node.row;
+		if (node.state == node_state::ACCEPT) {
+			//Add the candidate row to the solution:
+			remaining.remove(row);
+			accepted.add(row);
+			//Update its state:
+			node.state = node_state::REJECT;
+		}
+		else if (node.state == node_state::REJECT) {
+			//Exclude the candidate row from the solution:
+			accepted.remove(row);
+			//Update its state:
+			node.state = node_state::DONE;
+		}
+		else {
+			//We're done processing this node, and we can add its row back to the set of available rows:
+			remaining.add(row);
+			nodes.pop();
+			continue;
+		}
+		//Check if current set of accepted rows represents a feasible solution:
+		if (is_feasible(accepted)) {
+			//If it does, then calculate the cost of the solution:
+			Roaring solution_rows = Roaring(accepted);
+			//Remove redundant rows:
+			remove_redundant_rows_from_solution(solution_rows);
+			float cost = bound(solution_rows);
+			//Check if this cost is strictly below the current upper bound:
+			if (cost < ub) {
+				//If it is, then update the upper bound and solution set:
+				ub = cost;
+				distinct_row_sets = unordered_map<string, Roaring>();
+				//Then add the solution row bitmap to the solution set:
+				string serialized = solution_rows.toString();
+				distinct_row_sets[serialized] = solution_rows;
+			}
+		}
+	}
+	//For each distinct set of solution rows, add a set cover solution data structure to the solutions list:
+	for (pair<string, Roaring> kv : distinct_row_sets) {
+		Roaring solution_rows = kv.second;
+		set_cover_solution solution = get_solution_from_rows(solution_rows);
+		solutions.push_back(solution);
+	}
+	return;
+}
+
+/**
  * Populates the given solution list with solutions to the set cover problem.
  * If the set cover solver was constructed with a fixed upper bound, then this method will enumerate all solutions with costs within that bound.
+ * If the flag for single solutions is set (which should happen for the construction of the global stemma), 
+ * then the fixed upper bound is ignored, and a slightly more optimized version of the branch and bound procedure is used.
  */
-void set_cover_solver::solve(list<set_cover_solution> & solutions) {
+void set_cover_solver::solve(list<set_cover_solution> & solutions, bool single_solution) {
 	solutions = list<set_cover_solution>();
+	//If the single solution flag is set, the set the fixed upper bound to infinity:
+	if (single_solution) {
+		fixed_ub = std::numeric_limits<float>::infinity();
+	}
 	//Create a map of row IDs to their indices:
 	unordered_map<string, unsigned int> row_ids_to_inds = unordered_map<string, unsigned int>();
 	unsigned int row_ind = 0;
@@ -432,7 +489,11 @@ void set_cover_solver::solve(list<set_cover_solution> & solutions) {
 	}
 	list<set_cover_solution> subproblem_solutions = list<set_cover_solution>();
 	set_cover_solver subproblem_solver = fixed_ub != numeric_limits<float>::infinity() ? set_cover_solver(subproblem_rows, subproblem_target, subproblem_ub) : set_cover_solver(subproblem_rows, subproblem_target);
-	subproblem_solver.branch_and_bound(subproblem_solutions);
+	if (single_solution) {
+		subproblem_solver.branch_and_bound_single_solution(subproblem_solutions);
+	} else {
+		subproblem_solver.branch_and_bound(subproblem_solutions);
+	}
 	//Then add the unique coverage rows found earlier to the subproblem solutions:
 	set_cover_solution unique_rows_solution = get_solution_from_rows(unique_rows);
 	for (set_cover_solution subproblem_solution : subproblem_solutions) {

@@ -1,6 +1,6 @@
 # open-cbgm
 
-![open-cbgm logo](https://raw.githubusercontent.com/jjmccollum/open-cbgm/img/open-cbgm-logo.svg)
+![open-cbgm logo](https://raw.githubusercontent.com/jjmccollum/open-cbgm/img/open-cbgm-logo.png)
 
 [![Version 2.0.0](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/jjmccollum/open-cbgm)
 [![Build Status](https://github.com/jjmccollum/open-cbgm/actions/workflows/testing.yml/badge.svg)](https://github.com/jjmccollum/open-cbgm/actions/workflows/testing.yml)

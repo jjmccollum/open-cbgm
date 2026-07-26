@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "roaring.hh"
+#include <roaring/roaring.hh>
 #include "global_stemma.h"
 #include "witness.h"
 

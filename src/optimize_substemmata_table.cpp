@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "roaring.hh"
+#include <roaring/roaring.hh>
 #include "set_cover_solver.h"
 #include "witness.h"
 #include "optimize_substemmata_table.h"

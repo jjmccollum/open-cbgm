@@ -13,7 +13,7 @@
 #include <limits>
 
 #include "set_cover_solver.h"
-#include "roaring.hh"
+#include <roaring/roaring.hh>
 
 using namespace std;
 using namespace roaring;

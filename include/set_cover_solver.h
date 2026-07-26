@@ -13,7 +13,7 @@
 #include <vector>
 #include <limits>
 
-#include "roaring.hh"
+#include <roaring/roaring.hh>
 
 /**
  * Enumeration of states for an accept-reject branch and bound node.

@@ -17,7 +17,7 @@
 #include <limits>
 
 #include "pugixml.hpp"
-#include "roaring.hh"
+#include <roaring/roaring.hh>
 #include "witness.h"
 #include "variation_unit.h"
 #include "local_stemma.h"

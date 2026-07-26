@@ -12,7 +12,7 @@
 #include <list>
 #include <unordered_map>
 
-#include "roaring.hh"
+#include <roaring/roaring.hh>
 #include "apparatus.h"
 #include "set_cover_solver.h"
 

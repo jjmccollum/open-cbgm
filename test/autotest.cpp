@@ -1747,7 +1747,7 @@ int main(int argc, char* argv[]) {
 			target_test = result["t"].as<string>();
 		}
 	}
-	catch (const cxxopts::OptionException & e) {
+	catch (const cxxopts::exceptions::exception & e) {
 		cerr << "Error parsing options: " << e.what() << endl;
 		exit(-1);
 	}

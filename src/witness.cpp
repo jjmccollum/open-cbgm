@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "roaring.hh"
+#include <roaring/roaring.hh>
 #include "witness.h"
 #include "set_cover_solver.h"
 #include "apparatus.h"

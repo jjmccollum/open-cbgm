@@ -68,7 +68,7 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 			comp.extant.add(vu_ind);
 			const string & reading_for_this = reading_support.at(id);
 			const string & reading_for_other = reading_support.at(other_id);
-			local_stemma ls = vu.get_local_stemma();
+			const local_stemma & ls = vu.stemma;
 			//If either witness's reading agrees with the other's, then we can move on:
 			if (ls.readings_agree(reading_for_this, reading_for_other)) {
 				comp.agreements.add(vu_ind);

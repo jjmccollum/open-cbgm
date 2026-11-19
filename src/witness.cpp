@@ -11,7 +11,6 @@
 #include <list>
 #include <unordered_map>
 #include <algorithm>
-#include <limits>
 
 #include <roaring/roaring.hh>
 #include "witness.h"
@@ -79,17 +78,18 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 				continue;
 			}
 			//Otherwise, because we allow for cycles in the local stemma, it is necessary to check for a non-trivial path between the readings in both directions:
-			float path_length = numeric_limits<float>::infinity();
-			if (ls.path_exists(reading_for_this, reading_for_other) || ls.path_exists(reading_for_other, reading_for_this)) {
-				if (ls.path_exists(reading_for_this, reading_for_other)) {
+			const bool has_prior_reading = ls.path_exists(reading_for_this, reading_for_other);
+			const bool has_posterior_reading = ls.path_exists(reading_for_other, reading_for_this);
+			if (has_prior_reading || has_posterior_reading) {
+				if (has_prior_reading) {
 					comp.prior.add(vu_ind);
 				}
-				if (ls.path_exists(reading_for_other, reading_for_this)) {
-					path_length = ls.get_path(reading_for_other, reading_for_this).weight;
+				if (has_posterior_reading) {
+					const auto path = ls.get_path(reading_for_other, reading_for_this);
 					comp.posterior.add(vu_ind);
 					//The classic criterion is that only a reading equivalent or directly prior to another reading explains it:
 					if (classic) {
-						if (ls.get_path(reading_for_other, reading_for_this).cardinality <= 1) {
+						if (path.cardinality <= 1) {
 							comp.explained.add(vu_ind);
 						}
 					}
@@ -97,7 +97,7 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 					//and the cost is equal to the length of the path from the prior reading to the posterior reading:
 					else {
 						comp.explained.add(vu_ind);
-						comp.cost += path_length;
+						comp.cost += path.weight;
 					}
 				}
 			}

@@ -1281,6 +1281,40 @@ void autotest::run() {
 			mod_test.units.push_back(u_test);
 		}
 		/**
+		 * Unit witness_compare_self_and_rank_ancestors
+		 */
+		current_unit = "witness_compare_self_and_rank_ancestors";
+		if (target_test.empty() || target_test == current_unit) {
+			unit_test u_test;
+			u_test.name = current_unit;
+			try {
+				for (bool classic : {false, true}) {
+					const string mode = classic ? "Classic: " : "Default: ";
+					const witness wit("E", app, classic);
+					const genealogical_comparison self = wit.get_genealogical_comparison_for_witness("E");
+					// E is absent from passage 3, even when compared with itself.
+					const Roaring expected_extant = Roaring::bitmapOf(3, 0, 1, 2);
+					if (!(self.extant == expected_extant && self.agreements == expected_extant
+							&& self.explained == expected_extant)) {
+						u_test.msg += mode + "expected E to agree with itself at passages {0,1,2}\n";
+					}
+					if (!(self.prior.isEmpty() && self.posterior.isEmpty() && self.norel.isEmpty()
+							&& self.unclear.isEmpty() && self.cost == 0)) {
+						u_test.msg += mode + "expected zero disagreements and zero cost for E vs. E\n";
+					}
+					const list<string> expected_ancestors = {"D", "A", "B", "C"};
+					if (wit.get_potential_ancestor_ids() != expected_ancestors) {
+						u_test.msg += mode + "expected E's potential ancestors in order D, A, B, C\n";
+					}
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			u_test.passed = u_test.msg.empty();
+			mod_test.units.push_back(u_test);
+		}
+		/**
 		 * Unit witness_get_substemmata
 		 */
 		current_unit = "witness_get_substemmata";
@@ -1769,7 +1803,7 @@ int main(int argc, char* argv[]) {
 		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4", "variation_unit_get_base_siglum"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
 		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_greedy_solution"}},
-		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_get_substemmata", "witness_get_substemmata_single_solution"}},
+		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_compare_self_and_rank_ancestors", "witness_get_substemmata", "witness_get_substemmata_single_solution"}},
 		{"textual_flow", {"textual_flow_constructor_1", "textual_flow_constructor_2", "textual_flow_textual_flow_to_dot", "textual_flow_coherence_in_attestations_to_dot", "textual_flow_coherence_in_variant_passages_to_dot"}},
 		{"global_stemma", {"global_stemma_constructor", "global_stemma_to_dot"}}
 	});

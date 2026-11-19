@@ -4,6 +4,9 @@ add_executable(autotest autotest.cpp)
 # Link the build targets to external libraries:
 target_link_libraries(autotest cxxopts open-cbgm)
 
+add_executable(witness_benchmark EXCLUDE_FROM_ALL witness_benchmark.cpp)
+target_link_libraries(witness_benchmark open-cbgm)
+
 # Register executables as tests:
 add_test(NAME common_read_xml COMMAND autotest -t common_read_xml)
 add_test(NAME local_stemma_constructor_1 COMMAND autotest -t local_stemma_constructor_1)

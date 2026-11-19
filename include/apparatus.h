@@ -18,6 +18,8 @@
 
 class apparatus {
 private:
+	friend class witness;
+
 	std::list<std::string> list_wit;
 	std::vector<variation_unit> variation_units;
 public:

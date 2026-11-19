@@ -39,8 +39,8 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 	id = _id;
 	//Now populate the its map of genealogical_comparisons, keyed by witness ID:
 	genealogical_comparisons = unordered_map<string, genealogical_comparison>();
-	list<string> list_wit = app.get_list_wit();
-	for (string other_id : list_wit) {
+	const auto & list_wit = app.list_wit;
+	for (const string & other_id : list_wit) {
 		//Initialize a genealogical_comparison data structure for this witness:
 		genealogical_comparison comp;
 		comp.primary_wit = id;
@@ -54,7 +54,7 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 		comp.explained = Roaring();
 		comp.cost = 0;
 		int vu_ind = 0;
-		for (variation_unit vu : app.get_variation_units()) {
+		for (const variation_unit & vu : app.variation_units) {
 			//Try to get the reading of each witness at this variation unit:
 			unordered_map<string, string> reading_support = vu.get_reading_support();
 			//If either witness is lacunose, then there is no relationship

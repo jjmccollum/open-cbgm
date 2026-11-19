@@ -56,7 +56,7 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 		int vu_ind = 0;
 		for (const variation_unit & vu : app.variation_units) {
 			//Try to get the reading of each witness at this variation unit:
-			unordered_map<string, string> reading_support = vu.get_reading_support();
+			const auto & reading_support = vu.reading_support;
 			//If either witness is lacunose, then there is no relationship
 			//(including equality, as two lacunae should not be treated as equal):
 			if (reading_support.find(id) == reading_support.end() || reading_support.find(other_id) == reading_support.end()) {
@@ -66,8 +66,8 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 			//Otherwise, mark this passage as a place where both witnesses are extant
 			//and determine the relationship of their readings in the local stemma:
 			comp.extant.add(vu_ind);
-			string reading_for_this = reading_support.at(id);
-			string reading_for_other = reading_support.at(other_id);
+			const string & reading_for_this = reading_support.at(id);
+			const string & reading_for_other = reading_support.at(other_id);
 			local_stemma ls = vu.get_local_stemma();
 			//If either witness's reading agrees with the other's, then we can move on:
 			if (ls.readings_agree(reading_for_this, reading_for_other)) {

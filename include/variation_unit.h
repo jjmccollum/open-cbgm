@@ -22,6 +22,8 @@
 
 class variation_unit {
 private:
+	friend class witness;
+
 	std::string id;
 	std::string label;
 	std::list<std::string> readings;

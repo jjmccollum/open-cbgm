@@ -123,23 +123,19 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 	}
 	//Next, populate this witness's list of potential ancestors:
 	potential_ancestor_ids = list<string>();
-	//Start by constructing a list of genealogical comparisons with all other witnesses:
-	list<genealogical_comparison> comps = list<genealogical_comparison>();
-	for (string other_id : list_wit) {
-		genealogical_comparison comp = genealogical_comparisons.at(other_id);
-		comps.push_back(comp);
-	}
-	//Then sort this list by number of agreements:
-	comps.sort([](const genealogical_comparison & c1, const genealogical_comparison & c2) {
-		return c1.agreements.cardinality() > c2.agreements.cardinality();
-	});
-	//Now iterate through the sorted list,
-	//copying only the IDs of the witnesses that are genealogically prior to this witness:
-	for (genealogical_comparison comp : comps) {
-		string other_id = comp.secondary_wit;
+	//Collect eligible comparisons in collation order for stable tie-breaking.
+	list<const genealogical_comparison *> ancestors;
+	for (const string & other_id : list_wit) {
+		const auto & comp = genealogical_comparisons.at(other_id);
 		if (comp.posterior.cardinality() > comp.prior.cardinality()) {
-			potential_ancestor_ids.push_back(other_id);
+			ancestors.push_back(&comp);
 		}
+	}
+	ancestors.sort([](const genealogical_comparison * c1, const genealogical_comparison * c2) {
+		return c1->agreements.cardinality() > c2->agreements.cardinality();
+	});
+	for (const auto * comp : ancestors) {
+		potential_ancestor_ids.push_back(comp->secondary_wit);
 	}
 	//Initialize the stemmatic ancestors list as empty:
 	stemmatic_ancestor_ids = list<string>();

@@ -30,6 +30,8 @@ add_test(NAME witness_get_genealogical_comparison_for_witness_1 COMMAND autotest
 add_test(NAME witness_get_genealogical_comparison_for_witness_2 COMMAND autotest -t witness_get_genealogical_comparison_for_witness_2)
 add_test(NAME witness_get_genealogical_comparison_for_witness_3 COMMAND autotest -t witness_get_genealogical_comparison_for_witness_3)
 add_test(NAME witness_compare_self_and_rank_ancestors COMMAND autotest -t witness_compare_self_and_rank_ancestors)
+add_test(NAME witness_shared_comparison_index COMMAND autotest -t witness_shared_comparison_index)
+add_test(NAME witness_large_reading_set COMMAND autotest -t witness_large_reading_set)
 add_test(NAME witness_get_substemmata COMMAND autotest -t witness_get_substemmata)
 add_test(NAME witness_get_substemmata_single_solution COMMAND autotest -t witness_get_substemmata_single_solution)
 add_test(NAME textual_flow_constructor_1 COMMAND autotest -t textual_flow_constructor_1)

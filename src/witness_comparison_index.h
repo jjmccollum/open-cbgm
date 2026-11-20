@@ -1,9 +1,19 @@
 #ifndef WITNESS_COMPARISON_INDEX_H
 #define WITNESS_COMPARISON_INDEX_H
 
+#include <cstddef>
+#include <memory>
+#include <mutex>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
-#include "local_stemma.h"
+#include "variation_unit.h"
+
+struct indexed_attestation {
+	std::size_t passage;
+	std::size_t reading;
+};
 
 struct reading_relationship {
 	bool agrees = false;
@@ -14,25 +24,27 @@ struct reading_relationship {
 	float weight = 0;
 };
 
-inline reading_relationship classify_readings(const local_stemma & graph, const std::string & primary, const std::string & secondary) {
-	reading_relationship relation;
-	relation.agrees = graph.readings_agree(primary, secondary);
-	if (relation.agrees) {
-		return relation;
-	}
-	//Otherwise, because we allow for cycles in the local stemma, it is necessary to check for a non-trivial path between the readings in both directions:
-	relation.prior = graph.path_exists(primary, secondary);
-	relation.posterior = graph.path_exists(secondary, primary);
-	if (relation.posterior) {
-		const auto path = graph.get_path(secondary, primary);
-		relation.weight = path.weight;
-		relation.classic_explained = path.cardinality <= 1;
-	}
-	//If the readings have no path connecting them in either direction, then check if they have a common ancestor:
-	if (!relation.prior && !relation.posterior) {
-		relation.common_ancestor = graph.common_ancestor_exists(primary, secondary);
-	}
-	return relation;
-}
+class witness_comparison_index {
+	struct indexed_passage {
+		std::vector<std::string> readings;
+	};
+
+	std::unordered_map<std::string, std::vector<indexed_attestation>> attestations;
+	std::vector<indexed_passage> passages;
+
+public:
+	explicit witness_comparison_index(const std::vector<variation_unit> & units);
+	const std::vector<indexed_attestation> & attestations_for(const std::string & witness_id) const;
+	reading_relationship relationship(const indexed_attestation & primary, const indexed_attestation & secondary,
+		const local_stemma & graph) const;
+};
+
+class witness_comparison_cache {
+	std::once_flag initialized;
+	std::unique_ptr<const witness_comparison_index> index;
+
+public:
+	const witness_comparison_index & get(const std::vector<variation_unit> & units);
+};
 
 #endif

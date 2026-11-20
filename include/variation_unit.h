@@ -23,6 +23,7 @@
 class variation_unit {
 private:
 	friend class witness;
+	friend class witness_comparison_index;
 
 	std::string id;
 	std::string label;

@@ -14,6 +14,7 @@
 #include "pugixml.hpp"
 #include "apparatus.h"
 #include "variation_unit.h"
+#include "witness_comparison_index.h"
 
 using namespace std;
 using namespace pugi;
@@ -21,7 +22,7 @@ using namespace pugi;
 /**
  * Default constructor.
  */
-apparatus::apparatus() {
+apparatus::apparatus() : comparison_cache(make_shared<witness_comparison_cache>()) {
 
 }
 
@@ -31,7 +32,8 @@ apparatus::apparatus() {
  * sets of strings indicating reading types that should be dropped or treated as trivial,
  * and a list of suffixes to ignore in witness sigla are also expected.
  */
-apparatus::apparatus(const xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types, const list<string> & ignored_suffixes) {
+apparatus::apparatus(const xml_node & xml, bool merge_splits, const set<string> & trivial_reading_types, const set<string> & dropped_reading_types, const list<string> & ignored_suffixes)
+	: comparison_cache(make_shared<witness_comparison_cache>()) {
 	//Populate the list of witness IDs from the listWit element under the collation's TEI header:
 	list_wit = list<string>();
 	for (xpath_node wit_path : xml.select_nodes("teiHeader/fileDesc/sourceDesc/listWit/witness")) {

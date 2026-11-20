@@ -40,6 +40,8 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 	//Now populate the its map of genealogical_comparisons, keyed by witness ID:
 	genealogical_comparisons = unordered_map<string, genealogical_comparison>();
 	const auto & list_wit = app.list_wit;
+	const auto & index = app.comparison_cache->get(app.variation_units);
+	const auto & primary_attestations = index.attestations_for(id);
 	for (const string & other_id : list_wit) {
 		//Initialize a genealogical_comparison data structure for this witness:
 		genealogical_comparison comp;
@@ -53,24 +55,25 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 		comp.unclear = Roaring();
 		comp.explained = Roaring();
 		comp.cost = 0;
-		for (size_t passage = 0; passage < app.variation_units.size(); ++passage) {
-			const auto & vu = app.variation_units[passage];
-			//Try to get the reading of each witness at this variation unit:
-			const auto & reading_support = vu.reading_support;
-			const auto this_attestation = reading_support.find(id);
-			const auto other_attestation = reading_support.find(other_id);
-			//If either witness is lacunose, then there is no relationship
-			//(including equality, as two lacunae should not be treated as equal):
-			if (this_attestation == reading_support.end() || other_attestation == reading_support.end()) {
+		const auto & secondary_attestations = index.attestations_for(other_id);
+		auto primary = primary_attestations.begin();
+		auto secondary = secondary_attestations.begin();
+		// Walk the passages both witnesses attest in collation order.
+		while (primary != primary_attestations.end() && secondary != secondary_attestations.end()) {
+			if (primary->passage < secondary->passage) {
+				++primary;
 				continue;
 			}
-			//Otherwise, mark this passage as a place where both witnesses are extant
-			//and determine the relationship of their readings in the local stemma:
+			if (secondary->passage < primary->passage) {
+				++secondary;
+				continue;
+			}
+			const auto passage = primary->passage;
+			const auto relation = index.relationship(*primary, *secondary, app.variation_units[passage].stemma);
+			++primary;
+			++secondary;
+
 			comp.extant.add(passage);
-			const string & reading_for_this = this_attestation->second;
-			const string & reading_for_other = other_attestation->second;
-			const local_stemma & ls = vu.stemma;
-			const auto relation = classify_readings(ls, reading_for_this, reading_for_other);
 			if (relation.agrees) {
 				comp.agreements.add(passage);
 				comp.explained.add(passage);

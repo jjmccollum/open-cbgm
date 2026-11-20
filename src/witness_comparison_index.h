@@ -27,6 +27,7 @@ struct reading_relationship {
 class witness_comparison_index {
 	struct indexed_passage {
 		std::vector<std::string> readings;
+		std::vector<reading_relationship> relationships;
 	};
 
 	std::unordered_map<std::string, std::vector<indexed_attestation>> attestations;

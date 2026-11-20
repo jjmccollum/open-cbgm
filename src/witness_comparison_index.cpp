@@ -24,6 +24,8 @@ static reading_relationship classify_readings(const local_stemma & graph, const 
 }
 
 witness_comparison_index::witness_comparison_index(const vector<variation_unit> & units) {
+	// Cap the quadratic table for passages with unusually many distinct readings.
+	const size_t max_cached_readings = 128;
 	passages.reserve(units.size());
 	for (const auto & unit : units) {
 		const size_t position = passages.size();
@@ -37,6 +39,15 @@ witness_comparison_index::witness_comparison_index(const vector<variation_unit> 
 			}
 			attestations[attestation.first].push_back({position, entry.first->second});
 		}
+		if (passage.readings.size() > max_cached_readings) {
+			continue;
+		}
+		passage.relationships.reserve(passage.readings.size() * passage.readings.size());
+		for (const auto & primary : passage.readings) {
+			for (const auto & secondary : passage.readings) {
+				passage.relationships.push_back(classify_readings(unit.stemma, primary, secondary));
+			}
+		}
 	}
 }
 
@@ -49,7 +60,10 @@ const vector<indexed_attestation> & witness_comparison_index::attestations_for(c
 reading_relationship witness_comparison_index::relationship(const indexed_attestation & primary,
 		const indexed_attestation & secondary, const local_stemma & graph) const {
 	const auto & passage = passages[primary.passage];
-	return classify_readings(graph, passage.readings[primary.reading], passage.readings[secondary.reading]);
+	if (passage.relationships.empty()) {
+		return classify_readings(graph, passage.readings[primary.reading], passage.readings[secondary.reading]);
+	}
+	return passage.relationships[primary.reading * passage.readings.size() + secondary.reading];
 }
 
 const witness_comparison_index & witness_comparison_cache::get(const vector<variation_unit> & units) {

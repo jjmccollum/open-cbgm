@@ -54,7 +54,7 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 		comp.cost = 0;
 		int vu_ind = 0;
 		for (const variation_unit & vu : app.variation_units) {
-			// Keep the iterators so we can use the readings after checking for gaps.
+			//Try to get the reading of each witness at this variation unit:
 			const auto & reading_support = vu.reading_support;
 			const auto this_attestation = reading_support.find(id);
 			const auto other_attestation = reading_support.find(other_id);
@@ -77,7 +77,7 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 				vu_ind++;
 				continue;
 			}
-			// A cycle can make both directions valid for the same pair of readings.
+			//Otherwise, because we allow for cycles in the local stemma, it is necessary to check for a non-trivial path between the readings in both directions:
 			const bool has_prior_reading = ls.path_exists(reading_for_this, reading_for_other);
 			const bool has_posterior_reading = ls.path_exists(reading_for_other, reading_for_this);
 			if (has_prior_reading || has_posterior_reading) {
@@ -123,7 +123,7 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 	}
 	//Next, populate this witness's list of potential ancestors:
 	potential_ancestor_ids = list<string>();
-	// Start in collation order. The stable sort keeps that order when agreement counts tie.
+	//Start by collecting comparisons with genealogically prior witnesses in collation order:
 	list<const genealogical_comparison *> ancestors;
 	for (const string & other_id : list_wit) {
 		const auto & comp = genealogical_comparisons.at(other_id);
@@ -131,9 +131,12 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 			ancestors.push_back(&comp);
 		}
 	}
+	//Then sort this list by number of agreements:
 	ancestors.sort([](const genealogical_comparison * c1, const genealogical_comparison * c2) {
 		return c1->agreements.cardinality() > c2->agreements.cardinality();
 	});
+	//Now iterate through the sorted list,
+	//copying only the IDs of the witnesses that are genealogically prior to this witness:
 	for (const auto * comp : ancestors) {
 		potential_ancestor_ids.push_back(comp->secondary_wit);
 	}

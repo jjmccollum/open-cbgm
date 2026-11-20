@@ -4,7 +4,11 @@ add_executable(autotest autotest.cpp)
 # Link the build targets to external libraries:
 target_link_libraries(autotest cxxopts open-cbgm)
 
+add_executable(json_exports_test json_exports.cpp)
+target_link_libraries(json_exports_test open-cbgm)
+
 # Register executables as tests:
+add_test(NAME json_exports COMMAND json_exports_test)
 add_test(NAME common_read_xml COMMAND autotest -t common_read_xml)
 add_test(NAME local_stemma_constructor_1 COMMAND autotest -t local_stemma_constructor_1)
 add_test(NAME local_stemma_constructor_2 COMMAND autotest -t local_stemma_constructor_2)

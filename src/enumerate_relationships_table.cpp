@@ -14,6 +14,7 @@
 
 #include "witness.h"
 #include "enumerate_relationships_table.h"
+#include "json_string.h"
 
 using namespace std;
 
@@ -331,136 +332,37 @@ void enumerate_relationships_table::to_tsv(ostream & out, const set<string> & fi
 /**
  * Given an output stream and a set of desired relationship types, 
  * prints the contents of this table for those relationship types in JavaScript Object Notation (JSON) format.
- * The witness IDs are assumed not to contain characters that need to be escaped in URLs.
  */
 void enumerate_relationships_table::to_json(ostream & out, const set<string> & filter_relationship_types) {
-    //Open the root object:
-    out << "{";
-    //Add the metadata fields:
-	out << "\"primary_wit\":" << "\"" << primary_wit_id << "\"" << ",";
-	out << "\"secondary_wit\":" << "\"" << secondary_wit_id << "\"" << ",";
-    //Then print the lists of passages for the filtered relationship types:
-	unsigned int relationship_types_processed = 0;
-	if (filter_relationship_types.find("extant") != filter_relationship_types.end()) {
-		out << "\"extant\":" << "[";
-		for (string vu_id : extant) {
-			out << "\"" << vu_id << "\"";
-			//If this is not the last ID in the list, then add a comma:
-			if (vu_id != extant.back()) {
-				out << ",";
-			}
+	out << "{\"primary_wit\":";
+	open_cbgm::write_json_string(out, primary_wit_id);
+	out << ",\"secondary_wit\":";
+	open_cbgm::write_json_string(out, secondary_wit_id);
+
+	const struct {
+		const char * name;
+		const list<string> & passages;
+	} relationships[] = {
+		{"extant", extant},
+		{"agree", agreements},
+		{"prior", prior},
+		{"posterior", posterior},
+		{"norel", norel},
+		{"unclear", unclear},
+		{"explained", explained}
+	};
+	for (const auto & relationship : relationships) {
+		if (filter_relationship_types.find(relationship.name) == filter_relationship_types.end()) {
+			continue;
 		}
-    	out << "]";
-		//Increment the number of relationship types processed so far:
-		relationship_types_processed++;
-		//If this is less than the number of desired relationship types, then add a comma:
-		if (relationship_types_processed < filter_relationship_types.size()) {
-			out << ",";
+		out << ",\"" << relationship.name << "\":[";
+		const char * separator = "";
+		for (const string & passage : relationship.passages) {
+			out << separator;
+			open_cbgm::write_json_string(out, passage);
+			separator = ",";
 		}
+		out << ']';
 	}
-	if (filter_relationship_types.find("agree") != filter_relationship_types.end()) {
-		out << "\"agree\":" << "[";
-		for (string vu_id : agreements) {
-			out << "\"" << vu_id << "\"";
-			//If this is not the last ID in the list, then add a comma:
-			if (vu_id != agreements.back()) {
-				out << ",";
-			}
-		}
-		out << "]";
-		//Increment the number of relationship types processed so far:
-		relationship_types_processed++;
-		//If this is less than the number of desired relationship types, then add a comma:
-		if (relationship_types_processed < filter_relationship_types.size()) {
-			out << ",";
-		}
-	}
-	if (filter_relationship_types.find("prior") != filter_relationship_types.end()) {
-		out << "\"prior\":" << "[";
-		for (string vu_id : prior) {
-			out << "\"" << vu_id << "\"";
-			//If this is not the last ID in the list, then add a comma:
-			if (vu_id != prior.back()) {
-				out << ",";
-			}
-		}
-		out << "]";
-		//Increment the number of relationship types processed so far:
-		relationship_types_processed++;
-		//If this is less than the number of desired relationship types, then add a comma:
-		if (relationship_types_processed < filter_relationship_types.size()) {
-			out << ",";
-		}
-	}
-	if (filter_relationship_types.find("posterior") != filter_relationship_types.end()) {
-		out << "\"posterior\":" << "[";
-		for (string vu_id : posterior) {
-			out << "\"" << vu_id << "\"";
-			//If this is not the last ID in the list, then add a comma:
-			if (vu_id != posterior.back()) {
-				out << ",";
-			}
-		}
-		out << "]";
-		//Increment the number of relationship types processed so far:
-		relationship_types_processed++;
-		//If this is less than the number of desired relationship types, then add a comma:
-		if (relationship_types_processed < filter_relationship_types.size()) {
-			out << ",";
-		}
-	}
-	if (filter_relationship_types.find("norel") != filter_relationship_types.end()) {
-		out << "\"norel\":" << "[";
-		for (string vu_id : norel) {
-			out << "\"" << vu_id << "\"";
-			//If this is not the last ID in the list, then add a comma:
-			if (vu_id != norel.back()) {
-				out << ",";
-			}
-		}
-		out << "]";
-		//Increment the number of relationship types processed so far:
-		relationship_types_processed++;
-		//If this is less than the number of desired relationship types, then add a comma:
-		if (relationship_types_processed < filter_relationship_types.size()) {
-			out << ",";
-		}
-	}
-	if (filter_relationship_types.find("unclear") != filter_relationship_types.end()) {
-		out << "\"unclear\":" << "[";
-		for (string vu_id : unclear) {
-			out << "\"" << vu_id << "\"";
-			//If this is not the last ID in the list, then add a comma:
-			if (vu_id != unclear.back()) {
-				out << ",";
-			}
-		}
-		out << "]";
-		//Increment the number of relationship types processed so far:
-		relationship_types_processed++;
-		//If this is less than the number of desired relationship types, then add a comma:
-		if (relationship_types_processed < filter_relationship_types.size()) {
-			out << ",";
-		}
-	}
-	if (filter_relationship_types.find("explained") != filter_relationship_types.end()) {
-		out << "\"explained\":" << "[";
-		for (string vu_id : explained) {
-			out << "\"" << vu_id << "\"";
-			//If this is not the last ID in the list, then add a comma:
-			if (vu_id != explained.back()) {
-				out << ",";
-			}
-		}
-		out << "]";
-		//Increment the number of relationship types processed so far:
-		relationship_types_processed++;
-		//If this is less than the number of desired relationship types, then add a comma:
-		if (relationship_types_processed < filter_relationship_types.size()) {
-			out << ",";
-		}
-	}
-    //Close the root object:
-    out << "}";
-	return;
+	out << '}';
 }

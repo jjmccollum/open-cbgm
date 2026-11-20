@@ -18,6 +18,7 @@
 #include "apparatus.h"
 #include "variation_unit.h"
 #include "local_stemma.h"
+#include "witness_comparison_index.h"
 
 using namespace std;
 using namespace roaring;
@@ -52,8 +53,8 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 		comp.unclear = Roaring();
 		comp.explained = Roaring();
 		comp.cost = 0;
-		int vu_ind = 0;
-		for (const variation_unit & vu : app.variation_units) {
+		for (size_t passage = 0; passage < app.variation_units.size(); ++passage) {
+			const auto & vu = app.variation_units[passage];
 			//Try to get the reading of each witness at this variation unit:
 			const auto & reading_support = vu.reading_support;
 			const auto this_attestation = reading_support.find(id);
@@ -61,62 +62,46 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 			//If either witness is lacunose, then there is no relationship
 			//(including equality, as two lacunae should not be treated as equal):
 			if (this_attestation == reading_support.end() || other_attestation == reading_support.end()) {
-				vu_ind++;
 				continue;
 			}
 			//Otherwise, mark this passage as a place where both witnesses are extant
 			//and determine the relationship of their readings in the local stemma:
-			comp.extant.add(vu_ind);
+			comp.extant.add(passage);
 			const string & reading_for_this = this_attestation->second;
 			const string & reading_for_other = other_attestation->second;
 			const local_stemma & ls = vu.stemma;
-			//If either witness's reading agrees with the other's, then we can move on:
-			if (ls.readings_agree(reading_for_this, reading_for_other)) {
-				comp.agreements.add(vu_ind);
-				comp.explained.add(vu_ind);
-				vu_ind++;
+			const auto relation = classify_readings(ls, reading_for_this, reading_for_other);
+			if (relation.agrees) {
+				comp.agreements.add(passage);
+				comp.explained.add(passage);
 				continue;
 			}
-			//Otherwise, because we allow for cycles in the local stemma, it is necessary to check for a non-trivial path between the readings in both directions:
-			const bool has_prior_reading = ls.path_exists(reading_for_this, reading_for_other);
-			const bool has_posterior_reading = ls.path_exists(reading_for_other, reading_for_this);
-			if (has_prior_reading || has_posterior_reading) {
-				if (has_prior_reading) {
-					comp.prior.add(vu_ind);
+			if (relation.prior) {
+				comp.prior.add(passage);
+			}
+			if (relation.posterior) {
+				comp.posterior.add(passage);
+				//The classic criterion is that only a reading equivalent or directly prior to another reading explains it:
+				if (!classic || relation.classic_explained) {
+					comp.explained.add(passage);
 				}
-				if (has_posterior_reading) {
-					const auto path = ls.get_path(reading_for_other, reading_for_this);
-					comp.posterior.add(vu_ind);
-					//The classic criterion is that only a reading equivalent or directly prior to another reading explains it:
-					if (classic) {
-						if (path.cardinality <= 1) {
-							comp.explained.add(vu_ind);
-						}
-					}
-					//The open-cbgm criterion is more relaxed; any equivalent or prior reading explains another, 
-					//and the cost is equal to the length of the path from the prior reading to the posterior reading:
-					else {
-						comp.explained.add(vu_ind);
-						comp.cost += path.weight;
-					}
+				//The open-cbgm criterion is more relaxed; any equivalent or prior reading explains another,
+				//and the cost is equal to the length of the path from the prior reading to the posterior reading:
+				if (!classic) {
+					comp.cost += relation.weight;
 				}
 			}
-			//If the readings have no path connecting them in either direction, then check if they have a common ancestor:
-			else {
-				//If they do, then they are known to have no directed relationship:
-				if (ls.common_ancestor_exists(reading_for_this, reading_for_other)) {
-					comp.norel.add(vu_ind);
-				}
-				//If they do not, then their relationship is unclear:
-				else {
-					comp.unclear.add(vu_ind);
+			if (!relation.prior && !relation.posterior) {
+				if (relation.common_ancestor) {
+					comp.norel.add(passage);
+				} else {
+					comp.unclear.add(passage);
 				}
 			}
 			//The classic calculation of costs is just 1 in the case of any disagreement:
 			if (classic) {
 				comp.cost += 1;
 			}
-			vu_ind++;
 		}
 		//Add the completed genealogical_comparison to this witness's map:
 		genealogical_comparisons[other_id] = comp;

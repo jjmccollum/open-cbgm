@@ -10,6 +10,7 @@ add_test(NAME local_stemma_constructor_1 COMMAND autotest -t local_stemma_constr
 add_test(NAME local_stemma_constructor_2 COMMAND autotest -t local_stemma_constructor_2)
 add_test(NAME local_stemma_path_exists COMMAND autotest -t local_stemma_path_exists)
 add_test(NAME local_stemma_get_path COMMAND autotest -t local_stemma_get_path)
+add_test(NAME local_stemma_weighted_path COMMAND autotest -t local_stemma_weighted_path)
 add_test(NAME local_stemma_common_ancestor_exists COMMAND autotest -t local_stemma_common_ancestor_exists)
 add_test(NAME local_stemma_to_dot COMMAND autotest -t local_stemma_to_dot)
 add_test(NAME variation_unit_constructor_1 COMMAND autotest -t variation_unit_constructor_1)

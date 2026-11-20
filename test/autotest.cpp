@@ -249,6 +249,30 @@ void autotest::run() {
 			}
 			mod_test.units.push_back(u_test);
 		}
+		current_unit = "local_stemma_weighted_path";
+		if (target_test.empty() || target_test == current_unit) {
+			unit_test u_test;
+			u_test.name = current_unit;
+			try {
+				const local_stemma graph("weighted", "Weighted path",
+					{{"a"}, {"b"}, {"c"}, {"d"}},
+					{{"a", "b", 10}, {"a", "c", 1}, {"c", "b", 1}, {"b", "d", 1}});
+				const auto to_b = graph.get_path("a", "b");
+				const auto to_d = graph.get_path("a", "d");
+				if (to_b.weight != 2 || to_b.cardinality != 2) {
+					u_test.msg += "Expected a to b to cost 2 across 2 positive-weight edges\n";
+				}
+				if (to_d.weight != 3 || to_d.cardinality != 3) {
+					u_test.msg += "Expected a to d to cost 3 across 3 positive-weight edges, got "
+						+ to_string(to_d.weight) + " across " + to_string(to_d.cardinality) + "\n";
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			u_test.passed = u_test.msg.empty();
+			mod_test.units.push_back(u_test);
+		}
 		//Do more pre-test work:
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U8\"]").node();
 		vu_id = app_node.attribute("n").value();
@@ -1765,7 +1789,7 @@ int main(int argc, char* argv[]) {
 	//Initialize the map of unit tests, keyed by parent module name:
 	map<string, list<string>> tests_by_module = map<string, list<string>>({
 		{"common", {"common_read_xml"}},
-		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_common_ancestor_exists", "local_stemma_readings_agree", "local_stemma_to_dot"}},
+		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_weighted_path", "local_stemma_common_ancestor_exists", "local_stemma_readings_agree", "local_stemma_to_dot"}},
 		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4", "variation_unit_get_base_siglum"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
 		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_greedy_solution"}},

@@ -15,6 +15,7 @@
 
 #include "pugixml.hpp"
 #include "local_stemma.h"
+#include "json_string.h"
 
 using namespace std;
 using namespace pugi;
@@ -374,7 +375,9 @@ void local_stemma::to_json(ostream & out) {
     //Open the root object:
     out << "{";
     //Add the metadata fields:
-	out << "\"label\":" << "\"" << label << "\"" << ",";
+	out << "\"label\":";
+	open_cbgm::write_json_string(out, label);
+	out << ',';
     //Open the vertices array:
     out << "\"vertices\":" << "[";
     //Print each vertex as an object:
@@ -383,7 +386,8 @@ void local_stemma::to_json(ostream & out) {
         //Open the vertex object:
         out << "{";
         //Add its key-value pairs:
-        out << "\"id\":" << "\"" << v.id << "\"";
+        out << "\"id\":";
+        open_cbgm::write_json_string(out, v.id);
         //Close the vertex object:
         out << "}";
         //Add a comma if this is not the last vertex:
@@ -402,9 +406,11 @@ void local_stemma::to_json(ostream & out) {
         //Open the edge object:
         out << "{";
         //Add its key-value pairs:
-        out << "\"prior\":" << "\"" << e.prior << "\"" << ",";
-        out << "\"posterior\":" << "\"" << e.posterior << "\"" << ",";
-        out << "\"weight\":" << e.weight;
+        out << "\"prior\":";
+        open_cbgm::write_json_string(out, e.prior);
+        out << ",\"posterior\":";
+        open_cbgm::write_json_string(out, e.posterior);
+        out << ",\"weight\":" << e.weight;
         //Close the edge object:
         out << "}";
         //Add a comma if this is not the last edge:

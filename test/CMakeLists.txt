@@ -25,6 +25,7 @@ add_test(NAME apparatus_get_extant_passages_for_witness COMMAND autotest -t appa
 add_test(NAME set_cover_solver_constructor COMMAND autotest -t set_cover_solver_constructor)
 add_test(NAME set_cover_solver_get_unique_rows COMMAND autotest -t set_cover_solver_get_unique_rows)
 add_test(NAME set_cover_solver_get_greedy_solution COMMAND autotest -t set_cover_solver_get_greedy_solution)
+add_test(NAME set_cover_solver_branch_results COMMAND autotest -t set_cover_solver_branch_results)
 add_test(NAME witness_constructor_1 COMMAND autotest -t witness_constructor_1)
 add_test(NAME witness_constructor_2 COMMAND autotest -t witness_constructor_2)
 add_test(NAME witness_get_genealogical_comparison_for_witness_1 COMMAND autotest -t witness_get_genealogical_comparison_for_witness_1)

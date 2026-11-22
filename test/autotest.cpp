@@ -1011,6 +1011,19 @@ void autotest::run() {
 				check(set_cover_solver(candidates, target, 3), false,
 					{tied.front(), tied.back(), {{"M", "D"}, 3}, {{"A", "M", "D"}, 3}, {{"A", "B", "C", "M"}, 3}},
 					"within the bound, including redundant rows");
+
+				const Roaring larger_target = Roaring::bitmapOf(5, 0, 1, 2, 3, 4);
+				const vector<set_cover_row> completing_candidates = {
+					{"A", {}, Roaring::bitmapOf(2, 1, 2), 0.5f},
+					{"B", {}, Roaring::bitmapOf(1, 0), 1},
+					{"C", {}, Roaring::bitmapOf(3, 1, 3, 4), 1},
+					{"D", {}, larger_target, 1.5f},
+					{"E", {}, Roaring::bitmapOf(4, 0, 1, 3, 4), 1.5f},
+				};
+				//The greedy bound is 2.5. Accepting A, B, and D above that
+				//bound improves the incumbent once A and B are removed.
+				check(set_cover_solver(completing_candidates, larger_target), true,
+					{{{"D"}, 1.5f}}, "completion above the greedy bound");
 			}
 			catch (const exception & e) {
 				u_test.msg += string(e.what()) + "\n";

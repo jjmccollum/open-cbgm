@@ -25,22 +25,23 @@ namespace {
 class branch_cover_state {
 private:
 	struct selection {
-		Roaring coverage;
+		Roaring missing;
 		float cost = 0;
 	};
 	vector<selection> prefix;
 	vector<Roaring> suffix;
 
 public:
-	explicit branch_cover_state(const vector<set_cover_row> & rows)
+	branch_cover_state(const vector<set_cover_row> & rows, const Roaring & target)
 		: prefix(rows.size() + 1), suffix(rows.size() + 1) {
+		prefix.front().missing = target;
 		for (size_t i = rows.size(); i > 0; --i) {
 			suffix[i - 1] = suffix[i] | rows[i - 1].explained;
 		}
 	}
 
 	void accept(size_t row, const set_cover_row & candidate) {
-		prefix[row + 1].coverage = prefix[row].coverage | candidate.explained;
+		prefix[row + 1].missing = prefix[row].missing - candidate.explained;
 		prefix[row + 1].cost = prefix[row].cost + candidate.cost;
 	}
 
@@ -48,12 +49,20 @@ public:
 		prefix[row + 1] = prefix[row];
 	}
 
-	bool covers(size_t row, const Roaring & target) const {
-		return target.isSubset(prefix[row + 1].coverage);
+	bool covers(size_t row) const {
+		return prefix[row + 1].missing.isEmpty();
 	}
 
-	bool can_complete(size_t row, const Roaring & target) const {
-		return target.isSubset(prefix[row + 1].coverage | suffix[row + 1]);
+	bool can_complete(size_t row) const {
+		return prefix[row + 1].missing.isSubset(suffix[row + 1]);
+	}
+
+	// A selection that cannot continue still needs checking if it
+	// completes the cover: redundant rows may be removed before scoring.
+	bool can_skip_accept(size_t row, const set_cover_row & candidate, float upper_bound, bool strict) const {
+		const float cost = prefix[row].cost + candidate.cost;
+		const bool can_continue = strict ? cost < upper_bound : cost <= upper_bound;
+		return !can_continue && !prefix[row].missing.isSubset(candidate.explained);
 	}
 
 	float cost(size_t row) const {
@@ -310,7 +319,7 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 	Roaring accepted = Roaring();
 	Roaring remaining = Roaring();
 	remaining.addRange(0, rows.size());
-	branch_cover_state cover(rows);
+	branch_cover_state cover(rows, target);
 	//Initialize a stack of branch-and-bound nodes:
 	stack<branch_and_bound_node> nodes = stack<branch_and_bound_node>();
 	//If no fixed upper bound is specified, then obtain a good initial upper bound quickly using the greedy solution:
@@ -329,8 +338,12 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 		//Adjust the set partitions to reflect the candidate solution representing by the current node:
 		unsigned int row = node.row;
 		if (node.state == node_state::ACCEPT) {
-			//Add the candidate row to the solution:
 			remaining.remove(row);
+			if (cover.can_skip_accept(row, rows[row], ub, false)) {
+				node.state = node_state::REJECT;
+				continue;
+			}
+			//Add the candidate row to the solution:
 			accepted.add(row);
 			cover.accept(row, rows[row]);
 			//Update its state:
@@ -350,7 +363,7 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 			continue;
 		}
 		//Check if current set of accepted rows represents a feasible solution:
-		if (!accepted.isEmpty() && cover.covers(row, target)) {
+		if (!accepted.isEmpty() && cover.covers(row)) {
 			//If it does, then calculate the cost of the solution:
 			Roaring solution_rows = Roaring(accepted);
 			//If we're just looking for the minimum-cost solution, then remove redundant rows:
@@ -375,7 +388,7 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
 			}
 		}
 		//Check if there is any feasible solution under the current node:
-		if (!remaining.isEmpty() && cover.can_complete(row, target)) {
+		if (!remaining.isEmpty() && cover.can_complete(row)) {
 			//Lower-bound the cost of any solution under the current node:
 			float lb = cover.cost(row);
 			//If this lower bound is within the upper bound, then branch on this node:
@@ -405,7 +418,7 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 	Roaring accepted = Roaring();
 	Roaring remaining = Roaring();
 	remaining.addRange(0, rows.size());
-	branch_cover_state cover(rows);
+	branch_cover_state cover(rows, target);
 	//Initialize a stack of branch-and-bound nodes:
 	stack<branch_and_bound_node> nodes = stack<branch_and_bound_node>();
 	//Obtain a good initial upper bound quickly using the greedy solution:
@@ -424,8 +437,12 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 		//Adjust the set partitions to reflect the candidate solution representing by the current node:
 		unsigned int row = node.row;
 		if (node.state == node_state::ACCEPT) {
-			//Add the candidate row to the solution:
 			remaining.remove(row);
+			if (cover.can_skip_accept(row, rows[row], ub, true)) {
+				node.state = node_state::REJECT;
+				continue;
+			}
+			//Add the candidate row to the solution:
 			accepted.add(row);
 			cover.accept(row, rows[row]);
 			//Update its state:
@@ -445,7 +462,7 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 			continue;
 		}
 		//Check if current set of accepted rows represents a feasible solution:
-		if (!accepted.isEmpty() && cover.covers(row, target)) {
+		if (!accepted.isEmpty() && cover.covers(row)) {
 			//If it does, then calculate the cost of the solution:
 			Roaring solution_rows = Roaring(accepted);
 			//Remove redundant rows:
@@ -462,7 +479,7 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 			}
 		}
 		//Check if there is any feasible solution under the current node:
-		if (!remaining.isEmpty() && cover.can_complete(row, target)) {
+		if (!remaining.isEmpty() && cover.can_complete(row)) {
 			//Lower-bound the cost of any solution under the current node:
 			float lb = cover.cost(row);
 			//If this lower bound is strictly below the upper bound, then branch on this node:

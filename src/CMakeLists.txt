@@ -5,6 +5,7 @@ set(OPEN_CBGM_SOURCES
 	apparatus.cpp
 	set_cover_solver.cpp
 	witness.cpp
+	witness_comparison_index.cpp
 	textual_flow.cpp
 	global_stemma.cpp
 	enumerate_relationships_table.cpp
@@ -25,4 +26,5 @@ add_library(open-cbgm ${OPEN_CBGM_SOURCES})
 target_include_directories(open-cbgm PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 # Link it to its dependencies:
-target_link_libraries(open-cbgm pugixml roaring)
+find_package(Threads REQUIRED)
+target_link_libraries(open-cbgm pugixml roaring Threads::Threads)

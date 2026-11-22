@@ -11,7 +11,6 @@
 #include <list>
 #include <unordered_map>
 #include <algorithm>
-#include <limits>
 
 #include <roaring/roaring.hh>
 #include "witness.h"
@@ -19,6 +18,7 @@
 #include "apparatus.h"
 #include "variation_unit.h"
 #include "local_stemma.h"
+#include "witness_comparison_index.h"
 
 using namespace std;
 using namespace roaring;
@@ -39,8 +39,10 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 	id = _id;
 	//Now populate the its map of genealogical_comparisons, keyed by witness ID:
 	genealogical_comparisons = unordered_map<string, genealogical_comparison>();
-	list<string> list_wit = app.get_list_wit();
-	for (string other_id : list_wit) {
+	const auto & list_wit = app.list_wit;
+	const auto & index = app.comparison_cache->get(app.variation_units);
+	const auto & primary_attestations = index.attestations_for(id);
+	for (const string & other_id : list_wit) {
 		//Initialize a genealogical_comparison data structure for this witness:
 		genealogical_comparison comp;
 		comp.primary_wit = id;
@@ -53,91 +55,78 @@ witness::witness(const string & _id, const apparatus & app, bool classic) {
 		comp.unclear = Roaring();
 		comp.explained = Roaring();
 		comp.cost = 0;
-		int vu_ind = 0;
-		for (variation_unit vu : app.get_variation_units()) {
-			//Try to get the reading of each witness at this variation unit:
-			unordered_map<string, string> reading_support = vu.get_reading_support();
-			//If either witness is lacunose, then there is no relationship
-			//(including equality, as two lacunae should not be treated as equal):
-			if (reading_support.find(id) == reading_support.end() || reading_support.find(other_id) == reading_support.end()) {
-				vu_ind++;
+		const auto & secondary_attestations = index.attestations_for(other_id);
+		auto primary = primary_attestations.begin();
+		auto secondary = secondary_attestations.begin();
+		// Walk the passages both witnesses attest in collation order.
+		while (primary != primary_attestations.end() && secondary != secondary_attestations.end()) {
+			if (primary->passage < secondary->passage) {
+				++primary;
 				continue;
 			}
-			//Otherwise, mark this passage as a place where both witnesses are extant
-			//and determine the relationship of their readings in the local stemma:
-			comp.extant.add(vu_ind);
-			string reading_for_this = reading_support.at(id);
-			string reading_for_other = reading_support.at(other_id);
-			local_stemma ls = vu.get_local_stemma();
-			//If either witness's reading agrees with the other's, then we can move on:
-			if (ls.readings_agree(reading_for_this, reading_for_other)) {
-				comp.agreements.add(vu_ind);
-				comp.explained.add(vu_ind);
-				vu_ind++;
+			if (secondary->passage < primary->passage) {
+				++secondary;
 				continue;
 			}
-			//Otherwise, because we allow for cycles in the local stemma, it is necessary to check for a non-trivial path between the readings in both directions:
-			float path_length = numeric_limits<float>::infinity();
-			if (ls.path_exists(reading_for_this, reading_for_other) || ls.path_exists(reading_for_other, reading_for_this)) {
-				if (ls.path_exists(reading_for_this, reading_for_other)) {
-					comp.prior.add(vu_ind);
+			const auto passage = primary->passage;
+			const auto relation = index.relationship(*primary, *secondary, app.variation_units[passage].stemma);
+			++primary;
+			++secondary;
+
+			comp.extant.add(passage);
+			if (relation.agrees) {
+				comp.agreements.add(passage);
+				comp.explained.add(passage);
+				continue;
+			}
+			if (relation.prior) {
+				comp.prior.add(passage);
+			}
+			if (relation.posterior) {
+				comp.posterior.add(passage);
+				//The classic criterion is that only a reading equivalent or directly prior to another reading explains it:
+				if (!classic || relation.classic_explained) {
+					comp.explained.add(passage);
 				}
-				if (ls.path_exists(reading_for_other, reading_for_this)) {
-					path_length = ls.get_path(reading_for_other, reading_for_this).weight;
-					comp.posterior.add(vu_ind);
-					//The classic criterion is that only a reading equivalent or directly prior to another reading explains it:
-					if (classic) {
-						if (ls.get_path(reading_for_other, reading_for_this).cardinality <= 1) {
-							comp.explained.add(vu_ind);
-						}
-					}
-					//The open-cbgm criterion is more relaxed; any equivalent or prior reading explains another, 
-					//and the cost is equal to the length of the path from the prior reading to the posterior reading:
-					else {
-						comp.explained.add(vu_ind);
-						comp.cost += path_length;
-					}
+				//The open-cbgm criterion is more relaxed; any equivalent or prior reading explains another,
+				//and the cost is equal to the length of the path from the prior reading to the posterior reading:
+				if (!classic) {
+					comp.cost += relation.weight;
 				}
 			}
-			//If the readings have no path connecting them in either direction, then check if they have a common ancestor:
-			else {
-				//If they do, then they are known to have no directed relationship:
-				if (ls.common_ancestor_exists(reading_for_this, reading_for_other)) {
-					comp.norel.add(vu_ind);
-				}
-				//If they do not, then their relationship is unclear:
-				else {
-					comp.unclear.add(vu_ind);
+			if (!relation.prior && !relation.posterior) {
+				if (relation.common_ancestor) {
+					comp.norel.add(passage);
+				} else {
+					comp.unclear.add(passage);
 				}
 			}
 			//The classic calculation of costs is just 1 in the case of any disagreement:
 			if (classic) {
 				comp.cost += 1;
 			}
-			vu_ind++;
 		}
 		//Add the completed genealogical_comparison to this witness's map:
 		genealogical_comparisons[other_id] = comp;
 	}
 	//Next, populate this witness's list of potential ancestors:
 	potential_ancestor_ids = list<string>();
-	//Start by constructing a list of genealogical comparisons with all other witnesses:
-	list<genealogical_comparison> comps = list<genealogical_comparison>();
-	for (string other_id : list_wit) {
-		genealogical_comparison comp = genealogical_comparisons.at(other_id);
-		comps.push_back(comp);
+	//Start by collecting comparisons with genealogically prior witnesses in collation order:
+	list<const genealogical_comparison *> ancestors;
+	for (const string & other_id : list_wit) {
+		const auto & comp = genealogical_comparisons.at(other_id);
+		if (comp.posterior.cardinality() > comp.prior.cardinality()) {
+			ancestors.push_back(&comp);
+		}
 	}
 	//Then sort this list by number of agreements:
-	comps.sort([](const genealogical_comparison & c1, const genealogical_comparison & c2) {
-		return c1.agreements.cardinality() > c2.agreements.cardinality();
+	ancestors.sort([](const genealogical_comparison * c1, const genealogical_comparison * c2) {
+		return c1->agreements.cardinality() > c2->agreements.cardinality();
 	});
 	//Now iterate through the sorted list,
 	//copying only the IDs of the witnesses that are genealogically prior to this witness:
-	for (genealogical_comparison comp : comps) {
-		string other_id = comp.secondary_wit;
-		if (comp.posterior.cardinality() > comp.prior.cardinality()) {
-			potential_ancestor_ids.push_back(other_id);
-		}
+	for (const auto * comp : ancestors) {
+		potential_ancestor_ids.push_back(comp->secondary_wit);
 	}
 	//Initialize the stemmatic ancestors list as empty:
 	stemmatic_ancestor_ids = list<string>();

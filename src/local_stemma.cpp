@@ -22,7 +22,7 @@ using namespace pugi;
 
 /**
  * Populates a given shortest paths map
- * by applying Dijkstra's algorithm to the given graph represented by an adjacency map.
+ * by applying Dijkstra's algorithm to a graph with nonnegative edge weights.
  */
 void populate_shortest_paths(const map<string, list<local_stemma_edge>> & adjacency_map, map<pair<string, string>, local_stemma_path> & shortest_paths) {
 	//Proceed for each vertex:
@@ -41,32 +41,32 @@ void populate_shortest_paths(const map<string, list<local_stemma_edge>> & adjace
 		queue.push(p0);
 		//Add a shortest path of length 0 from the current source to itself:
 		shortest_paths[pair<string, string>(s, s)] = p0;
+		set<string> settled;
 		//Then proceed by best-first search:
 		while (!queue.empty()) {
 			//Pop the minimum-length path from the queue:
 			local_stemma_path p = queue.top();
 			queue.pop();
+			// A cheaper route may have been queued since this entry was added.
+			if (!settled.insert(p.posterior).second) {
+				continue;
+			}
 			//Then proceed for each edge proceeding from the destination vertex:
 			for (local_stemma_edge e : adjacency_map.at(p.posterior)) {
+				if (settled.find(e.posterior) != settled.end()) {
+					continue;
+				}
 				local_stemma_path q;
 				q.prior = s;
 				q.posterior = e.posterior;
 				q.weight = p.weight + e.weight;
 				q.cardinality = e.weight > 0 ? p.cardinality + 1 : p.cardinality;
-				//Check if a path from the source to the endpoint of this edge has already been processed:
 				pair<string, string> endpoints = pair<string, string>(q.prior, q.posterior);
-				if (shortest_paths.find(endpoints) == shortest_paths.end()) {
-					//If not, then add this path to the shortest paths map:
+				const auto best = shortest_paths.find(endpoints);
+				if (best == shortest_paths.end() || q.weight < best->second.weight) {
 					shortest_paths[endpoints] = q;
-					//Then add it to the queue:
+					// Queue improvements so they also reach the next readings.
 					queue.push(q);
-				}
-				else {
-					//If so, then update the length and cardinality of the current entry in the shortest paths map if necessary:
-					local_stemma_path shortest_path = shortest_paths.at(endpoints);
-					if (q.weight < shortest_path.weight) {
-						shortest_paths[endpoints] = q;
-					}
 				}
 			}
 		}

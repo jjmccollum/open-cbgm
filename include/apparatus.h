@@ -12,14 +12,20 @@
 #include <list>
 #include <vector>
 #include <set>
+#include <memory>
 
 #include "pugixml.hpp"
 #include "variation_unit.h"
 
+class witness_comparison_cache;
+
 class apparatus {
 private:
+	friend class witness;
+
 	std::list<std::string> list_wit;
 	std::vector<variation_unit> variation_units;
+	std::shared_ptr<witness_comparison_cache> comparison_cache;
 public:
 	apparatus();
 	apparatus(const pugi::xml_node & xml, bool merge_splits, const std::set<std::string> & trivial_reading_types, const std::set<std::string> & dropped_reading_types, const std::list<std::string> & ignored_suffixes);

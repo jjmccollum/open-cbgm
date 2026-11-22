@@ -250,6 +250,30 @@ void autotest::run() {
 			}
 			mod_test.units.push_back(u_test);
 		}
+		current_unit = "local_stemma_weighted_path";
+		if (target_test.empty() || target_test == current_unit) {
+			unit_test u_test;
+			u_test.name = current_unit;
+			try {
+				const local_stemma graph("weighted", "Weighted path",
+					{{"a"}, {"b"}, {"c"}, {"d"}},
+					{{"a", "b", 10}, {"a", "c", 1}, {"c", "b", 1}, {"b", "d", 1}});
+				const auto to_b = graph.get_path("a", "b");
+				const auto to_d = graph.get_path("a", "d");
+				if (to_b.weight != 2 || to_b.cardinality != 2) {
+					u_test.msg += "Expected a to b to cost 2 across 2 positive-weight edges\n";
+				}
+				if (to_d.weight != 3 || to_d.cardinality != 3) {
+					u_test.msg += "Expected a to d to cost 3 across 3 positive-weight edges, got "
+						+ to_string(to_d.weight) + " across " + to_string(to_d.cardinality) + "\n";
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			u_test.passed = u_test.msg.empty();
+			mod_test.units.push_back(u_test);
+		}
 		//Do more pre-test work:
 		app_node = doc.select_node("descendant::app[@n=\"B00K0V0U8\"]").node();
 		vu_id = app_node.attribute("n").value();
@@ -1281,6 +1305,62 @@ void autotest::run() {
 			}
 			mod_test.units.push_back(u_test);
 		}
+		current_unit = "witness_weighted_path_cost";
+		if (target_test.empty() || target_test == current_unit) {
+			unit_test u_test;
+			u_test.name = current_unit;
+			try {
+				pugi::xml_document weighted_doc;
+				if (!weighted_doc.load_string(R"xml(
+					<TEI>
+						<teiHeader><fileDesc><sourceDesc><listWit>
+							<witness xml:id="A"/><witness xml:id="D"/>
+						</listWit></sourceDesc></fileDesc></teiHeader>
+						<text><body><app n="weighted">
+							<rdg n="a" wit="#A">a</rdg><rdg n="b">b</rdg>
+							<rdg n="c">c</rdg><rdg n="d" wit="#D">d</rdg>
+							<note><graph>
+								<node n="a"/><node n="b"/><node n="c"/><node n="d"/>
+								<arc from="a" to="b"><label>10</label></arc>
+								<arc from="a" to="c"><label>0</label></arc>
+								<arc from="c" to="a"><label>0</label></arc>
+								<arc from="c" to="b"/><arc from="b" to="d"/>
+							</graph></note>
+						</app></body></text>
+					</TEI>
+				)xml")) {
+					u_test.msg += "Could not parse the weighted collation\n";
+				} else {
+					const apparatus weighted(weighted_doc.document_element(), false, {}, {}, {});
+					const auto graph = weighted.get_variation_units().front().get_local_stemma();
+					if (graph.get_path("a", "d").cardinality != 2 || !graph.readings_agree("a", "c")) {
+						u_test.msg += "Expected the zero-weight cycle to leave two positive-weight steps from a to d\n";
+					}
+					const witness descendant("D", weighted);
+					const auto comparison = descendant.get_genealogical_comparison_for_witness("A");
+					const auto passage = Roaring::bitmapOf(1, 0);
+					if (comparison.cost != 2 || !(comparison.posterior == passage) || !(comparison.explained == passage)) {
+						u_test.msg += "Expected A to explain D's reading with a cost of 2, got "
+							+ to_string(comparison.cost) + "\n";
+					}
+					const auto solutions = descendant.get_substemmata();
+					if (solutions.size() != 1 || solutions.front().cost != 2 ||
+							solutions.front().rows.size() != 1 || solutions.front().rows.front().id != "A") {
+						u_test.msg += "Expected A as D's sole ancestor at cost 2\n";
+					}
+					const witness classic_descendant("D", weighted, true);
+					const auto classic = classic_descendant.get_genealogical_comparison_for_witness("A");
+					if (classic.cost != 1 || !classic.explained.isEmpty()) {
+						u_test.msg += "Expected classic mode to count one disagreement without marking the passage explained\n";
+					}
+				}
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			u_test.passed = u_test.msg.empty();
+			mod_test.units.push_back(u_test);
+		}
 		/**
 		 * Unit witness_compare_self_and_rank_ancestors
 		 */
@@ -1866,11 +1946,11 @@ int main(int argc, char* argv[]) {
 	//Initialize the map of unit tests, keyed by parent module name:
 	map<string, list<string>> tests_by_module = map<string, list<string>>({
 		{"common", {"common_read_xml"}},
-		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_common_ancestor_exists", "local_stemma_readings_agree", "local_stemma_to_dot"}},
+		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_weighted_path", "local_stemma_common_ancestor_exists", "local_stemma_readings_agree", "local_stemma_to_dot"}},
 		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4", "variation_unit_get_base_siglum"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
 		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_greedy_solution"}},
-		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_compare_self_and_rank_ancestors", "witness_shared_comparison_index", "witness_large_reading_set", "witness_get_substemmata", "witness_get_substemmata_single_solution"}},
+		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_weighted_path_cost", "witness_compare_self_and_rank_ancestors", "witness_shared_comparison_index", "witness_large_reading_set", "witness_get_substemmata", "witness_get_substemmata_single_solution"}},
 		{"textual_flow", {"textual_flow_constructor_1", "textual_flow_constructor_2", "textual_flow_textual_flow_to_dot", "textual_flow_coherence_in_attestations_to_dot", "textual_flow_coherence_in_variant_passages_to_dot"}},
 		{"global_stemma", {"global_stemma_constructor", "global_stemma_to_dot"}}
 	});

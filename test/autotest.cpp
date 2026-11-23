@@ -999,6 +999,64 @@ void autotest::run() {
 			}
 			mod_test.units.push_back(u_test);
 		}
+		current_unit = "set_cover_solver_branch_results";
+		if (target_test.empty() || target_test == current_unit) {
+			unit_test u_test;
+			u_test.name = current_unit;
+			try {
+				const Roaring target = Roaring::bitmapOf(3, 0, 1, 2);
+				const vector<set_cover_row> candidates = {
+					{"A", {}, Roaring::bitmapOf(1, 0), 0},
+					{"B", {}, Roaring::bitmapOf(1, 1), 1},
+					{"C", {}, Roaring::bitmapOf(1, 1), 1},
+					{"M", {}, Roaring::bitmapOf(1, 2), 1},
+					{"D", {}, Roaring::bitmapOf(2, 0, 1), 2},
+				};
+				auto check = [&](set_cover_solver solver, bool single,
+						const list<pair<list<string>, float>> & expected, const string & mode) {
+					list<set_cover_solution> solutions;
+					solver.solve(solutions, single);
+					list<pair<list<string>, float>> actual;
+					for (const auto & solution : solutions) {
+						list<string> ids;
+						for (const auto & row : solution.rows) {
+							ids.push_back(row.id);
+						}
+						actual.emplace_back(ids, solution.cost);
+					}
+					if (actual != expected) {
+						u_test.msg += "Unexpected row IDs, costs, or order in " + mode + "\n";
+					}
+				};
+				const list<pair<list<string>, float>> tied = {{{"A", "B", "M"}, 2}, {{"A", "C", "M"}, 2}};
+				check(set_cover_solver(candidates, target), false, tied, "all minimum-cost solutions");
+				check(set_cover_solver(candidates, target), true, {tied.front()}, "single solution");
+				check(set_cover_solver(candidates, target, 1), false, {}, "below the minimum cost");
+				check(set_cover_solver(candidates, target, 2), false, tied, "at the inclusive bound");
+				check(set_cover_solver(candidates, target, 3), false,
+					{tied.front(), tied.back(), {{"M", "D"}, 3}, {{"A", "M", "D"}, 3}, {{"A", "B", "C", "M"}, 3}},
+					"within the bound, including redundant rows");
+
+				const Roaring larger_target = Roaring::bitmapOf(5, 0, 1, 2, 3, 4);
+				const vector<set_cover_row> completing_candidates = {
+					{"A", {}, Roaring::bitmapOf(2, 1, 2), 0.5f},
+					{"B", {}, Roaring::bitmapOf(1, 0), 1},
+					{"C", {}, Roaring::bitmapOf(3, 1, 3, 4), 1},
+					{"D", {}, larger_target, 1.5f},
+					{"E", {}, Roaring::bitmapOf(4, 0, 1, 3, 4), 1.5f},
+				};
+				//The greedy bound is 2.5. Accepting A, B, and D above that
+				//bound improves the incumbent once A and B are removed.
+				check(set_cover_solver(completing_candidates, larger_target), true,
+					{{{"D"}, 1.5f}}, "completion above the greedy bound");
+			}
+			catch (const exception & e) {
+				u_test.msg += string(e.what()) + "\n";
+			}
+			u_test.passed = u_test.msg.empty();
+			mod_test.units.push_back(u_test);
+		}
+
 		lib_test.modules.push_back(mod_test);
 	}
 	/**
@@ -1949,7 +2007,7 @@ int main(int argc, char* argv[]) {
 		{"local_stemma", {"local_stemma_constructor_1", "local_stemma_constructor_2", "local_stemma_path_exists", "local_stemma_get_path", "local_stemma_weighted_path", "local_stemma_common_ancestor_exists", "local_stemma_readings_agree", "local_stemma_to_dot"}},
 		{"variation_unit", {"variation_unit_constructor_1", "variation_unit_constructor_2", "variation_unit_constructor_3", "variation_unit_constructor_4", "variation_unit_get_base_siglum"}},
 		{"apparatus", {"apparatus_constructor", "apparatus_get_extant_passages_for_witness"}},
-		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_greedy_solution"}},
+		{"set_cover_solver", {"set_cover_solver_constructor", "set_cover_solver_get_unique_rows", "set_cover_solver_get_greedy_solution", "set_cover_solver_branch_results"}},
 		{"witness", {"witness_constructor_1", "witness_constructor_2", "witness_get_genealogical_comparison_for_witness_1", "witness_get_genealogical_comparison_for_witness_2", "witness_get_genealogical_comparison_for_witness_3", "witness_weighted_path_cost", "witness_compare_self_and_rank_ancestors", "witness_shared_comparison_index", "witness_large_reading_set", "witness_get_substemmata", "witness_get_substemmata_single_solution"}},
 		{"textual_flow", {"textual_flow_constructor_1", "textual_flow_constructor_2", "textual_flow_textual_flow_to_dot", "textual_flow_coherence_in_attestations_to_dot", "textual_flow_coherence_in_variant_passages_to_dot"}},
 		{"global_stemma", {"global_stemma_constructor", "global_stemma_to_dot"}}

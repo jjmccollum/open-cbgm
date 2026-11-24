@@ -46,13 +46,8 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 	edges = list<textual_flow_edge>();
 	//Get a copy of the variation unit's reading support map:
 	unordered_map<string, string> reading_support = vu.get_reading_support();
-	//Create a map of witnesses, keyed by ID:
-	unordered_map<string, witness> witnesses_by_id = unordered_map<string, witness>();
-	for (witness wit : witnesses) {
-		witnesses_by_id[wit.get_id()] = wit;
-	}
 	//Add vertices and edges for each witness in the input list:
-	for (witness wit : witnesses) {
+	for (const witness & wit : witnesses) {
 		//Get the witness's ID and its reading at this variation unit:
 		string wit_id = wit.get_id();
 		string wit_rdg = reading_support.find(wit_id) != reading_support.end() ? reading_support.at(wit_id) : "";

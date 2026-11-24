@@ -6,6 +6,8 @@ target_link_libraries(autotest cxxopts open-cbgm)
 
 add_executable(witness_benchmark EXCLUDE_FROM_ALL witness_benchmark.cpp)
 target_link_libraries(witness_benchmark open-cbgm)
+add_executable(textual_flow_benchmark EXCLUDE_FROM_ALL textual_flow_benchmark.cpp)
+target_link_libraries(textual_flow_benchmark open-cbgm)
 add_executable(json_exports_test json_exports.cpp)
 target_link_libraries(json_exports_test open-cbgm)
 

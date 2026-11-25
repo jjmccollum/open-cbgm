@@ -61,6 +61,10 @@ In the interest of modularity, and to facilitate the incorporation of this libra
 
 If you wish to incorporate the open-cbgm library as a dependency for your own libraries or executables, you can build it by itself either as a static library or as a shared library. For a static library, invoking `cmake` and pointing to the directory containing the root-level `CMakeLists.txt` file will generate all of the appropriate Makefiles or Visual Studio project files to build the library statically. For a shared library, adding the `-DBUILD_SHARED_LIBS=ON` argument after `cmake` will generate the appropriate files to build the library dynamically. If you want to generate the unit tests for the library, add the `-DBUILD_TESTS=ON` argument; the test suite will be generated in the `autotest` executable.
 
+## Full-book examples and benchmarking
+
+The [ECM Mark and Acts examples](examples/README.md) document the INTF snapshots and how to benchmark collation parsing, witness comparisons, and textual-flow graph construction on both books.
+
 ## Citation
 
 To cite this software, please use the information associated with its DOI page: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4048498.svg)](https://doi.org/10.5281/zenodo.4048498).

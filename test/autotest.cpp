@@ -1781,7 +1781,7 @@ void autotest::run() {
 		//Do more pre-test work:
 		textual_flow tf = textual_flow(vu, witnesses);
 		/**
-		 * Unit test textual_flow_textual_flow_diagram_to_dot
+		 * Unit test textual_flow_textual_flow_to_dot
 		 */
 		current_unit = "textual_flow_textual_flow_to_dot";
 		if (target_test.empty() || target_test == current_unit) {

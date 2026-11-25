@@ -13,6 +13,7 @@
 #include <limits>
 
 #include "set_cover_solver.h"
+#include "single_cover_search.h"
 #include <roaring/roaring.hh>
 
 using namespace std;
@@ -425,6 +426,17 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 	float ub = numeric_limits<float>::infinity();
 	Roaring greedy_solution_rows = get_greedy_solution();
 	ub = bound(greedy_solution_rows);
+	// Large subproblems benefit from solving the compressed constraints.
+	// Keep the existing search for tied non-greedy optima and other costs.
+	if (rows.size() >= 16 && rows.size() <= 512 &&
+	    !target.isEmpty() && target.cardinality() <= 16384) {
+		Roaring optimum;
+		if (single_cover_search().find(rows, target, greedy_solution_rows, optimum)) {
+			solutions.push_back(get_solution_from_rows(optimum));
+			return;
+		}
+	}
+
 	//Add the solution row bitmap to the solution set:
 	string serialized = greedy_solution_rows.toString();
 	distinct_row_sets[serialized] = greedy_solution_rows;

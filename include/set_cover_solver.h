@@ -54,10 +54,12 @@ enum class set_cover_tie_policy { preserve_existing, any_minimum };
 
 class set_cover_solver {
 private:
+	friend struct set_cover_solver_test_access;
 	std::vector<set_cover_row> rows;
 	roaring::Roaring target;
 	float fixed_ub = std::numeric_limits<float>::infinity();
-	void branch_and_bound_single_solution(std::list<set_cover_solution> & solutions, set_cover_tie_policy tie_policy);
+	void branch_and_bound_single_solution(std::list<set_cover_solution> & solutions,
+			set_cover_tie_policy tie_policy, unsigned int node_budget = 50000);
 public:
 	set_cover_solver();
 	set_cover_solver(const std::vector<set_cover_row> & _rows, const roaring::Roaring & _target);

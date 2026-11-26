@@ -416,7 +416,8 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 	branch_and_bound_single_solution(solutions, set_cover_tie_policy::preserve_existing);
 }
 
-void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution> & solutions, set_cover_tie_policy tie_policy) {
+void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution> & solutions,
+		set_cover_tie_policy tie_policy, unsigned int node_budget) {
 	//Initialize a map of solution row set bitmaps, keyed by their serializations:
 	unordered_map<string, Roaring> distinct_row_sets = unordered_map<string, Roaring>();
 	//Initialize bitmaps representing rows included in the current solution and rows to be processed:
@@ -435,7 +436,7 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 	if (rows.size() >= 16 && rows.size() <= 512 &&
 	    !target.isEmpty() && target.cardinality() <= 16384) {
 		Roaring optimum;
-		if (single_cover_search().find(rows, target, greedy_solution_rows, tie_policy, optimum)) {
+		if (single_cover_search(node_budget).find(rows, target, greedy_solution_rows, tie_policy, optimum)) {
 			solutions.push_back(get_solution_from_rows(optimum));
 			return;
 		}

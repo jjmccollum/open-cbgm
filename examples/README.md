@@ -16,7 +16,7 @@ The conversion joins each unambiguous, defined witness attestation to its editor
 | `mark_ph35.dump` | `d84833021c42930846db8404e3484ab4cb52da508dda40ceee71b1b855f46dfa` |
 | `acts_ph4.dump` | `2200362090c5e2002c762443f914b522ba8cbfcc2ab4e52725ee67fe9d3a4bf2` |
 
-## Benchmark both books
+## Benchmark textual flow
 
 From the repository root, build and run the opt-in benchmark. The worker count defaults to one. The same count applies to witness comparisons and textual-flow construction.
 
@@ -31,3 +31,19 @@ For each book, the benchmark reports elapsed wall time for XML parsing and appar
 ```sh
 ./build/bin/textual_flow_benchmark examples/ecm_mark_ph35.xml 8 > mark-flow.tsv
 ```
+
+## Benchmark exact substemma search
+
+On Linux, use a checkout that includes [PR #21](https://github.com/jjmccollum/open-cbgm/pull/21) and configure the build as above with `BUILD_TESTS=ON`.
+
+```sh
+cmake --build build --config Release --target substemma_benchmark --parallel
+./build/bin/substemma_benchmark examples/ecm_mark_ph35.xml 8 4 > mark-substemmata.tsv
+./build/bin/substemma_benchmark examples/ecm_acts_ph4.xml 8 4 > acts-substemmata.tsv
+```
+
+The final two arguments set the worker count and the timeout in seconds per witness.
+Use `0` for an uncapped run. The benchmark calls `get_substemmata(0, true)` for
+each witness and times the search separately from witness initialization.
+It reports outcome counts and peak per-process resident memory on stderr and
+writes per-witness results to stdout.

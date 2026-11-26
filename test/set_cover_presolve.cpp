@@ -4,7 +4,46 @@
 #include <vector>
 #include "set_cover_solver.h"
 
+struct set_cover_solver_test_access {
+    static void solve_with_node_budget(set_cover_solver & solver,
+            std::list<set_cover_solution> & solutions, unsigned int node_budget) {
+        solver.branch_and_bound_single_solution(solutions, set_cover_tie_policy::any_minimum, node_budget);
+    }
+};
+
+static bool test_exhausted_node_budget() {
+    const roaring::Roaring target{0, 1, 2, 3, 4, 5, 6};
+    std::vector<set_cover_row> rows = {
+        {"A", {}, {4, 5}, 5},
+        {"B", {}, {0, 1, 2, 6}, 9},
+        {"C", {}, {1, 2}, 5},
+        {"D", {}, {3, 6}, 4},
+        {"E", {}, {0, 4, 6}, 8},
+        {"F", {}, {1, 3, 5, 6}, 6},
+        {"G", {}, {0, 4, 5, 6}, 8},
+        {"H", {}, {4}, 5},
+        {"I", {}, {}, 3},
+        {"expensive", {}, target, 30},
+    };
+    // Pad to the size threshold for the compressed search.
+    for (unsigned int i = 0; i < 6; ++i)
+        rows.push_back({"dominated-" + std::to_string(i), {}, target, 40});
+
+    set_cover_solver solver(rows, target);
+    std::list<set_cover_solution> solutions;
+    // Five nodes improve the greedy cost from 19 to 18. The true optimum is 17.
+    set_cover_solver_test_access::solve_with_node_budget(solver, solutions, 5);
+    if (solutions.size() != 1 || solutions.front().cost != 17) return false;
+    std::list<std::string> chosen;
+    for (const auto & row : solutions.front().rows) chosen.push_back(row.id);
+    return chosen == std::list<std::string>{"C", "D", "G"};
+}
+
 int main() {
+    if (!test_exhausted_node_budget()) {
+        std::cerr << "Expected the exact fallback to improve the uncertified cover\n";
+        return 1;
+    }
     for (const auto copies : {1U, 4U}) {
         roaring::Roaring target;
         target.addRange(0, 5 * copies);
@@ -33,6 +72,15 @@ int main() {
                     single.front().agreements != static_cast<int>(target.cardinality()) || single.front().rows.size() != 1 ||
                     single.front().rows.front().id != "D") {
                     std::cerr << "Unexpected single minimum or tied witness\n";
+                    return 1;
+                }
+
+                std::list<set_cover_solution> any;
+                set_cover_solver(rows, target, 0.1f).solve(any, true, set_cover_tie_policy::any_minimum);
+                if (any.size() != 1 || any.front().cost != optimum ||
+                    any.front().rows.size() != 1 || !target.isSubset(any.front().rows.front().explained) ||
+                    (any.front().rows.front().id != "D" && (!tied || any.front().rows.front().id != "E"))) {
+                    std::cerr << "Unexpected minimum with the opt-in tie policy\n";
                     return 1;
                 }
 

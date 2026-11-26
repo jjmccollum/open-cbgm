@@ -23,7 +23,7 @@ class single_cover_search {
     bitmap required;
     bitmap best;
     cost limit = std::numeric_limits<cost>::max();
-    unsigned int remaining_nodes = 50000;
+    unsigned int remaining_nodes;
 
     // Integer arithmetic is equivalent to the library's float arithmetic
     // when every scaled candidate cost and their full sum are representable.
@@ -155,8 +155,10 @@ class single_cover_search {
     }
 
 public:
+    explicit single_cover_search(unsigned int node_budget) : remaining_nodes(node_budget) {}
+
     bool find(const std::vector<set_cover_row> & rows, const bitmap & target,
-              const bitmap & greedy, bitmap & result) {
+              const bitmap & greedy, set_cover_tie_policy tie_policy, bitmap & result) {
         if (!scale_costs(rows)) return false;
         reduce(rows, target);
         cost greedy_cost = 0;
@@ -164,9 +166,14 @@ public:
         limit = greedy_cost;
         bitmap selected;
         const auto no_exclusion = std::numeric_limits<unsigned int>::max();
-        if (!search(required, 0, selected, no_exclusion, false)) {
-            if (!remaining_nodes) return false;
+        const bool improved = search(required, 0, selected, no_exclusion, false);
+        if (!remaining_nodes) return false;
+        if (!improved) {
             result = greedy;
+            return true;
+        }
+        if (tie_policy == set_cover_tie_policy::any_minimum) {
+            result = best;
             return true;
         }
 

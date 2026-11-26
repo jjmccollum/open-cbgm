@@ -47,11 +47,19 @@ struct set_cover_solution {
 	float cost;
 };
 
+/**
+ * Selects how a single minimum-cost cover is chosen when multiple covers tie.
+ */
+enum class set_cover_tie_policy { preserve_existing, any_minimum };
+
 class set_cover_solver {
 private:
+	friend struct set_cover_solver_test_access;
 	std::vector<set_cover_row> rows;
 	roaring::Roaring target;
 	float fixed_ub = std::numeric_limits<float>::infinity();
+	void branch_and_bound_single_solution(std::list<set_cover_solution> & solutions,
+			set_cover_tie_policy tie_policy, unsigned int node_budget = 50000);
 public:
 	set_cover_solver();
 	set_cover_solver(const std::vector<set_cover_row> & _rows, const roaring::Roaring & _target);
@@ -68,6 +76,8 @@ public:
 	void branch_and_bound(std::list<set_cover_solution> & solutions);
 	void branch_and_bound_single_solution(std::list<set_cover_solution> & solutions);
 	void solve(std::list<set_cover_solution> & solutions, bool single_solution=false);
+	// The tie policy applies only when single_solution is true.
+	void solve(std::list<set_cover_solution> & solutions, bool single_solution, set_cover_tie_policy tie_policy);
 };
 
 #endif /* SET_COVER_SOLVER_H */

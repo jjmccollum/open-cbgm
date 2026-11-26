@@ -34,6 +34,7 @@ struct genealogical_comparison {
 
 class witness {
 private:
+	friend class textual_flow;
 	std::string id;
 	std::unordered_map<std::string, genealogical_comparison> genealogical_comparisons;
 	std::list<std::string> potential_ancestor_ids;

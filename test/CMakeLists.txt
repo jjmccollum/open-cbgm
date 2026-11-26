@@ -12,7 +12,15 @@ target_link_libraries(textual_flow_benchmark open-cbgm Threads::Threads)
 add_executable(json_exports_test json_exports.cpp)
 target_link_libraries(json_exports_test open-cbgm)
 
+add_executable(set_cover_presolve_test set_cover_presolve.cpp)
+target_link_libraries(set_cover_presolve_test open-cbgm)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(substemma_benchmark EXCLUDE_FROM_ALL substemma_benchmark.cpp)
+    target_link_libraries(substemma_benchmark open-cbgm Threads::Threads)
+endif()
+
 # Register executables as tests:
+add_test(NAME set_cover_presolve COMMAND set_cover_presolve_test)
 add_test(NAME json_exports COMMAND json_exports_test)
 add_test(NAME common_read_xml COMMAND autotest -t common_read_xml)
 add_test(NAME local_stemma_constructor_1 COMMAND autotest -t local_stemma_constructor_1)

@@ -36,6 +36,15 @@ int main() {
                     return 1;
                 }
 
+                std::list<set_cover_solution> any;
+                set_cover_solver(rows, target, 0.1f).solve(any, true, set_cover_tie_policy::any_minimum);
+                if (any.size() != 1 || any.front().cost != optimum ||
+                    any.front().rows.size() != 1 || !target.isSubset(any.front().rows.front().explained) ||
+                    (any.front().rows.front().id != "D" && (!tied || any.front().rows.front().id != "E"))) {
+                    std::cerr << "Unexpected minimum with the opt-in tie policy\n";
+                    return 1;
+                }
+
                 std::list<set_cover_solution> bounded;
                 set_cover_solver(rows, target, optimum).solve(bounded);
                 std::list<std::string> actual;

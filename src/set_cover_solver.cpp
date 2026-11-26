@@ -413,6 +413,10 @@ void set_cover_solver::branch_and_bound(list<set_cover_solution> & solutions) {
  * This is an optimization intended to be used for global stemma construction, where only one solution is used even if there are multiple of equal cost.
  */
 void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution> & solutions) {
+	branch_and_bound_single_solution(solutions, set_cover_tie_policy::preserve_existing);
+}
+
+void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution> & solutions, set_cover_tie_policy tie_policy) {
 	//Initialize a map of solution row set bitmaps, keyed by their serializations:
 	unordered_map<string, Roaring> distinct_row_sets = unordered_map<string, Roaring>();
 	//Initialize bitmaps representing rows included in the current solution and rows to be processed:
@@ -427,11 +431,11 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
 	Roaring greedy_solution_rows = get_greedy_solution();
 	ub = bound(greedy_solution_rows);
 	// Large subproblems benefit from solving the compressed constraints.
-	// Keep the existing search for tied non-greedy optima and other costs.
+	// Fall back when the compressed search cannot certify a result under this policy.
 	if (rows.size() >= 16 && rows.size() <= 512 &&
 	    !target.isEmpty() && target.cardinality() <= 16384) {
 		Roaring optimum;
-		if (single_cover_search().find(rows, target, greedy_solution_rows, optimum)) {
+		if (single_cover_search().find(rows, target, greedy_solution_rows, tie_policy, optimum)) {
 			solutions.push_back(get_solution_from_rows(optimum));
 			return;
 		}
@@ -516,6 +520,10 @@ void set_cover_solver::branch_and_bound_single_solution(list<set_cover_solution>
  * then the fixed upper bound is ignored, and a slightly more optimized version of the branch and bound procedure is used.
  */
 void set_cover_solver::solve(list<set_cover_solution> & solutions, bool single_solution) {
+	solve(solutions, single_solution, set_cover_tie_policy::preserve_existing);
+}
+
+void set_cover_solver::solve(list<set_cover_solution> & solutions, bool single_solution, set_cover_tie_policy tie_policy) {
 	solutions = list<set_cover_solution>();
 	//If the single solution flag is set, the set the fixed upper bound to infinity:
 	if (single_solution) {
@@ -579,7 +587,7 @@ void set_cover_solver::solve(list<set_cover_solution> & solutions, bool single_s
 	list<set_cover_solution> subproblem_solutions = list<set_cover_solution>();
 	set_cover_solver subproblem_solver = fixed_ub != numeric_limits<float>::infinity() ? set_cover_solver(subproblem_rows, subproblem_target, subproblem_ub) : set_cover_solver(subproblem_rows, subproblem_target);
 	if (single_solution) {
-		subproblem_solver.branch_and_bound_single_solution(subproblem_solutions);
+		subproblem_solver.branch_and_bound_single_solution(subproblem_solutions, tie_policy);
 	} else {
 		subproblem_solver.branch_and_bound(subproblem_solutions);
 	}

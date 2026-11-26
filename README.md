@@ -37,6 +37,10 @@ Finally, for feature (4), we ensured compliance with the XML standard of the Tex
 
 The local stemma, textual flow, and global stemma classes are equipped with methods to serialize the contents of their graphs in `.dot` format. This format is the standard used by the graphviz visualization software (https://www.graphviz.org/), which in turn is the standard used by existing CBGM software.
 
+## Tie-breaking for exact substemma searches
+
+Single-solution searches preserve the historical tie-breaking by default. To accept any proven minimum-cost cover, call `witness::get_substemmata(0, true, set_cover_tie_policy::any_minimum)` or pass the same policy as the third argument to `set_cover_solver::solve` for a custom coverage target. Equally optimal covers can select different ancestors and produce different graph edges. Save the selected edges when reproducing a particular graph. All-solution searches continue to enumerate solutions according to the existing rules.
+
 ## Installation and Dependencies
 
 To install the library on your system, you can clone this Git repository or download its contents in a `.zip` archive (click the "Code" tab near the top of this page). If you have Git installed (https://git-scm.com/), you can clone this repository from the command line using the command

@@ -156,7 +156,7 @@ class single_cover_search {
 
 public:
     bool find(const std::vector<set_cover_row> & rows, const bitmap & target,
-              const bitmap & greedy, bitmap & result) {
+              const bitmap & greedy, set_cover_tie_policy tie_policy, bitmap & result) {
         if (!scale_costs(rows)) return false;
         reduce(rows, target);
         cost greedy_cost = 0;
@@ -164,9 +164,14 @@ public:
         limit = greedy_cost;
         bitmap selected;
         const auto no_exclusion = std::numeric_limits<unsigned int>::max();
-        if (!search(required, 0, selected, no_exclusion, false)) {
-            if (!remaining_nodes) return false;
+        const bool improved = search(required, 0, selected, no_exclusion, false);
+        if (!remaining_nodes) return false;
+        if (!improved) {
             result = greedy;
+            return true;
+        }
+        if (tie_policy == set_cover_tie_policy::any_minimum) {
+            result = best;
             return true;
         }
 

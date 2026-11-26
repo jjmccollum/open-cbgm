@@ -1,6 +1,6 @@
 # Full-book ECM CBGM examples
 
-These TEI inputs contain all variation units flagged as variant in the respective CBGM snapshots from the Institute for New Testament Textual Research (INTF). Witness counts include the virtual witnesses A (Ausgangstext) and MT (Majority Text).
+These TEI inputs contain all variation units flagged as variant in the respective CBGM snapshots from the Institute for New Testament Textual Research (INTF). Witness counts include the virtual witnesses A (_Ausgangstext_) and MT (Majority Text).
 
 | TEI file | INTF snapshot | Variation units | Witnesses | Witness attestations | Reading-to-reading edges |
 | --- | --- | ---: | ---: | ---: | ---: |

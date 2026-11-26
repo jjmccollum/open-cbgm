@@ -22,6 +22,7 @@
 
 class variation_unit {
 private:
+	friend class textual_flow;
 	friend class witness;
 	friend class witness_comparison_index;
 

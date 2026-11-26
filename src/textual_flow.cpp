@@ -40,17 +40,18 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 	readings = vu.get_readings();
 	connectivity = _connectivity;
 	//Get the variation unit's local stemma:
-	local_stemma ls = vu.get_local_stemma();
+	const local_stemma & ls = vu.stemma;
 	//Initialize the vertex and edge lists as empty:
 	vertices = list<textual_flow_vertex>();
 	edges = list<textual_flow_edge>();
-	//Get a copy of the variation unit's reading support map:
-	unordered_map<string, string> reading_support = vu.get_reading_support();
+	//Reuse the variation unit's reading support map:
+	const auto & reading_support = vu.reading_support;
 	//Add vertices and edges for each witness in the input list:
 	for (const witness & wit : witnesses) {
 		//Get the witness's ID and its reading at this variation unit:
-		string wit_id = wit.get_id();
-		string wit_rdg = reading_support.find(wit_id) != reading_support.end() ? reading_support.at(wit_id) : "";
+		const auto & wit_id = wit.id;
+		const auto reading = reading_support.find(wit_id);
+		const string wit_rdg = reading == reading_support.end() ? "" : reading->second;
 		//Add a vertex for this witness to the graph:
 		textual_flow_vertex v;
 		v.id = wit_id;
@@ -58,7 +59,7 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		vertices.push_back(v);
 		//If this witness has no potential ancestors (i.e., if it has equal priority to the Ausgangstext),
 		//then there are no edges to add, and we can continue:
-		list<string> potential_ancestor_ids = wit.get_potential_ancestor_ids();
+		const auto & potential_ancestor_ids = wit.potential_ancestor_ids;
 		if (potential_ancestor_ids.empty()) {
 			continue;
 		}
@@ -70,9 +71,9 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 		if (!wit_rdg.empty()) {
 			con = -1;
 			con_value = -1;
-			for (string potential_ancestor_id : potential_ancestor_ids) {
+			for (const auto & potential_ancestor_id : potential_ancestor_ids) {
 				//Update the connectivity rank if the connectivity value changes:
-				genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
+				const auto & comp = wit.genealogical_comparisons.at(potential_ancestor_id);
 				int agreements = (int) comp.agreements.cardinality();
 				if (agreements != con_value) {
 					con_value = agreements;
@@ -83,8 +84,9 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 					break;
 				}
 				//If this potential ancestor agrees with the current witness here, then add an edge for it:
-				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
-					string potential_ancestor_rdg = reading_support.at(potential_ancestor_id);
+				const auto ancestor_reading = reading_support.find(potential_ancestor_id);
+				if (ancestor_reading != reading_support.end()) {
+					const auto & potential_ancestor_rdg = ancestor_reading->second;
 					if (ls.path_exists(potential_ancestor_rdg, wit_rdg) && ls.get_path(potential_ancestor_rdg, wit_rdg).weight == 0) {
 						//Set the flag indicating that we've found a textual_flow_ancestor:
 						textual_flow_ancestor_found = true;
@@ -109,9 +111,9 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 			con = -1;
 			con_value = -1;
 			list<string> distinct_rdgs = list<string>();
-			for (string potential_ancestor_id : potential_ancestor_ids) {
+			for (const auto & potential_ancestor_id : potential_ancestor_ids) {
 				//Update the connectivity rank if the connectivity value changes:
-				genealogical_comparison comp = wit.get_genealogical_comparison_for_witness(potential_ancestor_id);
+				const auto & comp = wit.genealogical_comparisons.at(potential_ancestor_id);
 				int agreements = (int) comp.agreements.cardinality();
 				if (agreements != con_value) {
 					con_value = agreements;
@@ -122,10 +124,11 @@ textual_flow::textual_flow(const variation_unit & vu, const list<witness> & witn
 					break;
 				}
 				//If this potential ancestor has a reading we haven't encountered yet, then add an edge for it:
-				if (reading_support.find(potential_ancestor_id) != reading_support.end()) {
-					string potential_ancestor_rdg = reading_support.at(potential_ancestor_id);
+				const auto ancestor_reading = reading_support.find(potential_ancestor_id);
+				if (ancestor_reading != reading_support.end()) {
+					const auto & potential_ancestor_rdg = ancestor_reading->second;
 					bool new_rdg = true;
-					for (string rdg : distinct_rdgs) {
+					for (const auto & rdg : distinct_rdgs) {
 						if (ls.path_exists(potential_ancestor_rdg, rdg) && ls.get_path(potential_ancestor_rdg, rdg).weight == 0) {
 							new_rdg = false;
 							break;

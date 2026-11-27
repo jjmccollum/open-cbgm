@@ -16,6 +16,21 @@ The conversion joins each unambiguous, defined witness attestation to its editor
 | `mark_ph35.dump` | `d84833021c42930846db8404e3484ab4cb52da508dda40ceee71b1b855f46dfa` |
 | `acts_ph4.dump` | `2200362090c5e2002c762443f914b522ba8cbfcc2ab4e52725ee67fe9d3a4bf2` |
 
+## Split attestations
+
+The first clique of each editorial reading is unmarked. Additional cliques of the same reading have `type="split"` and keep their own reading IDs, witness assignments, and local-stemma vertices. By default, open-cbgm keeps the cliques distinct. Set `merge_splits` to `true` when constructing an `apparatus`, or pass `--merge-splits` to standalone `populate_db`, to treat split attestations of the same reading as equivalent.
+
+The converter rejects ambiguous text matches across editorial reading labels because open-cbgm associates split attestations by reading text.
+
+To regenerate the fixtures with Python 3.11 or later, run these commands from the repository root. The converter downloads the pinned INTF snapshots, verifies their checksums, and writes TEI and JSON audit reports.
+
+```sh
+python -m pip install pgdumplib==4.0.0
+python examples/prepare_ecm_for_open_cbgm.py
+```
+
+The outputs `ecm-cbgm/mark.xml` and `ecm-cbgm/acts.xml` correspond to the two fixtures above. To use existing source dumps, pass `--local-source-dir /path/to/dumps`.
+
 ## Benchmark textual flow
 
 From the repository root, build and run the opt-in benchmark. The worker count defaults to one. The same count applies to witness comparisons and textual-flow construction.

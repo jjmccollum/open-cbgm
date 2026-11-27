@@ -12,6 +12,9 @@ target_link_libraries(textual_flow_benchmark open-cbgm Threads::Threads)
 add_executable(json_exports_test json_exports.cpp)
 target_link_libraries(json_exports_test open-cbgm)
 
+add_executable(split_attestations_test split_attestations.cpp)
+target_link_libraries(split_attestations_test open-cbgm)
+
 add_executable(set_cover_presolve_test set_cover_presolve.cpp)
 target_link_libraries(set_cover_presolve_test open-cbgm)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -20,6 +23,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 # Register executables as tests:
+add_test(NAME split_attestations COMMAND split_attestations_test)
 add_test(NAME set_cover_presolve COMMAND set_cover_presolve_test)
 add_test(NAME json_exports COMMAND json_exports_test)
 add_test(NAME common_read_xml COMMAND autotest -t common_read_xml)
